@@ -1,0 +1,1 @@
+- Durchführen der Planung des DB Designs
