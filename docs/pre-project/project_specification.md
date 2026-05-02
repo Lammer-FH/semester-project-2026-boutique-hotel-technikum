@@ -1,7 +1,7 @@
 # Project Description: Boutique Hotel Technikum Booking Application
 
 ## 1. Project Overview
-This project involves the design and implementation of a full-stack web application for the **Boutique Hotel Technikum**. The goal is to develop a modern, sustainable, and user-friendly booking platform that allows guests to explore hotel information, view room details, check availability, and book rooms. The application is developed as part of the "Advanced Web Frameworks 2026" course at FH Technikum Wien.
+This project involves the design and implementation of a full-stack web application for the **Boutique Hotel Technikum**. The goal is to develop a modern, sustainable, and user-friendly booking platform that allows guests to explore hotel information, view room details, check availability, and book rooms. The application is developed as part of the "Advanced Webtechnologies" course at FH Technikum Wien.
 
 ## 2. Technical Stack
 The application must be built using the following technologies:
