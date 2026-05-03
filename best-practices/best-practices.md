@@ -43,7 +43,6 @@ Pinia must be used for cross-component state, as discussed in class:
 * **Scope:** Use Pinia for cross-component state, specifically for:
     * Selected hotel rooms and booking periods.
     * Modal states and form data persistence.
-    * User registration details.
 * **Logic:** Business logic and API calls should reside in Pinia **actions** rather than directly in components.
 
 ## 7. UI Implementation Standards

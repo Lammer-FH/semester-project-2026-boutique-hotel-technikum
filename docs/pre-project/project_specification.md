@@ -99,7 +99,6 @@ The project is divided into five core user stories:
 ## 5. Project Constraints & Requirements
 * **Team Setup:** Teams of 4 students, documented in [`teams.md`](../../team.md)
 * **Scalability:** The app should handle up to 100 visitors per day.
-* **User Management:** Guests should be able to register to view their personal details and bookings.
 * **Error Handling:** Proper validation and error handling must be implemented for all user inputs and API interactions.
 * **Project Management:** A Kanban board (GitHub Projects) must be used to track progress and manage the backlog.
 
