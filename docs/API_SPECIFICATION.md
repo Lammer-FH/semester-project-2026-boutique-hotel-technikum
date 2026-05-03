@@ -36,7 +36,11 @@ REST API for the Boutique Hotel Technikum booking application.
 ```
 
 ### Pagination
-Query parameters: `page` (default: 1), `size` (default: 5)
+Query parameters: `page` (default: 1), `size` (default: 5, max: 5)
+
+Validation:
+- `page` must be greater than or equal to 1.
+- `size` must be between 1 and 5.
 
 Response metadata:
 ```json
@@ -57,7 +61,7 @@ Response metadata:
 
 **GET /rooms** – List rooms (paginated, max 5 per page)  
 Query: `?page=1&size=5`  
-Response (200): Array of room objects with `id, title, description, max_guests, base_price_per_night, images[], extras[]`  
+Response (200): Paginated response with room objects in `data`. Each room contains `id, title, description, max_guests, base_price_per_night, images[], extras[]`  
 Errors: 400 (invalid pagination)
 
 **GET /rooms/{roomId}** – Get room details  
@@ -70,7 +74,11 @@ Errors: 404
 
 **GET /rooms/{roomId}/availability** – Check availability  
 Query: `?check_in_date=YYYY-MM-DD&check_out_date=YYYY-MM-DD`  
-Room availability is determined by overlapping bookings: any overlap means unavailable.
+Room availability is determined by overlapping bookings. `check_in_date` is inclusive and `check_out_date` is exclusive, so another booking may start on the same date a previous booking ends.
+
+Overlap rule:
+`existing.check_in_date < requested.check_out_date && existing.check_out_date > requested.check_in_date`
+
 Response (200):
 ```json
 {
@@ -80,6 +88,10 @@ Response (200):
 }
 ```
 Errors: 400 (invalid dates), 404
+
+Validation:
+- Dates must use `YYYY-MM-DD`.
+- `check_out_date` must be after `check_in_date`.
 
 ---
 
@@ -99,8 +111,56 @@ Request:
   "breakfast_included": true
 }
 ```
-Response (201): Booking confirmation data with booking period, guest data, and room details used by U5  
+Response (201): Booking confirmation data with booking period, guest data, and room details used by U5
+```json
+{
+  "booking_id": 42,
+  "check_in_date": "2026-05-15",
+  "check_out_date": "2026-05-20",
+  "breakfast_included": true,
+  "guest": {
+    "first_name": "John",
+    "last_name": "Doe",
+    "email": "john@example.com"
+  },
+  "room": {
+    "id": 1,
+    "title": "Deluxe Room",
+    "description": "Bright room with city view.",
+    "max_guests": 2,
+    "base_price_per_night": 129.00,
+    "images": [
+      {
+        "id": 1,
+        "url": "/images/rooms/1/main.jpg",
+        "sort_order": 0,
+        "alt_text": "Deluxe Room"
+      }
+    ],
+    "extras": [
+      {
+        "id": 1,
+        "code": "wifi",
+        "title": "WiFi",
+        "description": "Free wireless internet",
+        "icon_name": "wifi"
+      }
+    ]
+  },
+  "hotel_contact": {
+    "name": "Boutique Hotel Technikum",
+    "email": "contact@hotel-technikum.example",
+    "phone": "+43 1 234567"
+  }
+}
+```
 Errors: 400 (validation), 409 (unavailable dates)
+
+Validation:
+- `room_id`, guest names, `guest_email`, `confirm_email`, `check_in_date`, and `check_out_date` are required.
+- `guest_email` must be a valid email address and match `confirm_email`.
+- `check_out_date` must be after `check_in_date`.
+- If the requested dates overlap an existing booking, return 409 Conflict.
 
 ---
 
@@ -120,6 +180,12 @@ No pagination needed (typically < 20 items)
 | **Room Image** | id, room_id, file_name, sort_order |
 | **Extra** | id, code, title, description, icon_name |
 | **Booking** | id, room_id, guest_first_name, guest_last_name, guest_email, check_in_date, check_out_date, breakfast_included, created_at, updated_at |
+
+### Response Object Notes
+
+Room images are returned as objects with `id, url, sort_order, alt_text`. The backend may store only `file_name`, but API clients should use `url`.
+
+Extras are returned as objects with `id, code, title, description, icon_name`.
 
 ---
 
