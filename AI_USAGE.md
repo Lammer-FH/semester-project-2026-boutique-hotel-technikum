@@ -16,6 +16,7 @@ This document serves as the mandatory record for all AI-assisted work on the **B
 | Best practices alignment | GitHub Copilot | "Ensure Clean Code, Clean Architecture, Richardson Level 2, Atomic Design, Pinia applied in best-practices.md" | Added explicit Clean Architecture/Clean Code guidance and clarified Level 2, Atomic Design, Pinia |
 | DB design draft | GitHub Copilot | "Create a Mermaid ERD diagram inside @DB_DESIGN.md for my initial MySQL DB design" | Drafted ERD diagram |
 | API Specification draft | GitHub Copilot | "Based on project_specification.md, best-practices.md, and DB_DESIGN.md: create the initial draft plan of API Specification in API_SPECIFICATION.md using OpenAPI best practices" | Created API specification covering all 5 user stories |
+| DB design refinements | Codex | "Document definite DB design review findings" | Added date semantics, constraints, indexes, and FK delete behavior |
 | | | | |
 | | | | |
 

@@ -4,6 +4,7 @@
 - Supports room listing, room details, availability checking, booking, and booking confirmation.
 - Bookings store guest details only; no user accounts are required for this minimal implementation.
 - A room is unavailable when any existing booking overlaps the requested dates.
+- Booking dates use hotel-style ranges: `check_in_date` is inclusive and `check_out_date` is exclusive.
 - Each room can have multiple images, and each image belongs to exactly one room.
 - Images are stored on disk; the DB stores filenames and ordering only.
 - Naming follows `snake_case` per best-practices.
@@ -108,7 +109,17 @@ Stores reservation details and guest contact data.
 - `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 - `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 
+## Constraints
+- `bookings.check_out_date > bookings.check_in_date`
+- `rooms.max_guests > 0`
+- `rooms.base_price_per_night >= 0`
+- `room_images.sort_order >= 0`
+
 ## Indexes
 - `bookings(room_id, check_in_date, check_out_date)` for availability checks.
-- `room_images(room_id, sort_order)` for image ordering.
-- `room_images(room_id, sort_order)` should also be unique to prevent duplicate positions within one room.
+- `UNIQUE room_images(room_id, sort_order)` for image ordering and to prevent duplicate positions within one room.
+
+## Foreign Key Delete Behavior
+- Deleting a room is restricted while bookings reference it.
+- Deleting a room cascades to its room images and room extras.
+- Deleting an extra is restricted while room extras reference it.
