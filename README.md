@@ -17,3 +17,24 @@ Full-stack booking application for the `Boutique Hotel Technikum` for FHTW cours
 ## Project Notes
 
 - The project specification is documented in [docs/pre-project/project_specification.md](docs/pre-project/project_specification.md).
+
+## Start Frontend
+
+- **Install dependencies:**
+
+	- Open a terminal and run:
+
+		```bash
+		cd frontend
+		npm install
+		```
+
+- **Run development server:**
+
+	- From the `frontend` folder run:
+
+		```bash
+		npm run dev
+		```
+
+- **Notes:** The frontend uses Vite; default dev server runs on `http://localhost:5173` unless configured otherwise.
