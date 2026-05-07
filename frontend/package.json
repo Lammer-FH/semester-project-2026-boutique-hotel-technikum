@@ -9,7 +9,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "vue": "^3.5.32"
+    "vue": "^3.5.32",
+    "@ionic/vue": "^7.0.0",
+    "@ionic/vue-router": "^7.0.0",
+    "ionicons": "^6.0.0",
+    "vue-router": "^4.2.2"
   },
   "devDependencies": {
     "@types/node": "^24.12.2",
