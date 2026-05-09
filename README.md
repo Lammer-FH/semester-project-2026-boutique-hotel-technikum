@@ -10,17 +10,40 @@ Full-stack booking application for the `Boutique Hotel Technikum` for FHTW cours
 
 ## Quick Install
 
-### Backend on Windows
+### Backend
 
 1. Install [JDK 25](https://www.oracle.com/java/technologies/javase/jdk25-archive-downloads.html) distribution 
 2. Install Docker and launch the MySQL database from the backend compose file:
 
+### Frontend
+
+- **Install dependencies:**
+
+	- Open a terminal and run:
+
+		```bash
+		cd frontend
+		npm install
+		```
+    
+ ## Start Frontend
+
+- **Run development server:**
+
+	- From the `frontend` folder run:
+
+		```bash
+		npm run dev
+		```
+
+- **Notes:** The frontend uses Vite; default dev server runs on `http://localhost:5173` unless configured otherwise.
 	```powershell
 	cd backend/docker
 	docker compose up -d
 	```
+  
 
-3. Start the backend with the Maven wrapper:
+- **Start the backend with the Maven wrapper:**
 
 	```powershell
 	cd backend
@@ -29,14 +52,14 @@ Full-stack booking application for the `Boutique Hotel Technikum` for FHTW cours
     # .\mvnw.cmd spring-boot:run -Dtest=HealthContrllerTest test
 	```
 
-4. Open the app on `http://localhost:8080`.
+- **Open the app on `http://localhost:8080`**.
 
 Spring Boot is configured to use `backend/docker/docker-compose.yaml`, so the backend can be started from `backend` without moving the compose file.
 
 No separate Maven installation is needed because the project uses the Maven wrapper.
 
-### Frontend on Windows
+## Project Specification
 
-1. ...
-2. ...
-3. ...
+- The project specification is documented in [docs/pre-project/project_specification.md](docs/pre-project/project_specification.md).
+
+
