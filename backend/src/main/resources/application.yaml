@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: hotel
+  docker:
+    compose:
+      file: docker/docker-compose.yaml
