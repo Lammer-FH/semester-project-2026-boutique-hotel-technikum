@@ -8,13 +8,13 @@ This repository contains the backend, frontend, and project documentation for th
 
 ## Tech Stack
 
-- Backend: Java 25, Spring Boot 4.0.6
+- Backend: Java 21, Spring Boot 3.4.0
 - Frontend: Ionic 8.x, Vue.js 3.4.x, Pinia 2.1.x
 - Database: MySQL LTS via Docker Image (v9.7.0-1.el9)
 
 ## Prerequisites
 
-- JDK 25
+- JDK 21
 - Docker Desktop or another Docker installation
 - Node.js and npm for the frontend
 
@@ -22,7 +22,7 @@ This repository contains the backend, frontend, and project documentation for th
 
 ### Backend
 
-1. Install a [JDK 25](https://www.oracle.com/java/technologies/javase/jdk25-archive-downloads.html) distribution.
+1. Install a [JDK 21](https://www.oracle.com/java/technologies/javase/jdk21-archive-downloads.html) distribution.
 2. Start the MySQL database from the backend compose file:
 
 	```powershell

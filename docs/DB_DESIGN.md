@@ -7,6 +7,7 @@
 - Booking dates use hotel-style ranges: `check_in_date` is inclusive and `check_out_date` is exclusive.
 - Each room can have multiple images, and each image belongs to exactly one room.
 - Images are stored on disk; the DB stores filenames and ordering only.
+- The Flyway migrations are stored at `backend/db/migration`.
 - Naming follows `snake_case` per best-practices.
 
 
@@ -123,3 +124,6 @@ Stores reservation details and guest contact data.
 - Deleting a room is restricted while bookings reference it.
 - Deleting a room cascades to its room images and room extras.
 - Deleting an extra is restricted while room extras reference it.
+
+## Seed Data
+- Minimal seed data is provided via Flyway migrations in `backend/db/migration` (V2) for rooms, extras, room_extras, and room_images to support UI development.
