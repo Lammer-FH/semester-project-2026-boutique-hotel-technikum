@@ -59,13 +59,28 @@ Response metadata:
 
 ### Rooms
 
-**GET /rooms** – List rooms (paginated, max 5 per page)  
-Query: `?page=1&size=5`  
-Response (200): Paginated response with room objects in `data`. Each room contains `id, title, description, max_guests, base_price_per_night, images[], extras[]`  
+**GET /rooms** – List rooms (paginated, max 5 per page)
+Query: `?page=1&size=5`
+Response (200): Paginated response with room objects in `data`. Each room contains:
+```json
+{
+  "id": 1,
+  "title": "Deluxe Room",
+  "description": "Bright room with city view.",
+  "max_guests": 2,
+  "base_price_per_night": 129.00,
+  "images": [
+    {"id": 1, "url": "/images/rooms/1/main.jpg", "sort_order": 0, "alt_text": "Deluxe Room"}
+  ],
+  "extras": [
+    {"id": 1, "code": "wifi", "title": "WiFi", "description": "Free wireless internet", "icon_name": "wifi"}
+  ]
+}
+```
 Errors: 400 (invalid pagination)
 
-**GET /rooms/{roomId}** – Get room details  
-Response (200): Room object with `id, title, description, max_guests, base_price_per_night, images[], extras[]`  
+**GET /rooms/{roomId}** – Get room details
+Response (200): Same room object structure as GET /rooms
 Errors: 404
 
 ---
@@ -97,7 +112,7 @@ Validation:
 
 ### Bookings
 
-**POST /bookings** – Create booking  
+**POST /bookings** – Create booking
 Request:
 ```json
 {
@@ -106,6 +121,7 @@ Request:
   "guest_last_name": "Doe",
   "guest_email": "john@example.com",
   "confirm_email": "john@example.com",
+  "guest_count": 2,
   "check_in_date": "2026-05-15",
   "check_out_date": "2026-05-20",
   "breakfast_included": true
@@ -118,6 +134,13 @@ Response (201): Booking confirmation data with booking period, guest data, and r
   "check_in_date": "2026-05-15",
   "check_out_date": "2026-05-20",
   "breakfast_included": true,
+  "total_price": 775.00,
+  "price_breakdown": {
+    "nights": 5,
+    "room_rate": 129.00,
+    "breakfast_rate": 130.00,
+    "breakfast_per_person_per_day": 26.00
+  },
   "guest": {
     "first_name": "John",
     "last_name": "Doe",
@@ -149,16 +172,74 @@ Response (201): Booking confirmation data with booking period, guest data, and r
   },
   "hotel_contact": {
     "name": "Boutique Hotel Technikum",
+    "street": "Höchstädtplatz 6",
+    "city": "Vienna",
+    "postal_code": "1200",
+    "country": "Austria",
     "email": "contact@hotel-technikum.example",
     "phone": "+43 1 234567"
+  },
+  "directions": {
+    "by_train": "S-Bahn S1 or S2 to Technikum Wien (5 min walk)",
+    "by_car": "A2 exit 'Inzersdorf', follow B151 towards city center",
+    "parking": "Public parking garage (200m, €12/day)"
   }
 }
 ```
 Errors: 400 (validation), 409 (unavailable dates)
 
+**GET /bookings/{bookingId}** – Retrieve booking confirmation
+Response (200): Returns the same booking confirmation object as `POST /bookings`
+```json
+{
+  "booking_id": 42,
+  "check_in_date": "2026-05-15",
+  "check_out_date": "2026-05-20",
+  "breakfast_included": true,
+  "total_price": 775.00,
+  "price_breakdown": {
+    "nights": 5,
+    "room_rate": 129.00,
+    "breakfast_rate": 130.00,
+    "breakfast_per_person_per_day": 26.00
+  },
+  "guest": {
+    "first_name": "John",
+    "last_name": "Doe",
+    "email": "john@example.com"
+  },
+  "room": {
+    "id": 1,
+    "title": "Deluxe Room",
+    "description": "Bright room with city view.",
+    "max_guests": 2,
+    "base_price_per_night": 129.00,
+    "images": [...],
+    "extras": [...]
+  },
+  "hotel_contact": {
+    "name": "Boutique Hotel Technikum",
+    "street": "Höchstädtplatz 6",
+    "city": "Vienna",
+    "postal_code": "1200",
+    "country": "Austria",
+    "email": "contact@hotel-technikum.example",
+    "phone": "+43 1 234567"
+  },
+  "directions": {
+    "by_train": "S-Bahn S1 or S2 to Technikum Wien (5 min walk)",
+    "by_car": "A2 exit 'Inzersdorf', follow B151 towards city center",
+    "parking": "Public parking garage (200m, €12/day)"
+  }
+}
+```
+Errors: 404 (booking not found)
+
 Validation:
-- `room_id`, guest names, `guest_email`, `confirm_email`, `check_in_date`, and `check_out_date` are required.
-- `guest_email` must be a valid email address and match `confirm_email`.
+- `room_id`, guest names, `guest_count`, `guest_email`, `confirm_email`, `check_in_date`, and `check_out_date` are required.
+- `guest_email` must be a valid email address (client-side should validate it matches `confirm_email` before submission).
+- `guest_count` must be between 1 and the room's `max_guests`.
+- `check_in_date` and `check_out_date` must be today or in the future.
 - `check_out_date` must be after `check_in_date`.
 - If the requested dates overlap an existing booking, return 409 Conflict.
 
@@ -166,8 +247,26 @@ Validation:
 
 ### Extras
 
-**GET /extras** – List all extras  
-Response (200): Array of extra objects: `id, code, title, description, icon_name`  
+**GET /extras** – List all extras
+Response (200): Array of extra objects
+```json
+[
+  {
+    "id": 1,
+    "code": "wifi",
+    "title": "WiFi",
+    "description": "Free wireless internet",
+    "icon_name": "wifi"
+  },
+  {
+    "id": 2,
+    "code": "breakfast",
+    "title": "Breakfast",
+    "description": "Buffet breakfast included",
+    "icon_name": "coffee"
+  }
+]
+```
 No pagination needed (typically < 20 items)
 
 ---
@@ -177,15 +276,24 @@ No pagination needed (typically < 20 items)
 | Model | Key Fields |
 |-------|-----------|
 | **Room** | id, title, description, max_guests, base_price_per_night, created_at, updated_at |
-| **Room Image** | id, room_id, file_name, sort_order |
+| **Room Image** | id, room_id, file_name, alt_text, sort_order |
 | **Extra** | id, code, title, description, icon_name |
-| **Booking** | id, room_id, guest_first_name, guest_last_name, guest_email, check_in_date, check_out_date, breakfast_included, created_at, updated_at |
+| **Booking** | id, room_id, guest_first_name, guest_last_name, guest_email, guest_count, check_in_date, check_out_date, breakfast_included, created_at, updated_at |
 
 ### Response Object Notes
 
-Room images are returned as objects with `id, url, sort_order, alt_text`. The backend may store only `file_name`, but API clients should use `url`.
+Room images are returned as objects with `id, url, sort_order, alt_text`. The backend stores `file_name` and `alt_text`, and constructs the URL as `/images/rooms/{room_id}/{file_name}` (e.g., `/images/rooms/1/main.jpg`). The `alt_text` defaults to the room title if not explicitly set.
 
 Extras are returned as objects with `id, code, title, description, icon_name`.
+
+### Error Codes
+| Code | Description |
+|------|-------------|
+| `INVALID_INPUT` | Request validation failed (e.g., missing required fields, invalid format) |
+| `ROOM_NOT_FOUND` | The requested room does not exist |
+| `BOOKING_NOT_FOUND` | The requested booking does not exist |
+| `DATES_UNAVAILABLE` | The requested dates overlap with an existing booking |
+| `INVALID_DATE_RANGE` | Check-out date is not after check-in date or invalid date format |
 
 ---
 
@@ -194,4 +302,4 @@ Extras are returned as objects with `id, code, title, description, icon_name`.
 **U2 Room Selection:** `GET /rooms`, `GET /rooms/{roomId}`, `GET /extras`  
 **U3 Availability Check:** `GET /rooms/{roomId}/availability`  
 **U4 Booking:** `POST /bookings`  
-**U5 Booking Confirmation:** returned directly from `POST /bookings`
+**U5 Booking Confirmation:** `POST /bookings` (create) and `GET /bookings/{bookingId}` (retrieve)
