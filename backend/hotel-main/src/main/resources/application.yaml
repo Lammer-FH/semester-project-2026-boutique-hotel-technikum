@@ -1,0 +1,38 @@
+server:
+  servlet:
+    context-path: /api/v1
+
+logging:
+  level:
+    org.springframework.boot.web.embedded.tomcat: INFO
+
+spring:
+  config:
+    import: optional:file:../.env[.properties]
+  application:
+    name: hotel
+  datasource:
+    url: "jdbc:mysql://localhost:3306/${MYSQL_DATABASE:boutique_hotel}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC"
+    username: "${MYSQL_USER}"
+    password: "${MYSQL_PASSWORD}"
+  # Optional convenience: can start docker compose automatically.
+  # Disabled by default so the app can run even if the `docker` CLI isn't available.
+  docker:
+    compose:
+      enabled: false
+      file: ../docker/docker-compose.yaml
+  jpa:
+    open-in-view: false
+  # Flyway helps manage database migrations, ensuring that the database schema is up-to-date after changes
+  flyway:
+    enabled: true
+    locations: filesystem:../db/migration
+    connect-retries: 30
+
+app:
+  images:
+    rooms-base-path: classpath:/static/images/rooms/
+  hotel:
+    name: Boutique Hotel Technikum
+    email: contact@technikum-wien.example
+    phone: "+43 1 234567"

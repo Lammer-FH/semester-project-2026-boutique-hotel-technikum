@@ -7,7 +7,7 @@ This project involves the design and implementation of a full-stack web applicat
 The application must be built using the following technologies:
 * **Backend:** Java 21 (LTS) with **Spring Boot 3.4.x** (Requirement: Version >= 3).
 * **Frontend:** **Ionic 8.x** with **Vue.js 3.4.x**.
-* **Database:** **MySQL 8.4 (LTS)**.
+* **Database:** **MySQL 8.1**.
 * **State Management:** **Pinia 2.1.x**.
 * **API Calls:** **JS Fetch API** (Native browser standard; follows the WHATWG Fetch Standard living standard).
 

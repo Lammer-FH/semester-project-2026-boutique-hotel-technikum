@@ -22,6 +22,9 @@ This document serves as the mandatory record for all AI-assisted work on the **B
 | API/DB alignment follow-up | Codex | "Adjust date format and align API with DB constraints" | Documented date format, constant EUR currency, idempotency non-persistence, and DB parsing note |
 | Date format typo fix | Codex | "Fix date format typo to DD.MM.YYYY" | Updated API and DB docs to use DD.MM.YYYY |
 | Backend readiness fixes | Codex | "Fix spec gaps for backend implementation, move backend DB migrations to backend/db" | Updated API/DB docs for image URLs, pricing, timestamps, seed data; added JPA/validation deps and config examples, relocated Flyway migration files. |
+| Pre-implementation gaps fix | opencode | "Fix 6 gaps: pom parent version, PK AUTO_INCREMENT, alt_text, context-path, package structure, HotelContact constants" | Fixed parent to 3.4.0, added AUTO_INCREMENT to all PKs and alt_text column in V1, added context-path to yaml, created package directories + HotelProperties config class, updated seed data with alt_text |
+| Central logging utility | opencode | "Create central logger in util submodule (backend/util/) that improves log readability and removes thread name padding" | Created multi-module Maven structure (hotel-parent > util + hotel), Logger.java wrapper over SLF4J with factory method, Log.java static-import style, logback-spring.xml with clean format (HH:mm:ss, colored level, compact class name, ▶ separator) |
+| Run backend from parent | opencode | "Make backend Maven commands always target hotel module" | Added `backend/.mvn/maven.config` and configured parent to skip Spring Boot plugin by default (overridden in `hotel`) so `spring-boot:run` works from `backend/` without `-pl` |
 
 ---
 
