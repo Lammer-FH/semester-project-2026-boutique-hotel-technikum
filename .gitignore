@@ -56,3 +56,6 @@ coverage/
 # TypeScript
 *.tsbuildinfo
 tsconfig.tsbuildinfo
+
+# Local notes (do not commit)
+todo.md
