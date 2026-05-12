@@ -34,6 +34,7 @@ erDiagram
 		BIGINT id PK
 		BIGINT room_id FK
 		VARCHAR file_name
+		VARCHAR alt_text
 		INT sort_order
 	}
 
@@ -56,6 +57,7 @@ erDiagram
 		VARCHAR guest_first_name
 		VARCHAR guest_last_name
 		VARCHAR guest_email
+		INT guest_count
 		DATE check_in_date
 		DATE check_out_date
 		BOOLEAN breakfast_included
@@ -81,6 +83,7 @@ Room image gallery stored on disk with ordering in the DB.
 - `id` BIGINT PK
 - `room_id` BIGINT NOT NULL FK -> rooms.id
 - `file_name` VARCHAR(255) NOT NULL
+- `alt_text` VARCHAR(255) NULL
 - `sort_order` INT NOT NULL DEFAULT 0
 
 ### extras
@@ -104,6 +107,7 @@ Stores reservation details and guest contact data.
 - `guest_first_name` VARCHAR(100) NOT NULL
 - `guest_last_name` VARCHAR(100) NOT NULL
 - `guest_email` VARCHAR(255) NOT NULL
+- `guest_count` INT NOT NULL
 - `check_in_date` DATE NOT NULL
 - `check_out_date` DATE NOT NULL
 - `breakfast_included` BOOLEAN NOT NULL DEFAULT FALSE
@@ -112,6 +116,7 @@ Stores reservation details and guest contact data.
 
 ## Constraints
 - `bookings.check_out_date > bookings.check_in_date`
+- `bookings.guest_count > 0`
 - `rooms.max_guests > 0`
 - `rooms.base_price_per_night >= 0`
 - `room_images.sort_order >= 0`
