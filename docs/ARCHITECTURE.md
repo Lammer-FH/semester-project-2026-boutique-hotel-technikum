@@ -313,7 +313,7 @@ This project applies Clean Architecture with strict dependency rules:
 - **Date handling:** use `LocalDate`; `check_in_date` inclusive, `check_out_date` exclusive; `check_out_date` must be after `check_in_date`.
 - **Availability rule:** overlap when `existing.check_in_date < requested.check_out_date && existing.check_out_date > requested.check_in_date`.
 - **Booking validation:** `confirm_email` must match `guest_email`; `guest_count` must be between 1 and `room.max_guests`.
-- **Pricing:** `total_price = (room_rate * nights) + (breakfast_rate)` where `breakfast_rate = breakfast_per_person_per_day * guest_count * nights`.
+- **Pricing:** `total_price = (room_rate * nights) + (breakfast_rate)` where `breakfast_rate = breakfast_per_person_per_day * guest_count * nights`. The computed total price is persisted on the `bookings` table at creation time so the quoted price is preserved on retrieval.
 - **Hotel properties:** booking confirmation response includes contact and directions from `HotelProperties` (`app.hotel.*`).
 
 **JSON conventions:** Response and request JSON use `snake_case` per API spec. Configure Jackson naming strategy (e.g., `PropertyNamingStrategies.SNAKE_CASE`) to keep DTOs in Java camelCase while matching the API contract.
@@ -335,7 +335,7 @@ This project applies Clean Architecture with strict dependency rules:
   - `room_images` — Ordered image gallery per room (file_name, alt_text, sort_order)
   - `extras` — Selectable extras catalog (code, title, description, icon_name)
   - `room_extras` — Many-to-many relationship joining rooms to extras
-  - `bookings` — Reservation records with guest contact data, guest count, date range, breakfast preference
+   - `bookings` — Reservation records with guest contact data, guest count, date range, breakfast preference, and persisted total price
 
 **Key Indexes:** Composite index `bookings(room_id, check_in_date, check_out_date)` for efficient availability overlap queries. Unique index `room_images(room_id, sort_order)` for deterministic image ordering.
 
