@@ -42,12 +42,14 @@ CREATE TABLE bookings (
   guest_first_name VARCHAR(100) NOT NULL,
   guest_last_name VARCHAR(100) NOT NULL,
   guest_email VARCHAR(255) NOT NULL,
+  guest_count INT NOT NULL,
   check_in_date DATE NOT NULL,
   check_out_date DATE NOT NULL,
   breakfast_included BOOLEAN NOT NULL DEFAULT FALSE,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   CONSTRAINT chk_booking_dates CHECK (check_out_date > check_in_date),
+  CONSTRAINT chk_booking_guest_count CHECK (guest_count > 0),
   CONSTRAINT fk_bookings_room FOREIGN KEY (room_id) REFERENCES rooms(id) ON DELETE RESTRICT
 );
 

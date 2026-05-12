@@ -5,6 +5,8 @@ import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
+
 /**
  * Binds properties from {@code app.hotel.*} in application.yaml.
  * <p>
@@ -19,4 +21,25 @@ public class HotelProperties {
     private String name;
     private String email;
     private String phone;
+    private BigDecimal breakfastPricePerPerson;
+
+    private Address address;
+    private Directions directions;
+
+    @Getter
+    @Setter
+    public static class Address {
+        private String street;
+        private String city;
+        private String postalCode;
+        private String country;
+    }
+
+    @Getter
+    @Setter
+    public static class Directions {
+        private String byTrain;
+        private String byCar;
+        private String parking;
+    }
 }
