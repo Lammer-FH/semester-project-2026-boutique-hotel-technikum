@@ -2,7 +2,7 @@
 This document serves as a critical, living template designed to equip agents with a rapid and comprehensive understanding of the codebase's architecture, enabling efficient navigation and effective contribution from day one. Update this document as the codebase evolves.
 
 ## 1. Project Structure
-This section provides a high-level overview of the project's directory and file structure, categorised by architectural layer or major functional area. It is essential for quickly navigating the codebase, locating relevant files, and understanding the overall organization and separation of concerns.
+This section provides a high-level overview of the project's directory and file structure, categorised by architectural layer or major functional area. It is essential for quickly navigating the codebase, locating relevant files, and understanding the overall organization and separation of concerns. The structure below is the **target architecture** to implement the backend against; the codebase may still be in transition.
 
 ```
 [Project Root]/
@@ -22,56 +22,54 @@ This section provides a high-level overview of the project's directory and file 
 │   │       │   │   │   ├── HotelProperties.java            # @ConfigurationProperties (app.hotel.*: name, email, phone, address{street,city,postalCode,country}, directions{byTrain,byCar,parking}, breakfastPricePerPerson)
 │   │       │   │   │   ├── WebConfig.java                  # CORS, static resource mapping
 │   │       │   │   │   └── ExceptionHandler.java           # @ControllerAdvice, central error handling
-│   │       │   │   ├── web/                                # [CLEAN ARCH: Web/API Layer]
-│   │       │   │   │   ├── dto/                            # Request/response DTOs
-│   │       │   │   │   │   ├── request/                    # Inbound DTOs with Bean Validation
-│   │       │   │   │   │   │   ├── BookingRequest.java
-│   │       │   │   │   │   │   └── AvailabilityRequest.java
-│   │       │   │   │   │   └── response/                   # Outbound DTOs
-│   │       │   │   │   │       ├── RoomResponse.java
-│   │       │   │   │   │       ├── BookingResponse.java
-│   │       │   │   │   │       ├── AvailabilityResponse.java
-│   │       │   │   │   │       ├── ExtraResponse.java
-│   │       │   │   │   │       ├── PaginatedResponse.java
-│   │       │   │   │   │       └── ErrorResponse.java
+│   │       │   │   ├── controller/                         # Web/API layer controllers (REST endpoints)
 │   │       │   │   │   ├── RoomController.java             # GET /rooms, GET /rooms/{id}
 │   │       │   │   │   ├── BookingController.java          # POST /bookings, GET /bookings/{id}
 │   │       │   │   │   ├── AvailabilityController.java     # GET /rooms/{id}/availability
 │   │       │   │   │   ├── ExtraController.java            # GET /extras
 │   │       │   │   │   └── HealthController.java           # GET /, GET /health
-│   │       │   │   ├── domain/                             # [CLEAN ARCH: Domain Layer]
-│   │       │   │   │   ├── model/                          # Pure domain models (no annotations)
-│   │       │   │   │   │   ├── Room.java
-│   │       │   │   │   │   ├── Booking.java
-│   │       │   │   │   │   ├── Extra.java
-│   │       │   │   │   │   └── RoomImage.java
-│   │       │   │   │   ├── service/                        # Use cases / business logic
-│   │       │   │   │   │   ├── RoomService.java
-│   │       │   │   │   │   ├── BookingService.java
-│   │       │   │   │   │   ├── AvailabilityService.java
-│   │       │   │   │   │   └── ExtraService.java
-│   │       │   │   │   └── repository/                     # Repository interfaces (domain-owned)
-│   │       │   │   │       ├── RoomRepository.java
-│   │       │   │   │       ├── BookingRepository.java
-│   │       │   │   │       └── ExtraRepository.java
-│   │       │   │   └── infrastructure/                     # [CLEAN ARCH: Infrastructure Layer]
-│   │       │   │       ├── persistence/
-│   │       │   │       │   ├── entity/                     # JPA entities (annotated)
-│   │       │   │       │   │   ├── RoomEntity.java
-│   │       │   │       │   │   ├── BookingEntity.java
-│   │       │   │       │   │   ├── ExtraEntity.java
-│   │       │   │       │   │   ├── RoomImageEntity.java
-│   │       │   │       │   │   └── RoomExtraEntity.java
-│   │       │   │       │   ├── mapper/                     # Entity <-> Domain model mappers
-│   │       │   │       │   │   ├── RoomMapper.java
-│   │       │   │       │   │   ├── BookingMapper.java
-│   │       │   │       │   │   └── ExtraMapper.java
-│   │       │   │       │   └── repository/                 # JPA repository implementations
-│   │       │   │       │       ├── JpaRoomRepository.java
-│   │       │   │       │       ├── JpaBookingRepository.java
-│   │       │   │       │       └── JpaExtraRepository.java
-│   │       │   │       └── config/
-│   │       │   │           └── JpaConfig.java
+│   │       │   │   ├── dto/                                # Request/response DTOs
+│   │       │   │   │   ├── request/                        # Inbound DTOs with Bean Validation
+│   │       │   │   │   │   ├── BookingRequest.java
+│   │       │   │   │   │   └── AvailabilityRequest.java
+│   │       │   │   │   └── response/                       # Outbound DTOs
+│   │       │   │   │       ├── RoomResponse.java
+│   │       │   │   │       ├── BookingResponse.java
+│   │       │   │   │       ├── AvailabilityResponse.java
+│   │       │   │   │       ├── ExtraResponse.java
+│   │       │   │   │       ├── PaginatedResponse.java
+│   │       │   │   │       └── ErrorResponse.java
+│   │       │   │   ├── service/                            # Application services (Spring-managed use cases)
+│   │       │   │   │   ├── RoomService.java
+│   │       │   │   │   ├── BookingService.java
+│   │       │   │   │   ├── AvailabilityService.java
+│   │       │   │   │   └── ExtraService.java
+│   │       │   │   ├── domain/                             # Domain rules, policies, and exceptions (no Spring)
+│   │       │   │   ├── model/                              # Domain models (no persistence annotations)
+│   │       │   │   │   ├── Room.java
+│   │       │   │   │   ├── Booking.java
+│   │       │   │   │   ├── Extra.java
+│   │       │   │   │   └── RoomImage.java
+│   │       │   │   ├── persistence/entity/                 # JPA entities (persistence models)
+│   │       │   │   │   ├── RoomEntity.java
+│   │       │   │   │   ├── BookingEntity.java
+│   │       │   │   │   ├── ExtraEntity.java
+│   │       │   │   │   ├── RoomImageEntity.java
+│   │       │   │   │   └── RoomExtraEntity.java
+│   │       │   │   ├── repository/                         # Domain-owned repository interfaces
+│   │       │   │   │   ├── RoomRepository.java
+│   │       │   │   │   ├── BookingRepository.java
+│   │       │   │   │   └── ExtraRepository.java
+│   │       │   │   ├── persistence/repository/             # Spring Data JPA repository implementations
+│   │       │   │   │   ├── JpaRoomRepository.java
+│   │       │   │   │   ├── JpaBookingRepository.java
+│   │       │   │   │   └── JpaExtraRepository.java
+│   │       │   │   ├── mapper/                             # Entity <-> Domain model mappers
+│   │       │   │   │   ├── RoomMapper.java
+│   │       │   │   │   ├── BookingMapper.java
+│   │       │   │   │   └── ExtraMapper.java
+│   │       │   │   └── config/
+│   │       │   │       └── JpaConfig.java
 │   │       │   └── resources/
 │   │       │       ├── application.yaml                    # Main config (datasource, Flyway, custom props)
 │   │       │       ├── application-local.example.yaml      # Local dev override template
@@ -79,18 +77,18 @@ This section provides a high-level overview of the project's directory and file 
 │   │       └── test/
 │   │           └── java/at/fhtw/hotel/
 │   │               ├── HotelApplicationTests.java          # Context load smoke test
-│   │               ├── web/                                # Controller unit tests (MockMvc)
+│   │               ├── controller/                         # Controller unit tests (MockMvc)
 │   │               │   ├── HealthControllerTest.java
 │   │               │   ├── RoomControllerTest.java
 │   │               │   ├── BookingControllerTest.java
 │   │               │   ├── AvailabilityControllerTest.java
 │   │               │   └── ExtraControllerTest.java
-│   │               ├── domain/service/                     # Service/use-case unit tests
+│   │               ├── service/                            # Service/use-case unit tests
 │   │               │   ├── RoomServiceTest.java
 │   │               │   ├── BookingServiceTest.java
 │   │               │   ├── AvailabilityServiceTest.java
 │   │               │   └── ExtraServiceTest.java
-│   │               └── infrastructure/persistence/         # Repository integration tests
+│   │               └── persistence/repository/             # Repository integration tests
 │   │                   ├── JpaRoomRepositoryTest.java
 │   │                   ├── JpaBookingRepositoryTest.java
 │   │                   └── JpaExtraRepositoryTest.java
@@ -162,6 +160,9 @@ This project applies Clean Architecture with strict dependency rules:
   - Input format validation (Bean Validation, date format)
   - Pagination defaults and max size enforcement
   - Delegation to domain services
+- **Application**
+  - Orchestrates use cases and transactions (Spring-managed services)
+  - Depends on domain models and domain-owned repository interfaces
 - **Domain**
   - Business rules and invariants (date range validity, email confirmation match, guest count limits)
   - Availability overlap rule and booking creation orchestration
@@ -169,7 +170,7 @@ This project applies Clean Architecture with strict dependency rules:
   - Exception types that map to API error codes
 - **Infrastructure**
   - JPA entities, repositories, and database mappings
-  - Transaction boundaries at service layer (annotate domain services with `@Transactional`)
+  - Spring Data repository implementations (persistence layer)
   - Flyway migrations and DB constraints
 
 ## 3. High-Level System Diagram
@@ -259,7 +260,7 @@ This project applies Clean Architecture with strict dependency rules:
 
 **JSON conventions:** Response and request JSON use `snake_case` per API spec. Configure Jackson naming strategy (e.g., `PropertyNamingStrategies.SNAKE_CASE`) to keep DTOs in Java camelCase while matching the API contract.
 
-**Transactions:** Domain services orchestrating booking creation and availability checks are the transaction boundary (`@Transactional`). Controllers remain thin and non-transactional.
+**Transactions:** Application services orchestrating booking creation and availability checks are the transaction boundary (`@Transactional`). Controllers remain thin and non-transactional.
 
 ## 5. Data Stores
 
@@ -339,16 +340,7 @@ These properties are injected into the booking confirmation response via `HotelP
   - `@SpringBootTest` integration tests for repository layer
   - Each user story must include basic unit tests + at least one integration test
 
-## 10. Future Considerations / Roadmap
-
-- **Containerization:** Add a Dockerfile for the Spring Boot application to enable complete containerized deployment (app + DB in Docker Compose).
-- **CI/CD Pipeline:** Set up GitHub Actions for automated build, test, and deployment on push/PR.
-- **Google Maps Integration:** The U5 specification mentions researching Google Maps for directions; currently static text directions are used. A future enhancement could embed an interactive map.
-- **Caching:** Consider adding Spring Cache (or Redis) for frequently accessed room data and availability queries as the visitor count grows.
-- **Monitoring:** Integrate Spring Boot Actuator for health checks, metrics, and production monitoring.
-- **API Versioning Evolution:** As new features are added, the `/api/v1` prefix allows introducing `/api/v2` alongside the existing API without breaking changes.
-
-## 11. Project Identification
+## 10. Project Identification
 
 **Project Name:** Boutique Hotel Technikum Booking Application
 
@@ -358,7 +350,7 @@ These properties are injected into the booking confirmation response via `HotelP
 
 **Date of Last Update:** 2026-05-12
 
-## 12. Glossary / Acronyms
+## 11. Glossary / Acronyms
 
 - **SPA:** Single Page Application — a web app that loads a single HTML page and dynamically updates content via JavaScript.
 - **Clean Architecture:** A software design philosophy by Robert C. Martin emphasizing separation of concerns, dependency inversion, and framework-independence of business logic.
