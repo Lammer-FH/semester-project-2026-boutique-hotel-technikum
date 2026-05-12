@@ -1,5 +1,8 @@
 # Architecture Overview
+
 This document serves as a critical, living template designed to equip agents with a rapid and comprehensive understanding of the codebase's architecture, enabling efficient navigation and effective contribution from day one. Update this document as the codebase evolves.
+
+>This ARCHITECTURE.md follows the [ARCHITECTURE.md](https://architecture.md/) convention.
 
 ## 1. Project Structure
 This section provides a high-level overview of the project's directory and file structure, categorised by architectural layer or major functional area. It is essential for quickly navigating the codebase, locating relevant files, and understanding the overall organization and separation of concerns. The structure below is the **target architecture** to implement the backend against; the codebase may still be in transition.
@@ -106,28 +109,57 @@ This section provides a high-level overview of the project's directory and file 
 │   └── docker/
 │       └── docker-compose.yaml  # MySQL 8.1 service for local development
 │
-├── frontend/                    # Client-side code (Ionic 8 + Vue.js 3.4)
-│   ├── src/                     # Main source code
-│   │   ├── components/          # Atomic Design components
-│   │   │   ├── atoms/           # Smallest units (Button, Icon, Input)
-│   │   │   ├── molecules/       # Groups of atoms (SearchBar, FormField)
-│   │   │   └── organisms/       # Complex UI sections (RoomCard, Header, Pagination)
-│   │   ├── pages/               # Page-level views (HomePage, RoomsPage, BookingPage, ConfirmationPage)
-│   │   ├── router/              # Vue Router configuration
-│   │   ├── stores/              # Pinia state management stores
-│   │   │   ├── roomStore.js     # Room data, pagination state
-│   │   │   ├── bookingStore.js  # Booking flow state, selected dates, guest data
-│   │   │   └── availabilityStore.js  # Availability check state
-│   │   ├── services/            # API interaction layer (Fetch API)
-│   │   │   ├── api.js           # Base fetch wrapper with error handling
-│   │   │   ├── roomService.js   # Room API calls
-│   │   │   ├── bookingService.js# Booking API calls
-│   │   │   └── extraService.js  # Extras API calls
-│   │   ├── assets/              # Images, fonts, static assets
-│   │   └── utils/               # Shared utility functions
-│   ├── public/                  # Publicly accessible assets (index.html, static images)
-│   ├── package.json             # Frontend dependencies and scripts
-│   └── tests/                   # Frontend unit and E2E tests
+├── frontend/                        # Client-side code (Ionic 8 + Vue.js 3.4)
+│   ├── src/                         # Main source code
+│   │   ├── core/                    # Domain layer (pure TS, zero framework dependency)
+│   │   │   ├── models/              # Domain interfaces & types
+│   │   │   │   ├── room.ts          # Room, RoomImage interfaces
+│   │   │   │   ├── booking.ts       # Booking, BookingRequest, HotelContact
+│   │   │   │   ├── extra.ts         # Extra interface
+│   │   │   │   └── api.ts           # PaginatedResponse, ApiError, AvailabilityResult
+│   │   │   └── constants.ts         # App-wide constants (pagination, route names)
+│   │   │
+│   │   ├── infrastructure/          # Adapter / Gateway layer
+│   │   │   ├── api/                 # HTTP client & API endpoint functions
+│   │   │   │   ├── httpClient.ts    # Base fetch wrapper with error handling
+│   │   │   │   ├── roomApi.ts       # Room API calls
+│   │   │   │   ├── bookingApi.ts    # Booking API calls
+│   │   │   │   └── extraApi.ts      # Extras API calls
+│   │   │   └── mappers/             # DTO ↔ Domain model mappers (snake_case ↔ camelCase)
+│   │   │       ├── roomMapper.ts
+│   │   │       └── bookingMapper.ts
+│   │   │
+│   │   ├── application/             # Application / orchestration layer
+│   │   │   ├── stores/              # Pinia state management stores
+│   │   │   │   ├── roomStore.ts
+│   │   │   │   ├── bookingStore.ts
+│   │   │   │   └── availabilityStore.ts
+│   │   │   └── composables/         # Vue 3 Composition API reusable logic
+│   │   │       ├── useRooms.ts
+│   │   │       ├── useBooking.ts
+│   │   │       └── useAvailability.ts
+│   │   │
+│   │   ├── presentation/            # UI layer (Vue SFCs)
+│   │   │   ├── components/          # Atomic Design components
+│   │   │   │   ├── atoms/           # Smallest units (BaseButton, BaseIcon, BaseInput)
+│   │   │   │   ├── molecules/       # Groups of atoms (SearchBar, FormField)
+│   │   │   │   └── organisms/       # Complex sections (RoomCard, HeaderBar, PaginationBar)
+│   │   │   ├── templates/           # Page wireframes / layout components (DefaultLayout)
+│   │   │   ├── pages/               # Routed views (HomePage, RoomsPage, BookingPage, ConfirmationPage)
+│   │   │   └── router/              # Vue Router configuration
+│   │   │       └── index.ts
+│   │   │
+│   │   ├── config/                  # App configuration (API base URL, env variables)
+│   │   │   └── index.ts
+│   │   ├── styles/                  # Global CSS (Ionic overrides, theme variables)
+│   │   │   └── main.css
+│   │   ├── assets/                  # Images, fonts, static assets
+│   │   ├── App.vue                  # Root component (<ion-app> + <router-view>)
+│   │   └── main.ts                  # App bootstrap (createApp, Pinia, IonicVue, Router)
+│   │
+│   ├── public/                      # Publicly accessible static assets (favicon.svg)
+│   ├── package.json                 # Frontend dependencies and scripts
+│   └── tests/                       # Frontend unit and E2E tests
 │
 ├── docs/                        # Project documentation
 │   ├── ARCHITECTURE.md          # This document
@@ -154,7 +186,7 @@ This project applies Clean Architecture with strict dependency rules:
 - **Domain layer** is pure Java (no framework annotations or dependencies).
 - **Infrastructure layer** depends on the Domain layer and implements repository interfaces.
 
-**Layer responsibilities:**
+**Layer responsibilities (Backend):**
 - **Web/API**
   - Request/response mapping, HTTP status codes, and error payloads
   - Input format validation (Bean Validation, date format)
@@ -173,48 +205,74 @@ This project applies Clean Architecture with strict dependency rules:
   - Spring Data repository implementations (persistence layer)
   - Flyway migrations and DB constraints
 
+**Frontend Clean Architecture layers with strict dependency rules (dependencies point inward):**
+
+- **Core / Domain layer** — Pure TypeScript interfaces and constants. Zero Vue/Ionic/framework dependency.
+  - Domain model interfaces (Room, Booking, Extra, API response types)
+  - App-wide constants and configuration defaults (pagination, route names)
+- **Infrastructure / Adapter layer** — Depends on the Core layer.
+  - HTTP client (Fetch API wrapper) with centralized error handling
+  - API endpoint functions for each backend resource
+  - Mappers that convert snake_case API responses into camelCase domain models
+- **Application layer** — Depends on Core and Infrastructure layers.
+  - Pinia stores: manage cross-component state, call infrastructure API functions in actions, expose loading/error states
+  - Composables: reusable Composition API logic for data fetching, form state, and availability checks
+- **Presentation layer** — Depends only on the Application layer (never directly on Infrastructure).
+  - Atomic Design components (atoms → molecules → organisms → templates → pages)
+  - Page-level views are the only components with access to stores / composables via `<script setup>`
+  - Vue Router configuration with named routes
+  - Components receive data via props and emit events upward; no direct API calls
+
 ## 3. High-Level System Diagram
 
 ```
-┌──────────────┐     ┌─────────────────────────────────────────────┐     ┌──────────────┐
-│              │     │              Frontend (Ionic 8 + Vue 3)      │     │              │
-│              │     │                                              │     │   MySQL 8.1  │
-│   Guest      │────>│  ┌─────────┐  ┌──────────┐  ┌────────────┐ │────>│   Database   │
-│  (Browser)   │     │  │  Pages  │  │  Stores  │  │  Services  │ │     │              │
-│              │     │  │(Vue SFC)│  │ (Pinia)  │  │(Fetch API) │ │     │  ┌────────┐  │
-│  (Mobile /   │<────│  └─────────┘  └──────────┘  └─────┬──────┘ │<────│  │ rooms  │  │
-│   Desktop)   │     │              │         │           │         │     │  ├────────┤  │
-│              │     │              │         │           │         │     │  │room_img│  │
-└──────────────┘     └──────────────┼─────────┼───────────┼─────────┘     │  ├────────┤  │
-                                    │         │           │               │  │ extras │  │
-                                    │         ▼           ▼               │  ├────────┤  │
-                                    │    ┌──────────────────────┐         │  │booking │  │
-                                    │    │  Fetch HTTP Clients  │         │  └────────┘  │
-                                    │    └──────────┬───────────┘         └──────────────┘
-                                    │               │
-                                    └───────────────┼─────────────────────┘
-                                                    │
-                                                    ▼
-                              ┌─────────────────────────────────────────────┐
-                              │         Backend (Spring Boot 3.4)           │
-                              │                                              │
-                              │  ┌──────────────────────────────────────┐   │
-                              │  │         Web / API Layer             │   │
-                              │  │  Controllers  │  DTOs               │   │
-                              │  └──────────┬───────────────────────────┘   │
-                              │             │                               │
-                              │  ┌──────────▼───────────────────────────┐   │
-                              │  │         Domain Layer                 │   │
-                              │  │  Services (Use Cases)  │  Models     │   │
-                              │  │  Repository Interfaces               │   │
-                              │  └──────────┬───────────────────────────┘   │
-                              │             │                               │
-                              │  ┌──────────▼───────────────────────────┐   │
-                              │  │     Infrastructure Layer             │   │
-                              │  │  JPA Entities  │  Mappers  │  Repos  │   │
-                              │  │  DB Config    │  Flyway              │   │
-                              │  └──────────────────────────────────────┘   │
-                              └─────────────────────────────────────────────┘
+┌──────────────┐     ┌──────────────────────────────────────────────────────┐     ┌──────────────┐
+│              │     │            Frontend (Ionic 8 + Vue 3)                 │     │              │
+│              │     │                                                       │     │   MySQL 8.1  │
+│   Guest      │────>│  ┌─────────────────────────────────────────────┐    │────>│   Database   │
+│  (Browser)   │     │  │         Presentation Layer                  │    │     │              │
+│              │     │  │  Pages │ Templates │ Components (Atomic)    │    │     │  ┌────────┐  │
+│  (Mobile /   │     │  │  Router                                     │    │     │  │ rooms  │  │
+│   Desktop)   │     │  └───────────────────┬─────────────────────────┘    │     │  ├────────┤  │
+│              │     │                      │ depends on                    │     │  │room_img│  │
+└──────────────┘     │  ┌───────────────────▼─────────────────────────┐    │     │  ├────────┤  │
+                     │  │         Application Layer                   │    │     │  │ extras │  │
+                     │  │   Pinia Stores  │  Composables              │    │     │  ├────────┤  │
+                     │  └───────────────────┬─────────────────────────┘    │     │  │booking │  │
+                     │                      │ depends on                    │     │  └────────┘  │
+                     │  ┌───────────────────▼─────────────────────────┐    │     └──────────────┘
+                     │  │       Infrastructure Layer                  │    │
+                     │  │   API Clients  │  Mappers                    │    │
+                     │  └───────────────────┬─────────────────────────┘    │
+                     │                      │ depends on                    │
+                     │  ┌───────────────────▼─────────────────────────┐    │
+                     │  │       Core / Domain Layer                   │    │
+                     │  │   Models / Interfaces │ Constants            │    │
+                     │  └────────────────────────────────────────────┘    │
+                     │                           │                         │
+                     └───────────────────────────┼─────────────────────────┘
+                                                 │ (HTTP / REST)
+                                                 ▼
+                           ┌─────────────────────────────────────────────┐
+                           │         Backend (Spring Boot 3.4)           │
+                           │                                              │
+                           │  ┌──────────────────────────────────────┐   │
+                           │  │         Web / API Layer             │   │
+                           │  │  Controllers  │  DTOs               │   │
+                           │  └──────────┬───────────────────────────┘   │
+                           │             │                               │
+                           │  ┌──────────▼───────────────────────────┐   │
+                           │  │         Domain Layer                 │   │
+                           │  │  Services (Use Cases)  │  Models     │   │
+                           │  │  Repository Interfaces               │   │
+                           │  └──────────┬───────────────────────────┘   │
+                           │             │                               │
+                           │  ┌──────────▼───────────────────────────┐   │
+                           │  │     Infrastructure Layer             │   │
+                           │  │  JPA Entities  │  Mappers  │  Repos  │   │
+                           │  │  DB Config    │  Flyway              │   │
+                           │  └──────────────────────────────────────┘   │
+                           └─────────────────────────────────────────────┘
 ```
 
 ## 4. Core Components
@@ -223,7 +281,7 @@ This project applies Clean Architecture with strict dependency rules:
 
 **Name:** Ionic 8 + Vue.js 3.4 SPA
 
-**Description:** A mobile-first Single Page Application that provides the guest-facing hotel website. Built with Atomic Design methodology, it handles room browsing, availability checking, booking with review step, and detailed booking confirmation. State management uses Pinia stores, and all API communication uses the native Fetch API.
+**Description:** A mobile-first Single Page Application following Clean Architecture with four distinct layers (Core, Infrastructure, Application, Presentation) enforcing strict dependency rules inward. Built with full Atomic Design methodology (atoms → molecules → organisms → templates → pages). Handles room browsing, availability checking, booking with review step, and detailed booking confirmation. State management uses Pinia stores in the Application layer, API communication uses the native Fetch API in the Infrastructure layer with dedicated mappers for snake_case ↔ camelCase conversion. Reusable logic is extracted into Vue 3 composables, and all new code uses `<script setup lang="ts">`.
 
 **Technologies:** Ionic 8.x, Vue.js 3.4.x, Pinia 2.1.x, Vue Router, JS Fetch API, Bootstrap Icons
 
