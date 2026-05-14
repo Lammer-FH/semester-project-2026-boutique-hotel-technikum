@@ -4,6 +4,9 @@ import at.fhtw.hotel.dto.response.ExtraResponse;
 import at.fhtw.hotel.model.Extra;
 import at.fhtw.hotel.service.ExtraService;
 import at.fhtw.hotel.util.Logger;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/extras")
+@Tag(name = "Extras", description = "Browse bookable extras and amenities")
 public class ExtraController {
 
     private static final Logger log = Logger.get(ExtraController.class);
@@ -22,6 +26,8 @@ public class ExtraController {
     }
 
     @GetMapping
+    @Operation(summary = "List all extras", description = "Returns all bookable extras and amenities available at the hotel.")
+    @ApiResponse(responseCode = "200")
     public List<ExtraResponse> listExtras() {
         List<Extra> extras = extraService.listExtras();
         log.debug("Extras listed size={}", extras.size());
