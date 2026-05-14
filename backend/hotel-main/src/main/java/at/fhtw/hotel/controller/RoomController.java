@@ -5,6 +5,12 @@ import at.fhtw.hotel.controller.dto.response.RoomResponse;
 import at.fhtw.hotel.controller.mapper.RoomResponseMapper;
 import at.fhtw.hotel.domain.model.Room;
 import at.fhtw.hotel.service.RoomService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import jakarta.validation.constraints.Max;
@@ -20,6 +26,7 @@ import org.springframework.validation.annotation.Validated;
 @RestController
 @RequestMapping("/rooms")
 @Validated
+@Tag(name = "Rooms", description = "Browse and retrieve hotel room details")
 public class RoomController {
 
     private static final Logger log = LoggerFactory.getLogger(RoomController.class);
@@ -33,9 +40,11 @@ public class RoomController {
     }
 
     @GetMapping
+    @Operation(summary = "List all rooms", description = "Returns a paginated list of available rooms with their details, images, and extras.")
+    @ApiResponse(responseCode = "200", description = "Paginated list of rooms")
     public PaginatedResponse<RoomResponse> listRooms(
-            @RequestParam(defaultValue = "1") @Min(1) int page,
-            @RequestParam(defaultValue = "5") @Min(1) @Max(5) int size) {
+            @Parameter(description = "Page number (1-based)") @RequestParam(defaultValue = "1") @Min(1) int page,
+            @Parameter(description = "Number of rooms per page (max 5)") @RequestParam(defaultValue = "5") @Min(1) @Max(5) int size) {
         int zeroBasedPage = page - 1;
         List<Room> rooms = roomService.listRooms(zeroBasedPage, size);
         long total = roomService.countRooms();
@@ -54,7 +63,10 @@ public class RoomController {
     }
 
     @GetMapping("/{roomId}")
-    public RoomResponse getRoom(@PathVariable long roomId) {
+    @Operation(summary = "Get a single room", description = "Returns detailed information about a specific room by its ID.")
+    @ApiResponse(responseCode = "200", description = "Room details")
+    @ApiResponse(responseCode = "404", description = "Room not found", content = @Content(schema = @Schema(implementation = at.fhtw.hotel.controller.dto.response.ErrorResponse.class)))
+    public RoomResponse getRoom(@Parameter(description = "Room ID") @PathVariable long roomId) {
         Room room = roomService.getRoom(roomId);
         return roomResponseMapper.toResponse(room);
     }
