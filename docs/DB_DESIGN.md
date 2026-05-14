@@ -111,6 +111,7 @@ Stores reservation details and guest contact data.
 - `check_in_date` DATE NOT NULL
 - `check_out_date` DATE NOT NULL
 - `breakfast_included` BOOLEAN NOT NULL DEFAULT FALSE
+- `total_price` DECIMAL(10,2) NOT NULL
 - `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 - `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 

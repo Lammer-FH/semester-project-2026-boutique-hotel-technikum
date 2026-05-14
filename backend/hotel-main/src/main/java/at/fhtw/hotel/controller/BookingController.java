@@ -1,9 +1,10 @@
 package at.fhtw.hotel.controller;
 
-import at.fhtw.hotel.dto.request.BookingRequest;
-import at.fhtw.hotel.dto.response.BookingResponse;
+import at.fhtw.hotel.controller.dto.request.BookingRequest;
+import at.fhtw.hotel.controller.dto.response.BookingResponse;
 import at.fhtw.hotel.service.BookingService;
-import at.fhtw.hotel.util.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/bookings")
 public class BookingController {
 
-    private static final Logger log = Logger.get(BookingController.class);
+    private static final Logger log = LoggerFactory.getLogger(BookingController.class);
 
     private final BookingService bookingService;
 

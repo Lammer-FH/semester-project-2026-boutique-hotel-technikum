@@ -1,11 +1,12 @@
 package at.fhtw.hotel.controller;
 
-import at.fhtw.hotel.dto.response.PaginatedResponse;
-import at.fhtw.hotel.dto.response.RoomResponse;
-import at.fhtw.hotel.model.Room;
-import at.fhtw.hotel.service.RoomResponseMapper;
+import at.fhtw.hotel.controller.dto.response.PaginatedResponse;
+import at.fhtw.hotel.controller.dto.response.RoomResponse;
+import at.fhtw.hotel.controller.mapper.RoomResponseMapper;
+import at.fhtw.hotel.domain.model.Room;
 import at.fhtw.hotel.service.RoomService;
-import at.fhtw.hotel.util.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import java.util.List;
@@ -21,12 +22,14 @@ import org.springframework.validation.annotation.Validated;
 @Validated
 public class RoomController {
 
-    private static final Logger log = Logger.get(RoomController.class);
+    private static final Logger log = LoggerFactory.getLogger(RoomController.class);
 
     private final RoomService roomService;
+    private final RoomResponseMapper roomResponseMapper;
 
-    public RoomController(RoomService roomService) {
+    public RoomController(RoomService roomService, RoomResponseMapper roomResponseMapper) {
         this.roomService = roomService;
+        this.roomResponseMapper = roomResponseMapper;
     }
 
     @GetMapping
@@ -37,7 +40,7 @@ public class RoomController {
         List<Room> rooms = roomService.listRooms(zeroBasedPage, size);
         long total = roomService.countRooms();
         long totalPages = (long) Math.ceil((double) total / size);
-        List<RoomResponse> data = rooms.stream().map(RoomResponseMapper::toResponse).toList();
+        List<RoomResponse> data = rooms.stream().map(roomResponseMapper::toResponse).toList();
         log.debug("Rooms listed page={} size={}", page, size);
         return PaginatedResponse.<RoomResponse>builder()
                 .data(data)
@@ -53,6 +56,6 @@ public class RoomController {
     @GetMapping("/{roomId}")
     public RoomResponse getRoom(@PathVariable long roomId) {
         Room room = roomService.getRoom(roomId);
-        return RoomResponseMapper.toResponse(room);
+        return roomResponseMapper.toResponse(room);
     }
 }

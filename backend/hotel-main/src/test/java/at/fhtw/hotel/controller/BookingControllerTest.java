@@ -2,9 +2,9 @@ package at.fhtw.hotel.controller;
 
 import at.fhtw.hotel.domain.DomainException;
 import at.fhtw.hotel.domain.ErrorCode;
-import at.fhtw.hotel.dto.response.BookingResponse;
-import at.fhtw.hotel.dto.response.ExtraResponse;
-import at.fhtw.hotel.dto.response.RoomResponse;
+import at.fhtw.hotel.controller.dto.response.BookingResponse;
+import at.fhtw.hotel.controller.dto.response.RoomResponse;
+import at.fhtw.hotel.domain.model.Extra;
 import at.fhtw.hotel.service.BookingService;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -58,7 +58,7 @@ class BookingControllerTest {
                         .basePricePerNight(new BigDecimal("129.00"))
                         .images(List.of())
                         .extras(List.of(
-                                ExtraResponse.builder().id(1L).code("wifi").title("WiFi").iconName("wifi").build()
+                                Extra.builder().id(1L).code("wifi").title("WiFi").iconName("wifi").build()
                         ))
                         .build())
                 .hotelContact(BookingResponse.HotelContact.builder()
@@ -122,6 +122,30 @@ class BookingControllerTest {
     }
 
     @Test
+    void createBooking_withEmailMismatch_returns400() throws Exception {
+        String requestJson = """
+                {
+                    "room_id": 1,
+                    "guest_first_name": "John",
+                    "guest_last_name": "Doe",
+                    "guest_email": "john@example.com",
+                    "confirm_email": "different@example.com",
+                    "guest_count": 2,
+                    "check_in_date": "2026-06-01",
+                    "check_out_date": "2026-06-06",
+                    "breakfast_included": true
+                }
+                """;
+
+        mockMvc.perform(post("/bookings")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestJson))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error.code").value("INVALID_INPUT"))
+                .andExpect(jsonPath("$.error.details[0].message").value("Email confirmation does not match"));
+    }
+
+    @Test
     void getBooking_withValidId_returnsBooking() throws Exception {
         BookingResponse response = BookingResponse.builder()
                 .bookingId(42L)
@@ -163,5 +187,31 @@ class BookingControllerTest {
         mockMvc.perform(get("/bookings/99"))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.error.code").value("BOOKING_NOT_FOUND"));
+    }
+
+    @Test
+    void createBooking_withUnavailableDates_returns409() throws Exception {
+        when(bookingService.createBooking(any()))
+                .thenThrow(new DomainException(ErrorCode.DATES_UNAVAILABLE, "Requested dates are unavailable"));
+
+        String requestJson = """
+                {
+                    "room_id": 1,
+                    "guest_first_name": "John",
+                    "guest_last_name": "Doe",
+                    "guest_email": "john@example.com",
+                    "confirm_email": "john@example.com",
+                    "guest_count": 2,
+                    "check_in_date": "2026-06-01",
+                    "check_out_date": "2026-06-06",
+                    "breakfast_included": true
+                }
+                """;
+
+        mockMvc.perform(post("/bookings")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestJson))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.error.code").value("DATES_UNAVAILABLE"));
     }
 }

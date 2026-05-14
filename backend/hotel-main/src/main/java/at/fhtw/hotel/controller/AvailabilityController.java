@@ -1,8 +1,9 @@
 package at.fhtw.hotel.controller;
 
-import at.fhtw.hotel.dto.response.AvailabilityResponse;
+import at.fhtw.hotel.controller.dto.response.AvailabilityResponse;
 import at.fhtw.hotel.service.AvailabilityService;
-import at.fhtw.hotel.util.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -18,7 +19,7 @@ import org.springframework.validation.annotation.Validated;
 @Validated
 public class AvailabilityController {
 
-    private static final Logger log = Logger.get(AvailabilityController.class);
+    private static final Logger log = LoggerFactory.getLogger(AvailabilityController.class);
 
     private final AvailabilityService availabilityService;
 
@@ -36,7 +37,7 @@ public class AvailabilityController {
         log.debug("Availability roomId={} available={}", roomId, available);
         return AvailabilityResponse.builder()
                 .roomId(roomId)
-                .isAvailable(available)
+                .available(available)
                 .message(message)
                 .build();
     }

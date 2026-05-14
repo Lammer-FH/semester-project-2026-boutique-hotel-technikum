@@ -4,7 +4,7 @@
 
 REST API for the Boutique Hotel Technikum booking application.
 
-**Base URL:** `/api/v1` – Explicit versioning allows backward compatibility if future API changes are needed. 
+**Base URL:** `/api` – The API uses a non-versioned base path. Controller-level versioning (`/v1/...`) can be introduced in the future if needed. 
 
 ---
 
@@ -98,7 +98,7 @@ Response (200):
 ```json
 {
   "room_id": 1,
-  "is_available": true,
+  "available": true,
   "message": "Room is available"
 }
 ```

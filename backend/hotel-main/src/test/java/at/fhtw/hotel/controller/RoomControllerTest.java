@@ -2,9 +2,9 @@ package at.fhtw.hotel.controller;
 
 import at.fhtw.hotel.domain.DomainException;
 import at.fhtw.hotel.domain.ErrorCode;
-import at.fhtw.hotel.dto.response.PaginatedResponse;
-import at.fhtw.hotel.dto.response.RoomResponse;
-import at.fhtw.hotel.model.Room;
+import at.fhtw.hotel.controller.dto.response.RoomResponse;
+import at.fhtw.hotel.controller.mapper.RoomResponseMapper;
+import at.fhtw.hotel.domain.model.Room;
 import at.fhtw.hotel.service.RoomService;
 import java.math.BigDecimal;
 import java.util.List;
@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -26,6 +27,9 @@ class RoomControllerTest {
 
     @MockitoBean
     private RoomService roomService;
+
+    @MockitoBean
+    private RoomResponseMapper roomResponseMapper;
 
     @Test
     void listRooms_returnsPaginatedResponse() throws Exception {
@@ -41,6 +45,15 @@ class RoomControllerTest {
 
         when(roomService.listRooms(0, 5)).thenReturn(List.of(room));
         when(roomService.countRooms()).thenReturn(1L);
+        when(roomResponseMapper.toResponse(any(Room.class)))
+                .thenAnswer(invocation -> {
+                    Room r = invocation.getArgument(0);
+                    return RoomResponse.builder()
+                            .id(r.getId()).title(r.getTitle()).description(r.getDescription())
+                            .maxGuests(r.getMaxGuests()).basePricePerNight(r.getBasePricePerNight())
+                            .images(List.of()).extras(List.of())
+                            .build();
+                });
 
         mockMvc.perform(get("/rooms"))
                 .andExpect(status().isOk())
@@ -76,6 +89,15 @@ class RoomControllerTest {
                 .build();
 
         when(roomService.getRoom(1L)).thenReturn(room);
+        when(roomResponseMapper.toResponse(any(Room.class)))
+                .thenAnswer(invocation -> {
+                    Room r = invocation.getArgument(0);
+                    return RoomResponse.builder()
+                            .id(r.getId()).title(r.getTitle()).description(r.getDescription())
+                            .maxGuests(r.getMaxGuests()).basePricePerNight(r.getBasePricePerNight())
+                            .images(List.of()).extras(List.of())
+                            .build();
+                });
 
         mockMvc.perform(get("/rooms/1"))
                 .andExpect(status().isOk())
@@ -92,5 +114,26 @@ class RoomControllerTest {
         mockMvc.perform(get("/rooms/99"))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.error.code").value("ROOM_NOT_FOUND"));
+    }
+
+    @Test
+    void listRooms_withPageZero_returns400() throws Exception {
+        mockMvc.perform(get("/rooms").param("page", "0"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error.code").value("INVALID_INPUT"));
+    }
+
+    @Test
+    void listRooms_withSizeAboveMax_returns400() throws Exception {
+        mockMvc.perform(get("/rooms").param("size", "6"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error.code").value("INVALID_INPUT"));
+    }
+
+    @Test
+    void listRooms_withSizeZero_returns400() throws Exception {
+        mockMvc.perform(get("/rooms").param("size", "0"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error.code").value("INVALID_INPUT"));
     }
 }
