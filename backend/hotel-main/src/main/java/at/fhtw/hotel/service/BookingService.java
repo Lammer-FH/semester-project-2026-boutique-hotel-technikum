@@ -3,49 +3,66 @@ package at.fhtw.hotel.service;
 import at.fhtw.hotel.config.HotelProperties;
 import at.fhtw.hotel.domain.DomainException;
 import at.fhtw.hotel.domain.ErrorCode;
-import at.fhtw.hotel.dto.request.BookingRequest;
-import at.fhtw.hotel.dto.response.BookingResponse;
-import at.fhtw.hotel.dto.response.RoomResponse;
-import at.fhtw.hotel.model.Booking;
-import at.fhtw.hotel.model.Room;
-import at.fhtw.hotel.repository.BookingRepository;
-import at.fhtw.hotel.repository.RoomRepository;
-import at.fhtw.hotel.util.Logger;
+import at.fhtw.hotel.controller.dto.request.BookingRequest;
+import at.fhtw.hotel.controller.dto.response.BookingResponse;
+import at.fhtw.hotel.controller.mapper.BookingResponseMapper;
+import at.fhtw.hotel.domain.model.Booking;
+import at.fhtw.hotel.domain.model.Room;
+import at.fhtw.hotel.persistence.entity.BookingEntity;
+import at.fhtw.hotel.persistence.entity.RoomEntity;
+import at.fhtw.hotel.persistence.mapper.BookingMapper;
+import at.fhtw.hotel.persistence.mapper.RoomMapper;
+import at.fhtw.hotel.persistence.repository.JpaBookingRepository;
+import at.fhtw.hotel.persistence.repository.JpaRoomRepository;
+import jakarta.persistence.EntityManager;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class BookingService {
 
-    private static final Logger log = Logger.get(BookingService.class);
+    private static final Logger log = LoggerFactory.getLogger(BookingService.class);
 
-    private final BookingRepository bookingRepository;
-    private final RoomRepository roomRepository;
+    private final JpaBookingRepository jpaBookingRepository;
+    private final BookingMapper bookingMapper;
+    private final EntityManager entityManager;
+    private final JpaRoomRepository jpaRoomRepository;
+    private final RoomMapper roomMapper;
     private final HotelProperties hotelProperties;
     private final RoomService roomService;
+    private final BookingResponseMapper bookingResponseMapper;
 
-    public BookingService(BookingRepository bookingRepository,
-                          RoomRepository roomRepository,
+    public BookingService(JpaBookingRepository jpaBookingRepository,
+                          BookingMapper bookingMapper,
+                          EntityManager entityManager,
+                          JpaRoomRepository jpaRoomRepository,
+                          RoomMapper roomMapper,
                           HotelProperties hotelProperties,
-                          RoomService roomService) {
-        this.bookingRepository = bookingRepository;
-        this.roomRepository = roomRepository;
+                          RoomService roomService,
+                          BookingResponseMapper bookingResponseMapper) {
+        this.jpaBookingRepository = jpaBookingRepository;
+        this.bookingMapper = bookingMapper;
+        this.entityManager = entityManager;
+        this.jpaRoomRepository = jpaRoomRepository;
+        this.roomMapper = roomMapper;
         this.hotelProperties = hotelProperties;
         this.roomService = roomService;
+        this.bookingResponseMapper = bookingResponseMapper;
     }
 
     @Transactional
     public BookingResponse createBooking(BookingRequest request) {
         log.debug("Creating booking for roomId={} checkIn={} checkOut={}",
                 request.getRoomId(), request.getCheckInDate(), request.getCheckOutDate());
-        validateEmails(request);
         validateDates(request.getCheckInDate(), request.getCheckOutDate());
         Room room = roomService.getRoom(request.getRoomId());
         validateGuestCount(request.getGuestCount(), room.getMaxGuests());
-        if (bookingRepository.existsOverlappingBooking(room.getId(), request.getCheckInDate(), request.getCheckOutDate())) {
+        if (jpaBookingRepository.existsOverlappingBooking(room.getId(), request.getCheckInDate(), request.getCheckOutDate())) {
             throw new DomainException(ErrorCode.DATES_UNAVAILABLE, "Requested dates are unavailable");
         }
 
@@ -57,28 +74,35 @@ public class BookingService {
                 : BigDecimal.ZERO;
         BigDecimal totalPrice = roomRate.multiply(BigDecimal.valueOf(nights)).add(breakfastRate);
 
-        Booking booking = Booking.builder()
-                .roomId(room.getId())
-                .guestFirstName(request.getGuestFirstName())
-                .guestLastName(request.getGuestLastName())
-                .guestEmail(request.getGuestEmail())
-                .guestCount(request.getGuestCount())
-                .checkInDate(request.getCheckInDate())
-                .checkOutDate(request.getCheckOutDate())
-                .breakfastIncluded(request.isBreakfastIncluded())
-                .totalPrice(totalPrice)
-                .build();
+        BookingEntity entity = new BookingEntity();
+        entity.setRoom(entityManager.getReference(RoomEntity.class, room.getId()));
+        entity.setGuestFirstName(request.getGuestFirstName());
+        entity.setGuestLastName(request.getGuestLastName());
+        entity.setGuestEmail(request.getGuestEmail());
+        entity.setGuestCount(request.getGuestCount());
+        entity.setCheckInDate(request.getCheckInDate());
+        entity.setCheckOutDate(request.getCheckOutDate());
+        entity.setBreakfastIncluded(request.isBreakfastIncluded());
+        entity.setTotalPrice(totalPrice);
+        BookingEntity saved = jpaBookingRepository.save(entity);
 
-        Booking saved = bookingRepository.save(booking);
-        return BookingResponseMapper.toResponse(saved, room, hotelProperties, nights, roomRate, breakfastRate, breakfastPerPerson);
+        BookingResponse.PriceBreakdown breakdown = BookingResponse.PriceBreakdown.builder()
+                .nights(nights)
+                .roomRate(roomRate)
+                .breakfastRate(breakfastRate)
+                .breakfastPerPersonPerDay(breakfastPerPerson)
+                .build();
+        return bookingResponseMapper.toResponse(bookingMapper.toDomain(saved), room, breakdown);
     }
 
     @Transactional(readOnly = true)
     public BookingResponse getBooking(long bookingId) {
         log.debug("Fetching booking bookingId={}", bookingId);
-        Booking booking = bookingRepository.findById(bookingId)
+        Booking booking = jpaBookingRepository.findById(bookingId)
+                .map(bookingMapper::toDomain)
                 .orElseThrow(() -> new DomainException(ErrorCode.BOOKING_NOT_FOUND, "Booking not found"));
-        Room room = roomRepository.findById(booking.getRoomId())
+        Room room = jpaRoomRepository.findById(booking.getRoomId())
+                .map(roomMapper::toDomain)
                 .orElseThrow(() -> new DomainException(ErrorCode.ROOM_NOT_FOUND, "Room not found"));
 
         int nights = (int) ChronoUnit.DAYS.between(booking.getCheckInDate(), booking.getCheckOutDate());
@@ -88,13 +112,13 @@ public class BookingService {
                 ? breakfastPerPerson.multiply(BigDecimal.valueOf(booking.getGuestCount())).multiply(BigDecimal.valueOf(nights))
                 : BigDecimal.ZERO;
 
-        return BookingResponseMapper.toResponse(booking, room, hotelProperties, nights, roomRate, breakfastRate, breakfastPerPerson);
-    }
-
-    private void validateEmails(BookingRequest request) {
-        if (!request.getGuestEmail().equalsIgnoreCase(request.getConfirmEmail())) {
-            throw new DomainException(ErrorCode.EMAIL_MISMATCH, "Email confirmation does not match");
-        }
+        BookingResponse.PriceBreakdown breakdown = BookingResponse.PriceBreakdown.builder()
+                .nights(nights)
+                .roomRate(roomRate)
+                .breakfastRate(breakfastRate)
+                .breakfastPerPersonPerDay(breakfastPerPerson)
+                .build();
+        return bookingResponseMapper.toResponse(booking, room, breakdown);
     }
 
     private void validateGuestCount(int guestCount, int maxGuests) {
@@ -112,49 +136,4 @@ public class BookingService {
         }
     }
 
-    static class BookingResponseMapper {
-
-        static BookingResponse toResponse(Booking booking,
-                                          Room room,
-                                          HotelProperties hotelProperties,
-                                          int nights,
-                                          BigDecimal roomRate,
-                                          BigDecimal breakfastRate,
-                                          BigDecimal breakfastPerPerson) {
-            RoomResponse roomResponse = RoomResponseMapper.toResponse(room);
-            return BookingResponse.builder()
-                    .bookingId(booking.getId())
-                    .checkInDate(booking.getCheckInDate())
-                    .checkOutDate(booking.getCheckOutDate())
-                    .breakfastIncluded(booking.isBreakfastIncluded())
-                    .totalPrice(booking.getTotalPrice())
-                    .priceBreakdown(BookingResponse.PriceBreakdown.builder()
-                            .nights(nights)
-                            .roomRate(roomRate)
-                            .breakfastRate(breakfastRate)
-                            .breakfastPerPersonPerDay(breakfastPerPerson)
-                            .build())
-                    .guest(BookingResponse.Guest.builder()
-                            .firstName(booking.getGuestFirstName())
-                            .lastName(booking.getGuestLastName())
-                            .email(booking.getGuestEmail())
-                            .build())
-                    .room(roomResponse)
-                    .hotelContact(BookingResponse.HotelContact.builder()
-                            .name(hotelProperties.getName())
-                            .street(hotelProperties.getAddress().getStreet())
-                            .city(hotelProperties.getAddress().getCity())
-                            .postalCode(hotelProperties.getAddress().getPostalCode())
-                            .country(hotelProperties.getAddress().getCountry())
-                            .email(hotelProperties.getEmail())
-                            .phone(hotelProperties.getPhone())
-                            .build())
-                    .directions(BookingResponse.Directions.builder()
-                            .byTrain(hotelProperties.getDirections().getByTrain())
-                            .byCar(hotelProperties.getDirections().getByCar())
-                            .parking(hotelProperties.getDirections().getParking())
-                            .build())
-                    .build();
-        }
-    }
 }

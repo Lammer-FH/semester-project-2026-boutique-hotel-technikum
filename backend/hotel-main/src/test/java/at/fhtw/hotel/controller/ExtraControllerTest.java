@@ -1,6 +1,6 @@
 package at.fhtw.hotel.controller;
 
-import at.fhtw.hotel.model.Extra;
+import at.fhtw.hotel.domain.model.Extra;
 import at.fhtw.hotel.service.ExtraService;
 import java.util.List;
 import org.junit.jupiter.api.Test;

@@ -5,7 +5,7 @@ This document serves as a critical, living template designed to equip agents wit
 >This ARCHITECTURE.md follows the [ARCHITECTURE.md](https://architecture.md/) convention.
 
 ## 1. Project Structure
-This section provides a high-level overview of the project's directory and file structure, categorised by architectural layer or major functional area. It is essential for quickly navigating the codebase, locating relevant files, and understanding the overall organization and separation of concerns. The structure below is the **target architecture** to implement the backend against; the codebase may still be in transition.
+This section provides a high-level overview of the project's directory and file structure, categorised by architectural layer or major functional area. It is essential for quickly navigating the codebase, locating relevant files, and understanding the overall organization and separation of concerns. The structure below reflects the current backend architecture.
 
 ```
 [Project Root]/
@@ -23,56 +23,56 @@ This section provides a high-level overview of the project's directory and file 
 │   │       │   │   ├── HotelApplication.java              # @SpringBootApplication entry point
 │   │       │   │   ├── config/
 │   │       │   │   │   ├── HotelProperties.java            # @ConfigurationProperties (app.hotel.*: name, email, phone, address{street,city,postalCode,country}, directions{byTrain,byCar,parking}, breakfastPricePerPerson)
-│   │       │   │   │   ├── WebConfig.java                  # CORS, static resource mapping
-│   │       │   │   │   └── ExceptionHandler.java           # @ControllerAdvice, central error handling
-│   │       │   │   ├── controller/                         # Web/API layer controllers (REST endpoints)
+│   │       │   │   │   └── JacksonConfig.java              # Jackson snake_case naming strategy
+│   │       │   │   ├── controller/                         # Web/API layer controllers, DTOs, response mappers, config
 │   │       │   │   │   ├── RoomController.java             # GET /rooms, GET /rooms/{id}
 │   │       │   │   │   ├── BookingController.java          # POST /bookings, GET /bookings/{id}
 │   │       │   │   │   ├── AvailabilityController.java     # GET /rooms/{id}/availability
 │   │       │   │   │   ├── ExtraController.java            # GET /extras
-│   │       │   │   │   └── HealthController.java           # GET /, GET /health
-│   │       │   │   ├── dto/                                # Request/response DTOs
-│   │       │   │   │   ├── request/                        # Inbound DTOs with Bean Validation
-│   │       │   │   │   │   ├── BookingRequest.java
-│   │       │   │   │   │   └── AvailabilityRequest.java
-│   │       │   │   │   └── response/                       # Outbound DTOs
-│   │       │   │   │       ├── RoomResponse.java
-│   │       │   │   │       ├── BookingResponse.java
-│   │       │   │   │       ├── AvailabilityResponse.java
-│   │       │   │   │       ├── ExtraResponse.java
-│   │       │   │   │       ├── PaginatedResponse.java
-│   │       │   │   │       └── ErrorResponse.java
+│   │       │   │   │   ├── HealthController.java           # GET /, GET /health
+│   │       │   │   │   ├── ExceptionHandler.java           # @ControllerAdvice, central error handling
+│   │       │   │   │   ├── WebConfig.java                  # CORS, static resource mapping
+│   │       │   │   │   ├── dto/
+│   │       │   │   │   │   ├── annotation/                 # Custom validation annotations (@EmailMatch)
+│   │       │   │   │   │   ├── request/                    # Inbound DTOs with Bean Validation
+│   │   │   │   │   │   │   └── BookingRequest.java
+│   │   │   │   │   │   └── response/                   # Outbound DTOs
+│   │   │   │   │   │       ├── RoomResponse.java
+│   │   │   │   │   │       ├── BookingResponse.java
+│   │   │   │   │   │       ├── AvailabilityResponse.java
+│   │   │   │   │   │       ├── PaginatedResponse.java
+│   │   │   │   │   │       └── ErrorResponse.java
+│   │   │   │   │   └── mapper/                         # Domain -> DTO response mappers
+│   │   │   │   │       ├── RoomResponseMapper.java
+│   │   │   │   │       └── BookingResponseMapper.java
 │   │       │   │   ├── service/                            # Application services (Spring-managed use cases)
 │   │       │   │   │   ├── RoomService.java
 │   │       │   │   │   ├── BookingService.java
 │   │       │   │   │   ├── AvailabilityService.java
 │   │       │   │   │   └── ExtraService.java
-│   │       │   │   ├── domain/                             # Domain rules, policies, and exceptions (no Spring)
-│   │       │   │   ├── model/                              # Domain models (no persistence annotations)
-│   │       │   │   │   ├── Room.java
-│   │       │   │   │   ├── Booking.java
-│   │       │   │   │   ├── Extra.java
-│   │       │   │   │   └── RoomImage.java
-│   │       │   │   ├── persistence/entity/                 # JPA entities (persistence models)
-│   │       │   │   │   ├── RoomEntity.java
-│   │       │   │   │   ├── BookingEntity.java
-│   │       │   │   │   ├── ExtraEntity.java
-│   │       │   │   │   ├── RoomImageEntity.java
-│   │       │   │   │   └── RoomExtraEntity.java
-│   │       │   │   ├── repository/                         # Domain-owned repository interfaces
-│   │       │   │   │   ├── RoomRepository.java
-│   │       │   │   │   ├── BookingRepository.java
-│   │       │   │   │   └── ExtraRepository.java
-│   │       │   │   ├── persistence/repository/             # Spring Data JPA repository implementations
-│   │       │   │   │   ├── JpaRoomRepository.java
-│   │       │   │   │   ├── JpaBookingRepository.java
-│   │       │   │   │   └── JpaExtraRepository.java
-│   │       │   │   ├── mapper/                             # Entity <-> Domain model mappers
-│   │       │   │   │   ├── RoomMapper.java
-│   │       │   │   │   ├── BookingMapper.java
-│   │       │   │   │   └── ExtraMapper.java
-│   │       │   │   └── config/
-│   │       │   │       └── JpaConfig.java
+│   │       │   │   ├── domain/                             # Domain layer (primitives, models, repository ports)
+│   │   │   │   │   ├── DomainException.java            # Custom runtime exception with ErrorCode
+│   │   │   │   │   ├── ErrorCode.java                  # Error codes enum
+│   │   │   │   │   ├── model/                          # Domain models (Lombok @Value @Builder)
+│   │       │   │   │   │   ├── Room.java
+│   │       │   │   │   │   ├── Booking.java
+│   │       │   │   │   │   ├── Extra.java
+│   │       │   │   │   │   └── RoomImage.java
+│   │   │   │   │   └── repository/                     # (empty — services use JPA repos directly)
+│   │       │   │   ├── persistence/                        # Infrastructure / persistence layer
+│   │       │   │   │   ├── entity/                         # JPA entities (persistence models)
+│   │       │   │   │   │   ├── RoomEntity.java
+│   │       │   │   │   │   ├── BookingEntity.java
+│   │       │   │   │   │   ├── ExtraEntity.java
+│   │       │   │   │   │   └── RoomImageEntity.java
+│   │       │   │   │   ├── repository/                     # Spring Data JPA repositories (used directly by services)
+│   │       │   │   │   │   ├── JpaRoomRepository.java
+│   │       │   │   │   │   ├── JpaBookingRepository.java
+│   │       │   │   │   │   └── JpaExtraRepository.java
+│   │       │   │   │   └── mapper/                         # Entity -> Domain mappers
+│   │       │   │   │       ├── RoomMapper.java
+│   │       │   │   │       ├── BookingMapper.java
+│   │       │   │   │       └── ExtraMapper.java
 │   │       │   └── resources/
 │   │       │       ├── application.yaml                    # Main config (datasource, Flyway, custom props)
 │   │       │       ├── application-local.example.yaml      # Local dev override template
@@ -86,22 +86,13 @@ This section provides a high-level overview of the project's directory and file 
 │   │               │   ├── BookingControllerTest.java
 │   │               │   ├── AvailabilityControllerTest.java
 │   │               │   └── ExtraControllerTest.java
+│   │               ├── persistence/mapper/                  # Entity→domain mapper unit tests
+│   │               │   └── RoomMapperTest.java
 │   │               ├── service/                            # Service/use-case unit tests
 │   │               │   ├── RoomServiceTest.java
 │   │               │   ├── BookingServiceTest.java
 │   │               │   ├── AvailabilityServiceTest.java
 │   │               │   └── ExtraServiceTest.java
-│   │               └── persistence/repository/             # Repository integration tests
-│   │                   ├── JpaRoomRepositoryTest.java
-│   │                   ├── JpaBookingRepositoryTest.java
-│   │                   └── JpaExtraRepositoryTest.java
-│   │
-│   ├── hotel-util/              # Shared utility library (plain JAR)
-│   │   ├── pom.xml              # Dependencies: SLF4J, Lombok, JUnit5
-│   │   └── src/main/java/at/fhtw/hotel/util/
-│   │       ├── Log.java         # Static convenience logging utility
-│   │       └── Logger.java      # Instance-based SLF4J wrapper
-│   │
 │   ├── db/migration/            # Flyway database migrations (versioned)
 │   │   ├── V1__init_schema.sql  # Schema: rooms, room_images, extras, room_extras, bookings
 │   │   └── V2__seed_data.sql    # Seed data: 2 rooms, 2 extras, images
@@ -183,7 +174,7 @@ This section provides a high-level overview of the project's directory and file 
 This project applies Clean Architecture with strict dependency rules:
 
 - **Web/API layer** depends only on the Domain layer.
-- **Domain layer** is pure Java (no framework annotations or dependencies).
+- **Domain layer** has minimal framework dependency (Lombok annotations for boilerplate reduction).
 - **Infrastructure layer** depends on the Domain layer and implements repository interfaces.
 
 **Layer responsibilities (Backend):**
@@ -256,22 +247,23 @@ This project applies Clean Architecture with strict dependency rules:
                            ┌─────────────────────────────────────────────┐
                            │         Backend (Spring Boot 3.4)           │
                            │                                              │
-                           │  ┌──────────────────────────────────────┐   │
-                           │  │         Web / API Layer             │   │
-                           │  │  Controllers  │  DTOs               │   │
-                           │  └──────────┬───────────────────────────┘   │
-                           │             │                               │
-                           │  ┌──────────▼───────────────────────────┐   │
-                           │  │         Domain Layer                 │   │
-                           │  │  Services (Use Cases)  │  Models     │   │
-                           │  │  Repository Interfaces               │   │
-                           │  └──────────┬───────────────────────────┘   │
-                           │             │                               │
-                           │  ┌──────────▼───────────────────────────┐   │
-                           │  │     Infrastructure Layer             │   │
-                           │  │  JPA Entities  │  Mappers  │  Repos  │   │
-                           │  │  DB Config    │  Flyway              │   │
-                           │  └──────────────────────────────────────┘   │
+│  ┌──────────────────────────────────────────┐ │
+│  │         Web / API Layer                 │ │
+│  │  Controllers  │  DTOs  │  Resp. Mappers │ │
+│  │  ExceptionHandler  │  WebConfig         │ │
+│  └──────────────┬───────────────────────────┘ │
+│                 │                             │
+│  ┌──────────────▼───────────────────────────┐ │
+│  │         Domain / Application Layer       │ │
+│  │  Domain Models  │  Exceptions/ErrorCodes │ │
+│  │  Services (Use Cases) │  Repository Ports│ │
+│  └──────────────┬───────────────────────────┘ │
+│                 │                             │
+│  ┌──────────────▼───────────────────────────┐ │
+│  │         Infrastructure Layer             │ │
+│  │  JPA Entities  │  Entity Mappers  │ Repos│ │
+│  │  Adapters      │  JpaConfig  │  Flyway  │ │
+│  └──────────────────────────────────────────┘ │
                            └─────────────────────────────────────────────┘
 ```
 
@@ -302,11 +294,9 @@ This project applies Clean Architecture with strict dependency rules:
 **Internal Modules:**
 
 - **`hotel-main`** — The runnable Spring Boot application containing all three Clean Architecture layers:
-  - *Web/API Layer* — `@RestController` controllers, request/response DTOs with Bean Validation, and a central `@ControllerAdvice` exception handler for consistent error payloads.
-  - *Domain Layer* — Pure Java domain models (no framework annotations), service classes implementing use cases, and repository interfaces defining the persistence contract.
-  - *Infrastructure Layer* — JPA entity classes, mapper classes (domain <-> entity), and JPA repository implementations. Also includes database configuration and Flyway migration integration.
-
-- **`hotel-util`** — A shared utility JAR providing SLF4J logging wrappers (`Log` and `Logger` classes). Has no Spring Boot dependency.
+  - *Web/API Layer* — `@RestController` controllers, request/response DTOs with Bean Validation, domain→DTO response mappers, a central `@ControllerAdvice` exception handler for consistent error payloads, and CORS/web configuration.
+  - *Domain / Application Layer* — Domain models (Lombok `@Value @Builder`), error codes, and exceptions in `domain/`; service classes implementing use cases in `service/`.
+  - *Infrastructure Layer* — JPA entity classes, entity→domain mapper classes (`@Component`), Spring Data JPA repository interfaces (used directly by services), and Flyway migration integration.
 
 **API Rules (alignment with API specification):**
 - **Pagination:** default `page=1`, `size=5`, max `size=5`; enforced in web layer before calling services.
@@ -379,7 +369,7 @@ These properties are injected into the booking confirmation response via `HotelP
   - Prepared statements via JPA/Hibernate (SQL injection prevention).
   - CORS configuration via Spring (`WebConfig.java`) restricted to allowed origins.
   - `open-in-view: false` in JPA config to prevent lazy loading issues and unintended session access.
-  - No exposure of domain entities directly over the wire (DTO boundary).
+  - DTO boundary for complex responses (Booking, Room pagination); simple domain models (Extra) exposed directly using Lombok `@Value` for serialization.
 
 ## 9. Development & Testing Environment
 
@@ -406,7 +396,7 @@ These properties are injected into the booking confirmation response via `HotelP
 
 **Primary Contact/Team:** [See `team.md` for team member assignments] — FH Technikum Wien, Advanced Webtechnologies Course
 
-**Date of Last Update:** 2026-05-12
+**Date of Last Update:** 2026-05-14
 
 ## 11. Glossary / Acronyms
 

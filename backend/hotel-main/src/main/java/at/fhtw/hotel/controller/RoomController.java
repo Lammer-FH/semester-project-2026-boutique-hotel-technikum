@@ -1,17 +1,18 @@
 package at.fhtw.hotel.controller;
 
-import at.fhtw.hotel.dto.response.PaginatedResponse;
-import at.fhtw.hotel.dto.response.RoomResponse;
-import at.fhtw.hotel.model.Room;
-import at.fhtw.hotel.service.RoomResponseMapper;
+import at.fhtw.hotel.controller.dto.response.PaginatedResponse;
+import at.fhtw.hotel.controller.dto.response.RoomResponse;
+import at.fhtw.hotel.controller.mapper.RoomResponseMapper;
+import at.fhtw.hotel.domain.model.Room;
 import at.fhtw.hotel.service.RoomService;
-import at.fhtw.hotel.util.Logger;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import java.util.List;
@@ -28,12 +29,14 @@ import org.springframework.validation.annotation.Validated;
 @Tag(name = "Rooms", description = "Browse and retrieve hotel room details")
 public class RoomController {
 
-    private static final Logger log = Logger.get(RoomController.class);
+    private static final Logger log = LoggerFactory.getLogger(RoomController.class);
 
     private final RoomService roomService;
+    private final RoomResponseMapper roomResponseMapper;
 
-    public RoomController(RoomService roomService) {
+    public RoomController(RoomService roomService, RoomResponseMapper roomResponseMapper) {
         this.roomService = roomService;
+        this.roomResponseMapper = roomResponseMapper;
     }
 
     @GetMapping
@@ -46,7 +49,7 @@ public class RoomController {
         List<Room> rooms = roomService.listRooms(zeroBasedPage, size);
         long total = roomService.countRooms();
         long totalPages = (long) Math.ceil((double) total / size);
-        List<RoomResponse> data = rooms.stream().map(RoomResponseMapper::toResponse).toList();
+        List<RoomResponse> data = rooms.stream().map(roomResponseMapper::toResponse).toList();
         log.debug("Rooms listed page={} size={}", page, size);
         return PaginatedResponse.<RoomResponse>builder()
                 .data(data)
@@ -62,9 +65,9 @@ public class RoomController {
     @GetMapping("/{roomId}")
     @Operation(summary = "Get a single room", description = "Returns detailed information about a specific room by its ID.")
     @ApiResponse(responseCode = "200", description = "Room details")
-    @ApiResponse(responseCode = "404", description = "Room not found", content = @Content(schema = @Schema(implementation = at.fhtw.hotel.dto.response.ErrorResponse.class)))
+    @ApiResponse(responseCode = "404", description = "Room not found", content = @Content(schema = @Schema(implementation = at.fhtw.hotel.controller.dto.response.ErrorResponse.class)))
     public RoomResponse getRoom(@Parameter(description = "Room ID") @PathVariable long roomId) {
         Room room = roomService.getRoom(roomId);
-        return RoomResponseMapper.toResponse(room);
+        return roomResponseMapper.toResponse(room);
     }
 }

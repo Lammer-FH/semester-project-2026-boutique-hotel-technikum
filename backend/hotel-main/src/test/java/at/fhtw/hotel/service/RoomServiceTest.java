@@ -2,8 +2,10 @@ package at.fhtw.hotel.service;
 
 import at.fhtw.hotel.domain.DomainException;
 import at.fhtw.hotel.domain.ErrorCode;
-import at.fhtw.hotel.model.Room;
-import at.fhtw.hotel.repository.RoomRepository;
+import at.fhtw.hotel.domain.model.Room;
+import at.fhtw.hotel.persistence.entity.RoomEntity;
+import at.fhtw.hotel.persistence.mapper.RoomMapper;
+import at.fhtw.hotel.persistence.repository.JpaRoomRepository;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
@@ -12,6 +14,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageRequest;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
@@ -20,34 +23,48 @@ import static org.mockito.Mockito.when;
 class RoomServiceTest {
 
     @Mock
-    private RoomRepository roomRepository;
+    private JpaRoomRepository jpaRoomRepository;
+
+    @Mock
+    private RoomMapper roomMapper;
 
     @InjectMocks
     private RoomService roomService;
 
     @Test
     void listRooms_returnsPaginatedRooms() {
-        List<Room> expected = List.of(createRoom(1L), createRoom(2L));
-        when(roomRepository.findAll(0, 5)).thenReturn(expected);
-        assertThat(roomService.listRooms(0, 5)).isEqualTo(expected);
+        RoomEntity entity1 = new RoomEntity();
+        RoomEntity entity2 = new RoomEntity();
+        Room room1 = createRoom(1L);
+        Room room2 = createRoom(2L);
+
+        when(jpaRoomRepository.findAllByOrderByIdAsc(PageRequest.of(0, 5))).thenReturn(List.of(entity1, entity2));
+        when(roomMapper.toDomain(entity1)).thenReturn(room1);
+        when(roomMapper.toDomain(entity2)).thenReturn(room2);
+
+        assertThat(roomService.listRooms(0, 5)).containsExactly(room1, room2);
     }
 
     @Test
     void countRooms_returnsTotalCount() {
-        when(roomRepository.count()).thenReturn(10L);
+        when(jpaRoomRepository.count()).thenReturn(10L);
         assertThat(roomService.countRooms()).isEqualTo(10L);
     }
 
     @Test
     void getRoom_withValidId_returnsRoom() {
+        RoomEntity entity = new RoomEntity();
         Room expected = createRoom(1L);
-        when(roomRepository.findById(1L)).thenReturn(Optional.of(expected));
+
+        when(jpaRoomRepository.findById(1L)).thenReturn(Optional.of(entity));
+        when(roomMapper.toDomain(entity)).thenReturn(expected);
+
         assertThat(roomService.getRoom(1L)).isEqualTo(expected);
     }
 
     @Test
     void getRoom_withInvalidId_throwsDomainException() {
-        when(roomRepository.findById(99L)).thenReturn(Optional.empty());
+        when(jpaRoomRepository.findById(99L)).thenReturn(Optional.empty());
         assertThatThrownBy(() -> roomService.getRoom(99L))
                 .isInstanceOf(DomainException.class)
                 .hasFieldOrPropertyWithValue("code", ErrorCode.ROOM_NOT_FOUND);

@@ -18,10 +18,9 @@
 	<name>Boutique Hotel</name>
 	<description>Parent POM for the Boutique Hotel project</description>
 
-	<modules>
-		<module>hotel-util</module>
-		<module>hotel-main</module>
-	</modules>
+    <modules>
+        <module>hotel-main</module>
+    </modules>
 
 	<properties>
 		<java.version>21</java.version>

@@ -2,9 +2,11 @@ package at.fhtw.hotel.service;
 
 import at.fhtw.hotel.domain.DomainException;
 import at.fhtw.hotel.domain.ErrorCode;
-import at.fhtw.hotel.model.Room;
-import at.fhtw.hotel.repository.BookingRepository;
-import at.fhtw.hotel.repository.RoomRepository;
+import at.fhtw.hotel.domain.model.Room;
+import at.fhtw.hotel.persistence.entity.RoomEntity;
+import at.fhtw.hotel.persistence.mapper.RoomMapper;
+import at.fhtw.hotel.persistence.repository.JpaBookingRepository;
+import at.fhtw.hotel.persistence.repository.JpaRoomRepository;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
@@ -22,10 +24,13 @@ import static org.mockito.Mockito.when;
 class AvailabilityServiceTest {
 
     @Mock
-    private RoomRepository roomRepository;
+    private JpaRoomRepository jpaRoomRepository;
 
     @Mock
-    private BookingRepository bookingRepository;
+    private RoomMapper roomMapper;
+
+    @Mock
+    private JpaBookingRepository jpaBookingRepository;
 
     @InjectMocks
     private AvailabilityService availabilityService;
@@ -44,21 +49,25 @@ class AvailabilityServiceTest {
 
     @Test
     void isRoomAvailable_noOverlap_returnsTrue() {
-        when(roomRepository.findById(1L)).thenReturn(Optional.of(room));
-        when(bookingRepository.existsOverlappingBooking(1L, checkIn, checkOut)).thenReturn(false);
+        RoomEntity entity = new RoomEntity();
+        when(jpaRoomRepository.findById(1L)).thenReturn(Optional.of(entity));
+        when(roomMapper.toDomain(entity)).thenReturn(room);
+        when(jpaBookingRepository.existsOverlappingBooking(1L, checkIn, checkOut)).thenReturn(false);
         assertThat(availabilityService.isRoomAvailable(1L, checkIn, checkOut)).isTrue();
     }
 
     @Test
     void isRoomAvailable_overlapExists_returnsFalse() {
-        when(roomRepository.findById(1L)).thenReturn(Optional.of(room));
-        when(bookingRepository.existsOverlappingBooking(1L, checkIn, checkOut)).thenReturn(true);
+        RoomEntity entity = new RoomEntity();
+        when(jpaRoomRepository.findById(1L)).thenReturn(Optional.of(entity));
+        when(roomMapper.toDomain(entity)).thenReturn(room);
+        when(jpaBookingRepository.existsOverlappingBooking(1L, checkIn, checkOut)).thenReturn(true);
         assertThat(availabilityService.isRoomAvailable(1L, checkIn, checkOut)).isFalse();
     }
 
     @Test
     void isRoomAvailable_invalidRoomId_throwsDomainException() {
-        when(roomRepository.findById(99L)).thenReturn(Optional.empty());
+        when(jpaRoomRepository.findById(99L)).thenReturn(Optional.empty());
         assertThatThrownBy(() -> availabilityService.isRoomAvailable(99L, checkIn, checkOut))
                 .isInstanceOf(DomainException.class)
                 .hasFieldOrPropertyWithValue("code", ErrorCode.ROOM_NOT_FOUND);
@@ -66,7 +75,9 @@ class AvailabilityServiceTest {
 
     @Test
     void isRoomAvailable_invalidDateRange_throwsDomainException() {
-        when(roomRepository.findById(1L)).thenReturn(Optional.of(room));
+        RoomEntity entity = new RoomEntity();
+        when(jpaRoomRepository.findById(1L)).thenReturn(Optional.of(entity));
+        when(roomMapper.toDomain(entity)).thenReturn(room);
         LocalDate badCheckIn = LocalDate.of(2026, 6, 10);
         LocalDate badCheckOut = LocalDate.of(2026, 6, 5);
         assertThatThrownBy(() -> availabilityService.isRoomAvailable(1L, badCheckIn, badCheckOut))
