@@ -26,7 +26,7 @@ Apply Clean Architecture as defined by R. Martin, with strict dependency rules:
 * **Dependency Rule:** Source code dependencies must point inward, toward the domain.
 * **Framework Independence:** Business rules must not depend on Spring or JPA.
 * **Testability:** Core business logic must be testable without the web or database.
-* **Domain Purity:** Keep the domain layer free of framework annotations and persistence concerns, including Spring, JPA, and Lombok.
+* **Domain Purity:** Keep the domain layer free of framework annotations and persistence concerns, including Spring, JPA, and Lombok. Lombok is permitted in DTOs, JPA entities, and config classes, but **not** in domain models (the `model/` and `domain/` packages).
 
 ### 2. Clean Architecture Layers (Backend)
 
