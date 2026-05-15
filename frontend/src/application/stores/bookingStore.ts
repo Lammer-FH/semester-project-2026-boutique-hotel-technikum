@@ -41,7 +41,7 @@ export const useBookingStore = defineStore("booking", {
         this.isSubmitting = false;
       }
     },
-    async fetchBooking(bookingId: number) {
+    async getBooking(bookingId: number) {
       this.isSubmitting = true;
       this.error = null;
 

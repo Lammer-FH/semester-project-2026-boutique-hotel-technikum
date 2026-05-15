@@ -22,7 +22,7 @@ export const useRoomStore = defineStore("rooms", {
     error: null,
   }),
   actions: {
-    async fetchRooms(page = DEFAULT_PAGE, size = DEFAULT_PAGE_SIZE) {
+    async getRooms(page = DEFAULT_PAGE, size = DEFAULT_PAGE_SIZE) {
       this.isLoading = true;
       this.error = null;
 
@@ -36,7 +36,7 @@ export const useRoomStore = defineStore("rooms", {
         this.isLoading = false;
       }
     },
-    async fetchRoom(roomId: number) {
+    async getRoom(roomId: number) {
       this.isLoading = true;
       this.error = null;
 
