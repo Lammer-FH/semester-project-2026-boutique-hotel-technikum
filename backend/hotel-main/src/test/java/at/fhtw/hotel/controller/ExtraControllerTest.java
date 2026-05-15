@@ -1,5 +1,6 @@
 package at.fhtw.hotel.controller;
 
+import at.fhtw.hotel.config.ApiRoutes;
 import at.fhtw.hotel.domain.model.Extra;
 import at.fhtw.hotel.service.ExtraService;
 import java.util.List;
@@ -29,7 +30,7 @@ class ExtraControllerTest {
 
         when(extraService.listExtras()).thenReturn(List.of(wifi, breakfast));
 
-        mockMvc.perform(get("/extras"))
+        mockMvc.perform(get(ApiRoutes.API + "/extras"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$[0].id").value(1))
@@ -42,7 +43,7 @@ class ExtraControllerTest {
     @Test
     void listExtras_emptyList_returnsEmptyArray() throws Exception {
         when(extraService.listExtras()).thenReturn(List.of());
-        mockMvc.perform(get("/extras"))
+        mockMvc.perform(get(ApiRoutes.API + "/extras"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$").isEmpty());

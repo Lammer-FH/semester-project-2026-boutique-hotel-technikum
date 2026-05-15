@@ -1,5 +1,6 @@
 package at.fhtw.hotel.controller;
 
+import at.fhtw.hotel.config.ApiRoutes;
 import at.fhtw.hotel.domain.DomainException;
 import at.fhtw.hotel.domain.ErrorCode;
 import at.fhtw.hotel.service.AvailabilityService;
@@ -30,7 +31,7 @@ class AvailabilityControllerTest {
         when(availabilityService.isRoomAvailable(eq(1L), any(LocalDate.class), any(LocalDate.class)))
                 .thenReturn(true);
 
-        mockMvc.perform(get("/rooms/1/availability")
+        mockMvc.perform(get(ApiRoutes.API + "/rooms/1/availability")
                         .param("check_in_date", "2026-06-01")
                         .param("check_out_date", "2026-06-05"))
                 .andExpect(status().isOk())
@@ -44,7 +45,7 @@ class AvailabilityControllerTest {
         when(availabilityService.isRoomAvailable(eq(1L), any(LocalDate.class), any(LocalDate.class)))
                 .thenReturn(false);
 
-        mockMvc.perform(get("/rooms/1/availability")
+        mockMvc.perform(get(ApiRoutes.API + "/rooms/1/availability")
                         .param("check_in_date", "2026-06-01")
                         .param("check_out_date", "2026-06-05"))
                 .andExpect(status().isOk())
@@ -58,7 +59,7 @@ class AvailabilityControllerTest {
         when(availabilityService.isRoomAvailable(eq(99L), any(LocalDate.class), any(LocalDate.class)))
                 .thenThrow(new DomainException(ErrorCode.ROOM_NOT_FOUND, "Room not found"));
 
-        mockMvc.perform(get("/rooms/99/availability")
+        mockMvc.perform(get(ApiRoutes.API + "/rooms/99/availability")
                         .param("check_in_date", "2026-06-01")
                         .param("check_out_date", "2026-06-05"))
                 .andExpect(status().isNotFound())
