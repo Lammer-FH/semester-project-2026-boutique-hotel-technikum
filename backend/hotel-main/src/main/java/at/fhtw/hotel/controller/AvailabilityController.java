@@ -1,5 +1,6 @@
 package at.fhtw.hotel.controller;
 
+import at.fhtw.hotel.config.ApiRoutes;
 import at.fhtw.hotel.controller.dto.response.AvailabilityResponse;
 import at.fhtw.hotel.service.AvailabilityService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -19,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.validation.annotation.Validated;
 
 @RestController
-@RequestMapping("/rooms/{roomId}/availability")
+@RequestMapping(ApiRoutes.API + "/rooms/{roomId}/availability")
 @Validated
 @Tag(name = "Availability", description = "Check room availability for specific dates")
 public class AvailabilityController {

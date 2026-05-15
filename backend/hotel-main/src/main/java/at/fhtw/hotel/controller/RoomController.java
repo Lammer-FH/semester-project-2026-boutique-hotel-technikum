@@ -1,5 +1,6 @@
 package at.fhtw.hotel.controller;
 
+import at.fhtw.hotel.config.ApiRoutes;
 import at.fhtw.hotel.controller.dto.response.PaginatedResponse;
 import at.fhtw.hotel.controller.dto.response.RoomResponse;
 import at.fhtw.hotel.controller.mapper.RoomResponseMapper;
@@ -24,7 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.validation.annotation.Validated;
 
 @RestController
-@RequestMapping("/rooms")
+@RequestMapping(ApiRoutes.API + "/rooms")
 @Validated
 @Tag(name = "Rooms", description = "Browse and retrieve hotel room details")
 public class RoomController {

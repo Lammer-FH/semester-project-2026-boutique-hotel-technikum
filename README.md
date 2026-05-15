@@ -41,17 +41,19 @@ This repository contains the backend, frontend, and project documentation for th
 	```powershell
 	cd backend
 	.\mvnw.cmd clean install -DskipTests
-	.\mvnw.cmd spring-boot:run -DskipTests
+	.\mvnw.cmd spring-boot:run
 	```
 
-3. To run a specific test class instead, use:
+3. To run all tests, use:
 
 	```powershell
 	cd backend
-	.\mvnw.cmd -Dtest=HealthControllerTest test
+	.\mvnw.cmd test
 	```
 
 4. Open the backend at `http://localhost:8080`.
+
+5. (Optional) Check out the Swagger OpenAPI Specification: `http://localhost:8080/swagger-ui/index.html`
 
 ### Frontend
 

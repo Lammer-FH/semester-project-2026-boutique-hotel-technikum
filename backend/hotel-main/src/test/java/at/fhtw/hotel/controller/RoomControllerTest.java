@@ -1,5 +1,6 @@
 package at.fhtw.hotel.controller;
 
+import at.fhtw.hotel.config.ApiRoutes;
 import at.fhtw.hotel.domain.DomainException;
 import at.fhtw.hotel.domain.ErrorCode;
 import at.fhtw.hotel.controller.dto.response.RoomResponse;
@@ -55,7 +56,7 @@ class RoomControllerTest {
                             .build();
                 });
 
-        mockMvc.perform(get("/rooms"))
+        mockMvc.perform(get(ApiRoutes.API + "/rooms"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data").isArray())
                 .andExpect(jsonPath("$.data[0].id").value(1))
@@ -70,7 +71,7 @@ class RoomControllerTest {
         when(roomService.listRooms(0, 3)).thenReturn(List.of());
         when(roomService.countRooms()).thenReturn(0L);
 
-        mockMvc.perform(get("/rooms").param("page", "1").param("size", "3"))
+        mockMvc.perform(get(ApiRoutes.API + "/rooms").param("page", "1").param("size", "3"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.pagination.page").value(1))
                 .andExpect(jsonPath("$.pagination.size").value(3));
@@ -99,7 +100,7 @@ class RoomControllerTest {
                             .build();
                 });
 
-        mockMvc.perform(get("/rooms/1"))
+        mockMvc.perform(get(ApiRoutes.API + "/rooms/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.title").value("Deluxe Room"))
@@ -111,28 +112,28 @@ class RoomControllerTest {
         when(roomService.getRoom(99L))
                 .thenThrow(new DomainException(ErrorCode.ROOM_NOT_FOUND, "Room not found"));
 
-        mockMvc.perform(get("/rooms/99"))
+        mockMvc.perform(get(ApiRoutes.API + "/rooms/99"))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.error.code").value("ROOM_NOT_FOUND"));
     }
 
     @Test
     void listRooms_withPageZero_returns400() throws Exception {
-        mockMvc.perform(get("/rooms").param("page", "0"))
+        mockMvc.perform(get(ApiRoutes.API + "/rooms").param("page", "0"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error.code").value("INVALID_INPUT"));
     }
 
     @Test
     void listRooms_withSizeAboveMax_returns400() throws Exception {
-        mockMvc.perform(get("/rooms").param("size", "6"))
+        mockMvc.perform(get(ApiRoutes.API + "/rooms").param("size", "6"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error.code").value("INVALID_INPUT"));
     }
 
     @Test
     void listRooms_withSizeZero_returns400() throws Exception {
-        mockMvc.perform(get("/rooms").param("size", "0"))
+        mockMvc.perform(get(ApiRoutes.API + "/rooms").param("size", "0"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error.code").value("INVALID_INPUT"));
     }
