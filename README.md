@@ -82,7 +82,7 @@ This repository contains the backend, frontend, and project documentation for th
 	npm run dev
 	```
 
-2. Open the frontend app at `http://localhost:5173` unless you changed the default Vite configuration.
+2. Open the frontend app at `http://localhost:5000`
 
 > **Notes:**
 > - The backend reads DB credentials from `backend/.env` and connects to MySQL on `localhost:3306`.
