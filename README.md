@@ -6,6 +6,19 @@ Full-stack booking application for the Boutique Hotel Technikum, built for the F
 
 This repository contains the backend, frontend, and project documentation for the hotel booking application. The initial project specification is documented in [docs/pre-project/project_specification.md](docs/pre-project/project_specification.md).
 
+## Architecture Notes
+
+- Folder structure: keep backend code under `backend/src/main/java` with layers split by web, domain, and infrastructure; keep frontend UI and routing under `frontend/src`, and keep docs under `docs/`.
+- Frontend structure: use Atomic Design in `frontend/src/components` (atoms, molecules, organisms, layout), keep pages in `frontend/src/pages`, app data in `frontend/src/data`, and route config in `frontend/src/router`.
+- Atomic Design summary: atoms are basic UI elements; molecules combine atoms into small functional units; organisms are larger sections composed of molecules; pages assemble organisms into full views.
+- Backend structure: keep controllers/DTOs in web layer, business rules in domain layer without framework dependencies, and database/external integrations in infrastructure.
+
+## CSS File Separation (Frontend)
+
+- Global tokens live in `frontend/src/assets/styles/variables.css` (colors, spacing, typography), and base elements live in `frontend/src/assets/styles/base.css`.
+- App-wide composition lives in `frontend/src/assets/styles/main.css`, which imports variables and base styles.
+- Component-specific styles stay inside each Vue SFC as scoped blocks; avoid adding feature styles to global CSS unless multiple pages share them.
+
 ## Tech Stack
 
 - Backend: Java 21, Spring Boot 3.4.0
@@ -71,7 +84,7 @@ This repository contains the backend, frontend, and project documentation for th
 	npm run dev
 	```
 
-2. Open the frontend app at `http://localhost:5173` unless you changed the default Vite configuration.
+2. Open the frontend app at `http://localhost:5000`
 
 > **Notes:**
 > - The backend reads DB credentials from `backend/.env` and connects to MySQL on `localhost:3306`.

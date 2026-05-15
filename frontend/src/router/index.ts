@@ -1,17 +1,38 @@
-import { createRouter, createWebHistory } from 'vue-router'
-import HelloWorld from '../components/HelloWorld.vue'
+import { createRouter, createWebHistory } from '@ionic/vue-router'
+import LandingPage from '@/pages/LandingPage.vue'
+import AboutPage from '@/pages/AboutPage.vue'
+import ImprintPage from '@/pages/ImprintPage.vue'
+import RoomsPage from '@/pages/RoomsPage.vue'
 
 const routes = [
   {
     path: '/',
-    name: 'Home',
-    component: HelloWorld,
+    name: 'Landing',
+    component: LandingPage,
+  },
+  {
+    path: '/about',
+    name: 'About',
+    component: AboutPage,
+  },
+  {
+    path: '/rooms',
+    name: 'RoomsIndex',
+    component: RoomsPage,
+  },
+  {
+    path: '/imprint',
+    name: 'Imprint',
+    component: ImprintPage,
   },
 ]
 
 const router = createRouter({
   history: createWebHistory(),
   routes,
+  scrollBehavior() {
+    return { top: 0 }
+  },
 })
 
 export default router
