@@ -26,7 +26,15 @@ public class RoomService {
 
     public List<Room> listRooms(int page, int size) {
         log.debug("Listing rooms page={} size={}", page, size);
-        return jpaRoomRepository.findAllByOrderByIdAsc(PageRequest.of(page, size)).stream()
+        List<Long> roomIds = jpaRoomRepository.findAllByOrderByIdAsc(PageRequest.of(page, size)).stream()
+                .map(entity -> entity.getId())
+                .toList();
+
+        if (roomIds.isEmpty()) {
+            return List.of();
+        }
+
+        return jpaRoomRepository.findAllByIdInOrderByIdAsc(roomIds).stream()
                 .map(roomMapper::toDomain)
                 .toList();
     }

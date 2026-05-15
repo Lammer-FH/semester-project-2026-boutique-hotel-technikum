@@ -20,6 +20,7 @@ public class RoomMapper {
                 .toList();
 
         List<Extra> extras = entity.getExtras().stream()
+                .sorted(Comparator.comparing(ExtraEntity::getId, Comparator.nullsLast(Long::compareTo)))
                 .map(this::toDomain)
                 .toList();
 

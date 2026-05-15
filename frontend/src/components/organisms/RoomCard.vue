@@ -61,9 +61,7 @@ const resolveExtraIcon = (iconName: string) => iconMap[iconName] ?? sparklesOutl
 
 <template>
   <ion-card class="room-card">
-    <div class="room-card__media">
-      <ion-img :src="primaryImage.url" :alt="primaryImage.altText" />
-    </div>
+    <ion-img class="room-card__image" :src="primaryImage.url" :alt="primaryImage.altText" />
     <ion-card-header>
       <div class="room-card__header">
         <ion-card-title>{{ room.title }}</ion-card-title>
@@ -108,16 +106,12 @@ const resolveExtraIcon = (iconName: string) => iconMap[iconName] ?? sparklesOutl
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  align-self: start;
 }
 
-.room-card__media {
-  position: relative;
-  overflow: hidden;
-}
-
-.room-card__media ion-img {
+.room-card__image {
   width: 100%;
-  height: 220px;
+  height: 300px;
   object-fit: cover;
 }
 
@@ -168,7 +162,7 @@ const resolveExtraIcon = (iconName: string) => iconMap[iconName] ?? sparklesOutl
 }
 
 .room-card__availability {
-  margin-top: 16px;
+  margin-top: 8px;
 }
 
 .room-card__chip {

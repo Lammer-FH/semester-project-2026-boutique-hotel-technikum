@@ -35,10 +35,14 @@ class RoomServiceTest {
     void listRooms_returnsPaginatedRooms() {
         RoomEntity entity1 = new RoomEntity();
         RoomEntity entity2 = new RoomEntity();
+        entity1.setId(1L);
+        entity2.setId(2L);
         Room room1 = createRoom(1L);
         Room room2 = createRoom(2L);
 
         when(jpaRoomRepository.findAllByOrderByIdAsc(PageRequest.of(0, 5))).thenReturn(List.of(entity1, entity2));
+        when(jpaRoomRepository.findAllByIdInOrderByIdAsc(List.of(1L, 2L)))
+            .thenReturn(List.of(entity1, entity2));
         when(roomMapper.toDomain(entity1)).thenReturn(room1);
         when(roomMapper.toDomain(entity2)).thenReturn(room2);
 

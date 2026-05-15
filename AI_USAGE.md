@@ -82,8 +82,12 @@ This document serves as the mandatory record for all AI-assisted work on the **B
 | U3 availability dialog CSS | codex| "Polish the availability dialog styling to match the terracotta/cream design system" | Tweaked gradients, borders, and spacing to align with existing UI tokens. |
 | U3 availability status chip CSS | codex | "Improve the availability status chip styles for available/unavailable states" | Added semantic colors and refined chip borders to clarify state feedback. |
 | U3 date picker layout CSS | codex | "Adjust date picker layout for mobile-first responsiveness in U3" | Improved spacing and added responsive grid layout for date fields. |
-| Date utils refactor | GitHub Copilot | "Create a Date-Utils file for date utilities and refactor the code" | Added date utility helpers and refactored RoomAvailabilityDialog to use shared functions |
-
+| Date utils refactor | codex | "Create a Date-Utils file for date utilities and refactor the code" | Added date utility helpers and refactored RoomAvailabilityDialog to use shared functions |
+| Seed data expansion | codex | "Expand seed to 9 rooms and more extras distributed across rooms" | Extended rooms/extras seed data and room-extras mapping with 9 rooms and 8 extras |
+| Scroll to top on navigation | codex | "after navigating pages the view should be auto scrolled to top" | Added router scrollBehavior to reset scroll to top on route changes |
+| Room card compact layout | GitHub Copilot | "gesamte ard kleiner - keine unnötige fläche ohne content" | Removed spacer/stretch behavior so card height follows content and reduced image height slightly |
+| U3 datepicker no selectable days fix | GitHub Copilot | "im datepicker sind keine tage zum auswählen" | Switched today-min date generation to local timezone-safe ISO and passed `undefined` instead of empty string to Ionic datetime values |
+| U3 datepicker selectable days follow-up | GitHub Copilot | "ist immernoch" and "im datepicker sind keine tage zum auswählen" | Switched both ion-datetime fields to `v-model` and derived ISO-only dates for min/validation/API to avoid non-selectable day states |
 ---
 
 ## Documentation Guidelines

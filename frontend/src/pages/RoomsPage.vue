@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from "vue"
+import { computed, nextTick, ref, watch } from "vue"
 import { IonButton, IonContent, IonPage } from "@ionic/vue"
 import { storeToRefs } from "pinia"
 import BaseSectionTitle from "@/components/atoms/BaseSectionTitle.vue"
@@ -11,6 +11,7 @@ import { useRoomStore } from "@/application/stores/roomStore"
 
 const pageSize = 5
 const currentPage = ref(1)
+const contentRef = ref<InstanceType<typeof IonContent> | null>(null)
 
 const roomStore = useRoomStore()
 const { rooms, isLoading, error: errorMessage, pagination } = storeToRefs(roomStore)
@@ -35,6 +36,7 @@ const endNumber = computed(() => {
 
 const setPage = (page: number) => {
   currentPage.value = page
+  nextTick(() => contentRef.value?.$el?.scrollToTop(0))
 }
 
 watch(currentPage, (page) => roomStore.getRooms(page, pageSize), { immediate: true })
@@ -43,7 +45,7 @@ watch(currentPage, (page) => roomStore.getRooms(page, pageSize), { immediate: tr
 <template>
   <ion-page>
     <the-header />
-    <ion-content class="page-shell">
+    <ion-content ref="contentRef" class="page-shell">
       <div class="rooms-page__layout">
         <div class="page-shell__inner rooms-page">
           <div class="rooms-page__intro">

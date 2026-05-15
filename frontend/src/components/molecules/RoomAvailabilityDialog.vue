@@ -166,7 +166,7 @@ const checkAvailability = async () => {
             <ion-datetime
               presentation="date"
               :min="minDate"
-              :value="checkInDate"
+              :value="checkInDate || undefined"
               @ionChange="updateCheckInDate"
             />
           </div>
@@ -175,7 +175,7 @@ const checkAvailability = async () => {
             <ion-datetime
               presentation="date"
               :min="checkInDate || minDate"
-              :value="checkOutDate"
+              :value="checkOutDate || undefined"
               @ionChange="updateCheckOutDate"
             />
           </div>
@@ -247,6 +247,11 @@ const checkAvailability = async () => {
   background: linear-gradient(150deg, #fff9f0 0%, #efe1cb 100%);
   padding: 20px;
   min-height: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  padding-bottom: calc(20px + env(safe-area-inset-bottom));
 }
 
 .availability__header {
@@ -286,6 +291,10 @@ const checkAvailability = async () => {
   border: 1px solid rgba(31, 27, 24, 0.1);
 }
 
+.availability__field ion-datetime {
+  width: 100%;
+}
+
 .availability__label {
   text-transform: uppercase;
   letter-spacing: 0.12em;
@@ -323,10 +332,38 @@ const checkAvailability = async () => {
   margin-top: 18px;
   display: flex;
   justify-content: flex-end;
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
+  padding-top: 12px;
 }
 
 .availability__actions ion-button {
   min-width: 140px;
+}
+
+@media (max-width: 540px) {
+  .availability__dialog {
+    padding: 16px;
+    padding-bottom: calc(16px + env(safe-area-inset-bottom));
+  }
+
+  .availability__header {
+    flex-wrap: wrap;
+  }
+
+  .availability__header ion-button {
+    margin-left: auto;
+  }
+
+  .availability__actions {
+    justify-content: stretch;
+  }
+
+  .availability__actions ion-button {
+    width: 100%;
+    min-width: 0;
+  }
 }
 
 @media (min-width: 720px) {

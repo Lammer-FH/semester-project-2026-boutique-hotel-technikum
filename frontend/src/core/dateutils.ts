@@ -18,8 +18,11 @@ const parseDateOnly = (value: string): Date | null => {
   return Number.isNaN(parsed.getTime()) ? null : parsed
 }
 
-export const getTodayIsoDate = (): string =>
-  new Date().toISOString().split("T")[0]
+export const getTodayIsoDate = (): string => {
+  const now = new Date()
+  const local = new Date(now.getTime() - now.getTimezoneOffset() * 60_000)
+  return local.toISOString().split("T")[0]
+}
 
 export const formatDate = (value: string, locale = "en-US"): string => {
   const parsed = parseDateOnly(value)

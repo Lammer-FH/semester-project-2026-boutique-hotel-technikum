@@ -14,7 +14,9 @@ import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -53,5 +55,5 @@ public class RoomEntity {
     @JoinTable(name = "room_extras",
             joinColumns = @JoinColumn(name = "room_id"),
             inverseJoinColumns = @JoinColumn(name = "extra_id"))
-    private List<ExtraEntity> extras = new ArrayList<>();
+    private Set<ExtraEntity> extras = new HashSet<>();
 }
