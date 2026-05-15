@@ -33,6 +33,7 @@ const closeMenu = () => {
         </router-link>
         <nav class="app-header__nav" aria-label="Primary">
           <router-link class="app-header__link" :to="{ name: 'Landing' }">Home</router-link>
+          <router-link class="app-header__link" :to="{ name: 'RoomsIndex' }">Rooms</router-link>
           <router-link class="app-header__link" :to="{ name: 'About' }">About</router-link>
         </nav>
       </div>
@@ -41,6 +42,9 @@ const closeMenu = () => {
       <nav class="app-header__dropdown-nav" aria-label="Mobile">
         <router-link class="app-header__dropdown-link" :to="{ name: 'Landing' }" @click="closeMenu">
           Home
+        </router-link>
+        <router-link class="app-header__dropdown-link" :to="{ name: 'RoomsIndex' }" @click="closeMenu">
+          Rooms
         </router-link>
         <router-link class="app-header__dropdown-link" :to="{ name: 'About' }" @click="closeMenu">
           About

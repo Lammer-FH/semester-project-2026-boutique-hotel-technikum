@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from '@ionic/vue-router'
 import LandingPage from '@/pages/LandingPage.vue'
 import AboutPage from '@/pages/AboutPage.vue'
 import ImprintPage from '@/pages/ImprintPage.vue'
+import RoomsPage from '@/pages/RoomsPage.vue'
 
 const routes = [
   {
@@ -13,6 +14,11 @@ const routes = [
     path: '/about',
     name: 'About',
     component: AboutPage,
+  },
+  {
+    path: '/rooms',
+    name: 'RoomsIndex',
+    component: RoomsPage,
   },
   {
     path: '/imprint',

@@ -49,6 +49,12 @@ ion-page {
 
 ion-content.page-shell::part(scroll) {
   padding-bottom: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-footer {
+  margin-top: auto;
 }
 
 .page-shell__inner {

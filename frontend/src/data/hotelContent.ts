@@ -15,8 +15,8 @@ export const heroContent: HeroContent = {
   title: "Boutique Hotel Technikum",
   subtitle:
     "A calm hideaway in the heart of Vienna, crafted for slow mornings and bold city nights.",
-  primaryLabel: "Explore the hotel",
-  primaryRoute: { name: "About" },
+  primaryLabel: "Book a room",
+  primaryRoute: { name: "RoomsIndex" },
   secondaryLabel: "About Us",
   secondaryRoute: { name: "About" },
 }
