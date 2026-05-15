@@ -1,5 +1,6 @@
 package at.fhtw.hotel.controller;
 
+import at.fhtw.hotel.config.ApiRoutes;
 import at.fhtw.hotel.domain.model.Extra;
 import at.fhtw.hotel.service.ExtraService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -13,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/extras")
+@RequestMapping(ApiRoutes.API + "/extras")
 @Tag(name = "Extras", description = "Browse bookable extras and amenities")
 public class ExtraController {
 

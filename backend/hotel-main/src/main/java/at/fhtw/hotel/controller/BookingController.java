@@ -1,5 +1,6 @@
 package at.fhtw.hotel.controller;
 
+import at.fhtw.hotel.config.ApiRoutes;
 import at.fhtw.hotel.controller.dto.request.BookingRequest;
 import at.fhtw.hotel.controller.dto.response.BookingResponse;
 import at.fhtw.hotel.service.BookingService;
@@ -22,7 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/bookings")
+@RequestMapping(ApiRoutes.API + "/bookings")
 @Tag(name = "Bookings", description = "Create and retrieve hotel bookings")
 public class BookingController {
 

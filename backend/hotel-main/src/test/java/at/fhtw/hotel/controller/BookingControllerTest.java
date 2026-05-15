@@ -1,5 +1,6 @@
 package at.fhtw.hotel.controller;
 
+import at.fhtw.hotel.config.ApiRoutes;
 import at.fhtw.hotel.domain.DomainException;
 import at.fhtw.hotel.domain.ErrorCode;
 import at.fhtw.hotel.controller.dto.response.BookingResponse;
@@ -93,7 +94,7 @@ class BookingControllerTest {
                 }
                 """;
 
-        mockMvc.perform(post("/bookings")
+        mockMvc.perform(post(ApiRoutes.API + "/bookings")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
                 .andExpect(status().isCreated())
@@ -115,7 +116,7 @@ class BookingControllerTest {
                 }
                 """;
 
-        mockMvc.perform(post("/bookings")
+        mockMvc.perform(post(ApiRoutes.API + "/bookings")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(invalidJson))
                 .andExpect(status().isBadRequest());
@@ -137,7 +138,7 @@ class BookingControllerTest {
                 }
                 """;
 
-        mockMvc.perform(post("/bookings")
+        mockMvc.perform(post(ApiRoutes.API + "/bookings")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
                 .andExpect(status().isBadRequest())
@@ -173,7 +174,7 @@ class BookingControllerTest {
 
         when(bookingService.getBooking(42L)).thenReturn(response);
 
-        mockMvc.perform(get("/bookings/42"))
+        mockMvc.perform(get(ApiRoutes.API + "/bookings/42"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.booking_id").value(42))
                 .andExpect(jsonPath("$.guest.first_name").value("John"));
@@ -184,7 +185,7 @@ class BookingControllerTest {
         when(bookingService.getBooking(99L))
                 .thenThrow(new DomainException(ErrorCode.BOOKING_NOT_FOUND, "Booking not found"));
 
-        mockMvc.perform(get("/bookings/99"))
+        mockMvc.perform(get(ApiRoutes.API + "/bookings/99"))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.error.code").value("BOOKING_NOT_FOUND"));
     }
@@ -208,7 +209,7 @@ class BookingControllerTest {
                 }
                 """;
 
-        mockMvc.perform(post("/bookings")
+        mockMvc.perform(post(ApiRoutes.API + "/bookings")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestJson))
                 .andExpect(status().isConflict())

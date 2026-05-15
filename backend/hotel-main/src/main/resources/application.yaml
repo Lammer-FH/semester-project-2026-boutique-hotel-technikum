@@ -1,8 +1,6 @@
 server:
   servlet:
-    # Keep a non-versioned API context so we can host multiple API versions
-    # under the same base path (e.g. /api/v1 and /api/v2).
-    context-path: /api
+    context-path: /
 
 logging:
   level:
@@ -31,20 +29,13 @@ spring:
     locations: filesystem:../db/migration
     connect-retries: 30
 
-# Springdoc / OpenAPI configuration
-# Default springdoc path is /v3/api-docs which combined with the
-# `server.servlet.context-path: /api` produces /api/v3/api-docs.
-# Expose a single OpenAPI JSON at `/api/openapi.json` and keep the
-# API base path non-versioned (`/api`). For versioning in future prefer
-# controller-level paths (`/v1/...`), media-type/header versioning, or
-# an API gateway. Avoid hardcoding a version here.
 springdoc:
   api-docs:
     path: /openapi.json
   swagger-ui:
-    url: /api/openapi.json
+    url: /openapi.json
 
-app:
+app:  
   images:
     rooms-base-path: classpath:/static/images/rooms/
   hotel:
