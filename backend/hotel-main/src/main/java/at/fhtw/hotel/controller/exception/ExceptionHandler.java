@@ -1,4 +1,4 @@
-package at.fhtw.hotel.controller;
+package at.fhtw.hotel.controller.exception;
 
 import at.fhtw.hotel.controller.dto.response.ErrorResponse;
 import at.fhtw.hotel.controller.dto.response.ErrorResponse.ErrorDetail;
