@@ -87,6 +87,7 @@ This document serves as the mandatory record for all AI-assisted work on the **B
 | Date utils refactor | codex | "Create a Date-Utils file for date utilities and refactor the code" | Added date utility helpers and refactored RoomAvailabilityDialog to use shared functions |
 | Seed data expansion | codex | "Expand seed to 9 rooms and more extras distributed across rooms" | Extended rooms/extras seed data and room-extras mapping with 9 rooms and 8 extras |
 | Scroll to top on navigation | codex | "after navigating pages the view should be auto scrolled to top" | Added router scrollBehavior to reset scroll to top on route changes |
+| U3 date picker refactor | codex | "create an extra component for datepicker" | Extracted reusable DatePicker component and replaced IonDatetime usage in RoomAvailabilityDialog |
 ---
 
 ## Documentation Guidelines

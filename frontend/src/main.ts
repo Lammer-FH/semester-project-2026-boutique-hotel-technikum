@@ -3,6 +3,7 @@ import { createPinia } from "pinia";
 import { IonicVue } from "@ionic/vue";
 import App from "./App.vue";
 import router from "./router";
+import "@ionic/vue/css/ionic.bundle.css";
 import "@ionic/vue/css/core.css";
 import "@ionic/vue/css/normalize.css";
 import "@ionic/vue/css/structure.css";

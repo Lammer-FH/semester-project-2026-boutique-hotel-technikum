@@ -1,20 +1,16 @@
 <script setup lang="ts">
-import { computed, ref } from "vue"
+import { computed, ref, watch } from "vue"
 import {
   IonButton,
   IonChip,
-  IonDatetime,
+  IonContent,
   IonIcon,
   IonModal,
-  IonSpinner,
 } from "@ionic/vue"
-import {
-  calendarOutline,
-  checkmarkCircleOutline,
-  closeCircleOutline,
-} from "ionicons/icons"
+import { checkmarkCircleOutline, closeCircleOutline, calendarOutline } from "ionicons/icons"
 import { storeToRefs } from "pinia"
 import { useAvailabilityStore } from "@/application/stores/availabilityStore"
+import DatePicker from "@/components/atoms/DatePicker.vue"
 import {
   formatDate,
   getTodayIsoDate,
@@ -27,185 +23,135 @@ const props = defineProps<{
   roomTitle: string
 }>()
 
-const isOpen = ref(false)
-const checkInDate = ref("")
-const checkOutDate = ref("")
-const validationError = ref("")
-const requestError = ref("")
-
 const availabilityStore = useAvailabilityStore()
 const { availabilityByRoomId, isLoading, error } = storeToRefs(availabilityStore)
 
-type DateChangeEvent = CustomEvent<{ value?: string | string[] | null }>
+const isOpen = ref(false)
+const checkInDate = ref<string | undefined>(undefined)
+const checkOutDate = ref<string | undefined>(undefined)
+const localError = ref("")
 
-const availabilityResult = computed(
-  () => availabilityByRoomId.value[props.roomId] ?? null
-)
+const availability = computed(() => availabilityByRoomId.value[props.roomId])
+const minCheckIn = computed(() => getTodayIsoDate())
+const minCheckOut = computed(() => toIsoDate(checkInDate.value) || getTodayIsoDate())
 
-const minDate = computed(() => getTodayIsoDate())
+const errorMessage = computed(() => localError.value)
 
-const hasDates = computed(
-  () => Boolean(checkInDate.value) && Boolean(checkOutDate.value)
-)
-
-const statusIcon = computed(() =>
-  availabilityResult.value?.available
-    ? checkmarkCircleOutline
-    : closeCircleOutline
-)
-
-const statusClass = computed(() =>
-  availabilityResult.value?.available
-    ? "availability__status--available"
-    : "availability__status--unavailable"
-)
-
-const rangeLabel = computed(() => {
-  if (!hasDates.value) {
-    return "Select a check-in and check-out date."
+// availability status bundle
+const availabilityStatus = computed(() => {
+  const available = !!availability.value?.available
+  return {
+    label: available ? "Available" : "Not available",
+    icon: available ? checkmarkCircleOutline : closeCircleOutline,
+    class: available
+      ? "availability__status availability__status--success"
+      : "availability__status availability__status--warning",
   }
-
-  return `${formatDate(checkInDate.value)} - ${formatDate(checkOutDate.value)}`
 })
 
-const resetErrors = () => {
-  validationError.value = ""
-  requestError.value = ""
-}
+const dateRangeLabel = computed(() => {
+  const checkInValue = toIsoDate(checkInDate.value)
+  const checkOutValue = toIsoDate(checkOutDate.value)
+  return checkInValue && checkOutValue
+    ? `${formatDate(checkInValue)} - ${formatDate(checkOutValue)}`
+    : ""
+})
 
 const openDialog = () => {
-  resetErrors()
   isOpen.value = true
+  localError.value = ""
 }
 
 const closeDialog = () => {
   isOpen.value = false
+  clearFeedback()
 }
 
-const updateCheckInDate = (event: DateChangeEvent) => {
-  checkInDate.value = toIsoDate(event.detail.value)
-  resetErrors()
+const clearFeedback = () => {
+  localError.value = ""
   availabilityStore.clearAvailability(props.roomId)
 }
 
-const updateCheckOutDate = (event: DateChangeEvent) => {
-  checkOutDate.value = toIsoDate(event.detail.value)
-  resetErrors()
-  availabilityStore.clearAvailability(props.roomId)
-}
-
-const isDateRangeValid = () => {
-  const errorMessage = validateDateRange(
-    checkInDate.value,
-    checkOutDate.value
-  )
-
-  if (errorMessage) {
-    validationError.value = errorMessage
-    return false
-  }
-
-  return true
-}
-
-const checkAvailability = async () => {
-  resetErrors()
-
-  if (!isDateRangeValid()) {
+const handleCheck = async () => {
+  clearFeedback()
+  const checkInValue = toIsoDate(checkInDate.value)
+  const checkOutValue = toIsoDate(checkOutDate.value)
+  const validation = validateDateRange(checkInValue, checkOutValue)
+  if (validation) {
+    localError.value = validation
     return
   }
 
   const result = await availabilityStore.checkRoomAvailability(
     props.roomId,
-    checkInDate.value,
-    checkOutDate.value
+    checkInValue,
+    checkOutValue
   )
 
   if (!result) {
-    requestError.value = error.value ?? "Unable to check availability."
+    localError.value = error.value || "Unable to check availability."
+    return
   }
 }
+
+watch([checkInDate, checkOutDate], clearFeedback)
 </script>
 
 <template>
   <div class="availability">
-    <div class="availability__row">
-      <ion-button size="small" fill="outline" @click="openDialog">
-        <ion-icon slot="start" :icon="calendarOutline" />
-        Check availability
-      </ion-button>
-      <ion-chip
-        v-if="availabilityResult"
-        class="availability__status"
-        :class="statusClass"
-      >
-        <ion-icon :icon="statusIcon" />
-        <span>{{ availabilityResult.available ? "Available" : "Unavailable" }}</span>
-      </ion-chip>
-    </div>
+    <ion-button @click="openDialog">
+      <ion-icon slot="start" :icon="calendarOutline" />
+      Check availability
+    </ion-button>
 
-    <ion-modal :is-open="isOpen" @didDismiss="closeDialog">
-      <div class="availability__dialog">
-        <div class="availability__header">
+    <ion-modal :is-open="isOpen" :keep-contents-mounted="true" @didDismiss="closeDialog">
+      <ion-content class="availability-dialog">
+        <div class="availability-dialog__header">
           <div>
-            <div class="availability__eyebrow">Availability check</div>
-            <h3 class="availability__title">{{ roomTitle }}</h3>
+            <p class="availability-dialog__eyebrow">Check availability</p>
+            <h3 class="availability-dialog__title">{{ roomTitle }}</h3>
           </div>
-          <ion-button fill="clear" size="small" @click="closeDialog">
-            Close
-          </ion-button>
+          <ion-button fill="clear" @click="closeDialog">Close</ion-button>
         </div>
 
-        <p class="availability__subtitle">
-          Pick a travel period to see if this room can welcome you.
-        </p>
-
-        <div class="availability__dates">
-          <div class="availability__field">
-            <div class="availability__label">Check-in</div>
-            <ion-datetime
-              presentation="date"
-              :min="minDate"
-              :value="checkInDate || undefined"
-              @ionChange="updateCheckInDate"
-            />
-          </div>
-          <div class="availability__field">
-            <div class="availability__label">Check-out</div>
-            <ion-datetime
-              presentation="date"
-              :min="checkInDate || minDate"
-              :value="checkOutDate || undefined"
-              @ionChange="updateCheckOutDate"
-            />
-          </div>
+        <div class="availability-dialog__grid">
+          <date-picker
+            label="Check-in"
+            :min="minCheckIn"
+            v-model="checkInDate"
+          />
+          <date-picker
+            label="Check-out"
+            :min="minCheckOut"
+            v-model="checkOutDate"
+          />
         </div>
 
-        <div class="availability__range">{{ rangeLabel }}</div>
-
-        <div
-          v-if="availabilityResult"
-          class="availability__message"
-          :class="statusClass"
-        >
-          <ion-icon :icon="statusIcon" />
-          {{ availabilityResult.message }}
-        </div>
-        <div v-if="validationError || requestError" class="availability__message availability__message--error">
-          <ion-icon :icon="closeCircleOutline" />
-          {{ validationError || requestError }}
-        </div>
-
-        <div class="availability__actions">
+        <div class="availability-dialog__actions">
           <ion-button
-            :disabled="isLoading || !hasDates"
-            @click="checkAvailability"
+            :disabled="isLoading"
+            @click="handleCheck"
           >
-            <ion-spinner v-if="isLoading" name="dots" />
-            <span v-else>Check now</span>
+            <ion-icon slot="start" :icon="calendarOutline" />
+            {{ isLoading ? "Checking..." : "Check availability" }}
           </ion-button>
         </div>
-      </div>
+
+        <div v-if="availability" class="availability__result">
+          <ion-chip :class="availabilityStatus.class">
+            <ion-icon :icon="availabilityStatus.icon" />
+            <span>{{ availabilityStatus.label }}</span>
+          </ion-chip>
+          <p class="availability__message">{{ availability.message }}</p>
+          <p v-if="dateRangeLabel" class="availability__dates">
+            <ion-icon :icon="calendarOutline" />
+            {{ dateRangeLabel }}
+          </p>
+        </div>
+        <p v-if="errorMessage" class="availability__error">
+          {{ errorMessage }}
+        </p>
+      </ion-content>
     </ion-modal>
   </div>
 </template>
@@ -214,160 +160,95 @@ const checkAvailability = async () => {
 .availability {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
-.availability__row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 10px;
+.availability__result {
+  display: grid;
+  gap: 4px;
+  margin-top: 14px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--color-cream);
 }
 
 .availability__status {
-  --background: #fff;
-  border: 1px solid rgba(31, 27, 24, 0.1);
+  width: fit-content;
   font-weight: 600;
-  display: flex;
+}
+
+.availability__status--success {
+  --background: rgba(60, 129, 90, 0.14);
+  color: #2c6b4b;
+}
+
+.availability__status--warning {
+  --background: rgba(161, 79, 54, 0.14);
+  color: var(--color-terracotta);
+}
+
+.availability__message,
+.availability__dates,
+.availability__error {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.availability__dates {
+  display: inline-flex;
   align-items: center;
   gap: 6px;
-}
-
-.availability__status--available {
-  color: #3d6b45;
-  border-color: rgba(61, 107, 69, 0.3);
-}
-
-.availability__status--unavailable {
-  color: #a14f36;
-  border-color: rgba(161, 79, 54, 0.3);
-}
-
-.availability__dialog {
-  background: linear-gradient(150deg, #fff9f0 0%, #efe1cb 100%);
-  padding: 20px;
-  min-height: 100%;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
-  padding-bottom: calc(20px + env(safe-area-inset-bottom));
-}
-
-.availability__header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 12px;
-}
-
-.availability__eyebrow {
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  font-size: 0.7rem;
   color: var(--color-olive);
   font-weight: 600;
 }
 
-.availability__title {
-  margin: 4px 0 0;
+.availability__error {
+  color: var(--color-terracotta);
+  font-weight: 600;
 }
 
-.availability__subtitle {
+.availability-dialog {
+  --padding-start: 18px;
+  --padding-end: 18px;
+  --padding-top: 18px;
+  --padding-bottom: 24px;
+}
+
+.availability-dialog__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
   margin-bottom: 16px;
-  max-width: 420px;
 }
 
-.availability__dates {
+.availability-dialog__eyebrow {
+  margin: 0 0 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.7rem;
+  color: var(--color-olive);
+}
+
+.availability-dialog__title {
+  margin: 0;
+  font-size: 1.4rem;
+}
+
+.availability-dialog__grid {
   display: grid;
   gap: 16px;
 }
 
-.availability__field {
-  background: #fff;
-  border-radius: 16px;
-  padding: 12px;
-  border: 1px solid rgba(31, 27, 24, 0.1);
-}
 
-.availability__field ion-datetime {
-  width: 100%;
-}
-
-.availability__label {
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  font-size: 0.7rem;
-  color: var(--color-olive);
-  font-weight: 600;
-  margin-bottom: 8px;
-}
-
-.availability__range {
-  margin-top: 16px;
-  font-weight: 600;
-  color: var(--color-midnight);
-}
-
-.availability__message {
-  margin-top: 14px;
-  padding: 12px 14px;
-  border-radius: 14px;
-  background: #fff;
-  border: 1px solid rgba(31, 27, 24, 0.1);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-weight: 600;
-}
-
-.availability__message--error {
-  color: var(--color-terracotta);
-  border-color: rgba(161, 79, 54, 0.3);
-  background: #fff4f0;
-}
-
-.availability__actions {
+.availability-dialog__actions {
   margin-top: 18px;
   display: flex;
   justify-content: flex-end;
-  position: sticky;
-  bottom: 0;
-  z-index: 1;
-  padding-top: 12px;
-}
-
-.availability__actions ion-button {
-  min-width: 140px;
-}
-
-@media (max-width: 540px) {
-  .availability__dialog {
-    padding: 16px;
-    padding-bottom: calc(16px + env(safe-area-inset-bottom));
-  }
-
-  .availability__header {
-    flex-wrap: wrap;
-  }
-
-  .availability__header ion-button {
-    margin-left: auto;
-  }
-
-  .availability__actions {
-    justify-content: stretch;
-  }
-
-  .availability__actions ion-button {
-    width: 100%;
-    min-width: 0;
-  }
 }
 
 @media (min-width: 720px) {
-  .availability__dates {
+  .availability-dialog__grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
