@@ -1,16 +1,13 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue"
-import {
-  IonButton,
-  IonChip,
-  IonContent,
-  IonIcon,
-  IonModal,
-} from "@ionic/vue"
+import { IonButton, IonChip, IonIcon } from "@ionic/vue"
 import { checkmarkCircleOutline, closeCircleOutline, calendarOutline } from "ionicons/icons"
 import { storeToRefs } from "pinia"
 import { useAvailabilityStore } from "@/application/stores/availabilityStore"
-import DatePicker from "@/components/atoms/DatePicker.vue"
+import BasePopup from "@/components/atoms/BasePopup.vue"
+import BaseDatePicker from "@/components/atoms/BaseDatePicker.vue"
+import BookingDialog from "@/components/molecules/BookingDialog.vue"
+import { availabilityDialogContent } from "@/data/hotelContent"
 import {
   formatDate,
   getTodayIsoDate,
@@ -21,19 +18,23 @@ import {
 const props = defineProps<{
   roomId: number
   roomTitle: string
+  roomMaxGuests: number
 }>()
 
 const availabilityStore = useAvailabilityStore()
 const { availabilityByRoomId, isLoading, error } = storeToRefs(availabilityStore)
 
 const isOpen = ref(false)
+const isBookingOpen = ref(false)
 const checkInDate = ref<string | undefined>(undefined)
 const checkOutDate = ref<string | undefined>(undefined)
 const localError = ref("")
 
 const availability = computed(() => availabilityByRoomId.value[props.roomId])
 const minCheckIn = computed(() => getTodayIsoDate())
-const minCheckOut = computed(() => toIsoDate(checkInDate.value) || getTodayIsoDate())
+const checkInValue = computed(() => toIsoDate(checkInDate.value))
+const checkOutValue = computed(() => toIsoDate(checkOutDate.value))
+const minCheckOut = computed(() => checkInValue.value || getTodayIsoDate())
 
 const errorMessage = computed(() => localError.value)
 
@@ -41,7 +42,9 @@ const errorMessage = computed(() => localError.value)
 const availabilityStatus = computed(() => {
   const available = !!availability.value?.available
   return {
-    label: available ? "Available" : "Not available",
+    label: available
+      ? availabilityDialogContent.availableLabel
+      : availabilityDialogContent.unavailableLabel,
     icon: available ? checkmarkCircleOutline : closeCircleOutline,
     class: available
       ? "availability__status availability__status--success"
@@ -50,12 +53,15 @@ const availabilityStatus = computed(() => {
 })
 
 const dateRangeLabel = computed(() => {
-  const checkInValue = toIsoDate(checkInDate.value)
-  const checkOutValue = toIsoDate(checkOutDate.value)
-  return checkInValue && checkOutValue
-    ? `${formatDate(checkInValue)} - ${formatDate(checkOutValue)}`
+  return checkInValue.value && checkOutValue.value
+    ? `${formatDate(checkInValue.value)} - ${formatDate(checkOutValue.value)}`
     : ""
 })
+
+const canBook = computed(
+  () => Boolean(availability.value?.available && checkInValue.value && checkOutValue.value)
+)
+const isUnavailable = computed(() => availability.value && !availability.value.available)
 
 const openDialog = () => {
   isOpen.value = true
@@ -65,6 +71,7 @@ const openDialog = () => {
 const closeDialog = () => {
   isOpen.value = false
   clearFeedback()
+  closeBookingDialog()
 }
 
 const clearFeedback = () => {
@@ -74,9 +81,7 @@ const clearFeedback = () => {
 
 const handleCheck = async () => {
   clearFeedback()
-  const checkInValue = toIsoDate(checkInDate.value)
-  const checkOutValue = toIsoDate(checkOutDate.value)
-  const validation = validateDateRange(checkInValue, checkOutValue)
+  const validation = validateDateRange(checkInValue.value, checkOutValue.value)
   if (validation) {
     localError.value = validation
     return
@@ -84,44 +89,67 @@ const handleCheck = async () => {
 
   const result = await availabilityStore.checkRoomAvailability(
     props.roomId,
-    checkInValue,
-    checkOutValue
+    checkInValue.value,
+    checkOutValue.value
   )
 
   if (!result) {
-    localError.value = error.value || "Unable to check availability."
+    localError.value = error.value || availabilityDialogContent.unavailableMessage
     return
   }
 }
 
-watch([checkInDate, checkOutDate], clearFeedback)
+const openBookingDialog = () => {
+  isBookingOpen.value = true
+}
+
+const closeBookingDialog = () => {
+  isBookingOpen.value = false
+}
+
+const closeAvailabilityAfterBooking = () => {
+  isOpen.value = false
+  clearFeedback()
+}
+
+watch([checkInDate, checkOutDate], () => {
+  clearFeedback()
+  if (isBookingOpen.value) {
+    closeBookingDialog()
+  }
+})
 </script>
 
 <template>
   <div class="availability">
     <ion-button @click="openDialog">
       <ion-icon slot="start" :icon="calendarOutline" />
-      Check availability
+      {{ availabilityDialogContent.triggerLabel }}
     </ion-button>
 
-    <ion-modal :is-open="isOpen" :keep-contents-mounted="true" @didDismiss="closeDialog">
-      <ion-content class="availability-dialog">
+    <base-popup
+      :is-open="isOpen"
+      content-class="availability-dialog"
+      @close="closeDialog"
+    >
         <div class="availability-dialog__header">
           <div>
-            <p class="availability-dialog__eyebrow">Check availability</p>
+            <p class="availability-dialog__eyebrow">{{ availabilityDialogContent.title }}</p>
             <h3 class="availability-dialog__title">{{ roomTitle }}</h3>
           </div>
-          <ion-button fill="clear" @click="closeDialog">Close</ion-button>
+          <ion-button fill="clear" @click="closeDialog">
+            {{ availabilityDialogContent.closeLabel }}
+          </ion-button>
         </div>
 
         <div class="availability-dialog__grid">
-          <date-picker
-            label="Check-in"
+          <base-date-picker
+            :label="availabilityDialogContent.checkInLabel"
             :min="minCheckIn"
             v-model="checkInDate"
           />
-          <date-picker
-            label="Check-out"
+          <base-date-picker
+            :label="availabilityDialogContent.checkOutLabel"
             :min="minCheckOut"
             v-model="checkOutDate"
           />
@@ -133,7 +161,7 @@ watch([checkInDate, checkOutDate], clearFeedback)
             @click="handleCheck"
           >
             <ion-icon slot="start" :icon="calendarOutline" />
-            {{ isLoading ? "Checking..." : "Check availability" }}
+            {{ isLoading ? availabilityDialogContent.checkingLabel : availabilityDialogContent.confirmLabel }}
           </ion-button>
         </div>
 
@@ -143,16 +171,37 @@ watch([checkInDate, checkOutDate], clearFeedback)
             <span>{{ availabilityStatus.label }}</span>
           </ion-chip>
           <p class="availability__message">{{ availability.message }}</p>
-          <p v-if="dateRangeLabel" class="availability__dates">
+          <p
+            v-if="dateRangeLabel"
+            class="availability__dates"
+            :class="{ 'availability__dates--warning': isUnavailable }"
+          >
             <ion-icon :icon="calendarOutline" />
             {{ dateRangeLabel }}
           </p>
+          <ion-button
+            v-if="canBook"
+            class="availability__book"
+            @click="openBookingDialog"
+          >
+            {{ availabilityDialogContent.bookNowLabel }}
+          </ion-button>
         </div>
         <p v-if="errorMessage" class="availability__error">
           {{ errorMessage }}
         </p>
-      </ion-content>
-    </ion-modal>
+    </base-popup>
+
+    <booking-dialog
+      :is-open="isBookingOpen"
+      :room-id="roomId"
+      :room-title="roomTitle"
+      :room-max-guests="roomMaxGuests"
+      :check-in-date="checkInValue"
+      :check-out-date="checkOutValue"
+      @close="closeBookingDialog"
+      @completed="closeAvailabilityAfterBooking"
+    />
   </div>
 </template>
 
@@ -202,9 +251,21 @@ watch([checkInDate, checkOutDate], clearFeedback)
   font-weight: 600;
 }
 
+.availability__dates--warning {
+  color: var(--color-terracotta);
+}
+
+.availability__dates--warning ion-icon {
+  color: var(--color-terracotta);
+}
 .availability__error {
   color: var(--color-terracotta);
   font-weight: 600;
+}
+
+.availability__book {
+  margin-top: 8px;
+  width: fit-content;
 }
 
 .availability-dialog {
@@ -250,6 +311,22 @@ watch([checkInDate, checkOutDate], clearFeedback)
 @media (min-width: 720px) {
   .availability-dialog__grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .availability-dialog__header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .availability-dialog__actions {
+    justify-content: stretch;
+  }
+
+  .availability-dialog__actions ion-button,
+  .availability__book {
+    width: 100%;
   }
 }
 </style>

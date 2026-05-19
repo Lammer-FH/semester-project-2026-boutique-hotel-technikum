@@ -91,6 +91,7 @@ const resolveExtraIcon = (iconName: string) => iconMap[iconName] ?? sparklesOutl
         class="room-card__availability"
         :room-id="room.id"
         :room-title="room.title"
+        :room-max-guests="room.maxGuests"
       />
     </ion-card-content>
   </ion-card>

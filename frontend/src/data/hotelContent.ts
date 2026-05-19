@@ -21,6 +21,143 @@ export const heroContent: HeroContent = {
   secondaryRoute: { name: "About" },
 }
 
+export const navigationContent = {
+  menuToggleLabel: "Toggle navigation",
+  brandAlt: "Boutique Hotel Technikum",
+  homeLabel: "Home",
+  roomsLabel: "Rooms",
+  aboutLabel: "About",
+  primaryNavLabel: "Primary",
+  mobileNavLabel: "Mobile",
+}
+
+export const footerContent = {
+  brandName: "Boutique Hotel Technikum",
+  location: "Vienna, Austria",
+  imprintLabel: "Imprint",
+  tagline: "A calm stay designed for curious travelers.",
+}
+
+export const landingContent = {
+  highlightsTitle: "Why guests choose us",
+  highlightsSubtitle: "Boutique comfort, designed for modern travelers",
+  curatedTitle: "Your stay, curated",
+}
+
+export const roomsPageContent = {
+  title: "Rooms",
+  subtitle: "Choose a space that fits your rhythm in Vienna",
+  lead:
+    "Explore our boutique rooms and suites, each curated with local design details, restorative textures, and thoughtful extras.",
+  paginationLabel: "Page",
+  paginationAriaLabel: "Room pages",
+  roomsMeta: (start: number, end: number, total: number) =>
+    `Showing ${start}-${end} of ${total} rooms`,
+}
+
+export const aboutPageContent = {
+  valuesTitle: "Our values",
+  valuesSubtitle: "What guides every stay",
+  neighborhoodTitle: "Neighborhood highlights",
+  neighborhoodSubtitle: "Creative Brigittenau, just outside the center",
+}
+
+export const imprintPageContent = {
+  title: "Imprint",
+  subtitle: "Legal information",
+}
+
+export const heroBannerContent = {
+  eyebrow: "Boutique stay in Vienna",
+  panelTitle: "At a glance",
+  panelItems: [
+    "28 rooms with custom details",
+    "Late breakfast until 11:30",
+    "Quiet courtyard lounge",
+  ],
+}
+
+export const contactStripContent = {
+  title: "Ready for your stay?",
+  emailCta: "Send us an email",
+  phoneCta: "Call us",
+}
+
+export const availabilityDialogContent = {
+  triggerLabel: "Check availability",
+  title: "Check availability",
+  checkInLabel: "Check-in",
+  checkOutLabel: "Check-out",
+  checkingLabel: "Checking...",
+  confirmLabel: "Check availability",
+  availableLabel: "Available",
+  unavailableLabel: "Not available",
+  bookNowLabel: "Book now",
+  unavailableMessage: "Unable to check availability.",
+  closeLabel: "Close",
+}
+
+export const bookingDialogContent = {
+  eyebrow: "Booking details",
+  stepLabel: {
+    details: "Step 1 of 2",
+    review: "Step 2 of 2",
+  },
+  stepTitle: {
+    details: "Guest details",
+    review: "Review your booking",
+  },
+  hints: {
+    details: "We will send the confirmation to the email below.",
+    review: "Please confirm the details below.",
+  },
+  fields: {
+    firstName: "First name",
+    lastName: "Last name",
+    email: "Email",
+    confirmEmail: "Confirm email",
+    guests: "Guests",
+    breakfast: "Breakfast included",
+  },
+  placeholders: {
+    firstName: "e.g. Julia",
+    lastName: "e.g. Steiner",
+    email: "name@email.com",
+    confirmEmail: "Repeat email",
+  },
+  helpers: {
+    maxGuests: (maxGuests: number) => `Max ${maxGuests} guests in this room.`,
+  },
+  reviewLabels: {
+    leadGuest: "Lead guest",
+    email: "Email",
+    guests: "Guests",
+    breakfast: "Breakfast",
+    included: "Included",
+    notIncluded: "Not included",
+  },
+  buttons: {
+    review: "Review booking",
+    back: "Back",
+    confirm: "Confirm booking",
+    confirming: "Booking...",
+    done: "Done",
+    close: "Close",
+  },
+  confirmation: {
+    title: "Your booking is confirmed",
+    bookingId: (id: number) => `Booking ID: ${id}`,
+  },
+  errors: {
+    nameMissing: "Please enter the lead guest name.",
+    emailMissing: "Please enter and confirm the email address.",
+    emailMismatch: "Email addresses do not match.",
+    guestCountInvalid: "Please select a valid guest count.",
+    maxGuestsExceeded: (maxGuests: number) =>
+      `This room allows up to ${maxGuests} guests.`,
+  },
+}
+
 export type FeatureItem = {
   key: string
   title: string

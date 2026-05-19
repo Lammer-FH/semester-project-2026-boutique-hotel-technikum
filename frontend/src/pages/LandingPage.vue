@@ -13,6 +13,7 @@ import {
   heroContent,
   hotelHighlights,
   hotelStory,
+  landingContent,
 } from "@/data/hotelContent"
 </script>
 
@@ -32,8 +33,8 @@ import {
 
         <div class="ion-margin-top ion-margin-bottom">
           <base-section-title
-            title="Why guests choose us"
-            subtitle="Boutique comfort, designed for modern travelers"
+            :title="landingContent.highlightsTitle"
+            :subtitle="landingContent.highlightsSubtitle"
           />
           <feature-grid :items="hotelHighlights" />
         </div>
@@ -48,7 +49,7 @@ import {
         </div>
 
         <div class="ion-margin-top ion-margin-bottom">
-          <base-section-title title="Your stay, curated" />
+          <base-section-title :title="landingContent.curatedTitle" />
           <feature-grid :items="experienceHighlights" />
         </div>
 

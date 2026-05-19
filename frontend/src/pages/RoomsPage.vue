@@ -8,6 +8,7 @@ import RoomCardSkeleton from "@/components/organisms/RoomCardSkeleton.vue"
 import TheHeader from "@/components/layout/TheHeader.vue"
 import TheFooter from "@/components/layout/TheFooter.vue"
 import { useRoomStore } from "@/application/stores/roomStore"
+import { roomsPageContent } from "@/data/hotelContent"
 
 const pageSize = 5
 const currentPage = ref(1)
@@ -50,18 +51,17 @@ watch(currentPage, (page) => roomStore.getRooms(page, pageSize), { immediate: tr
         <div class="page-shell__inner rooms-page">
           <div class="rooms-page__intro">
             <base-section-title
-              title="Rooms"
-              subtitle="Choose a space that fits your rhythm in Vienna"
+              :title="roomsPageContent.title"
+              :subtitle="roomsPageContent.subtitle"
             />
             <p class="rooms-page__lead">
-              Explore our boutique rooms and suites, each curated with local design details, restorative
-              textures, and thoughtful extras.
+              {{ roomsPageContent.lead }}
             </p>
           </div>
 
           <div class="rooms-page__meta" v-if="rooms.length && !isLoading">
             <span>
-              Showing {{ startNumber }}-{{ endNumber }} of {{ totalRooms }} rooms
+              {{ roomsPageContent.roomsMeta(startNumber, endNumber, totalRooms) }}
             </span>
           </div>
 
@@ -75,8 +75,12 @@ watch(currentPage, (page) => roomStore.getRooms(page, pageSize), { immediate: tr
           </div>
 
           <div class="rooms-page__pagination" v-if="totalPages > 1 && !isLoading">
-            <div class="rooms-page__pagination-label">Page</div>
-            <div class="rooms-page__pagination-buttons" role="group" aria-label="Room pages">
+            <div class="rooms-page__pagination-label">{{ roomsPageContent.paginationLabel }}</div>
+            <div
+              class="rooms-page__pagination-buttons"
+              role="group"
+              :aria-label="roomsPageContent.paginationAriaLabel"
+            >
               <ion-button
                 v-for="page in pages"
                 :key="page"

@@ -10,6 +10,7 @@ import {
   IonText,
 } from "@ionic/vue"
 import { callOutline, mailOutline, locationOutline } from "ionicons/icons"
+import { contactStripContent } from "@/data/hotelContent"
 
 defineProps<{
   phone: string
@@ -25,7 +26,7 @@ defineProps<{
       <ion-grid>
         <ion-row class="ion-align-items-center">
           <ion-col size="12" size-md="7">
-            <ion-text class="contact-strip__title">Ready for your stay?</ion-text>
+            <ion-text class="contact-strip__title">{{ contactStripContent.title }}</ion-text>
             <p class="contact-strip__address">
               <ion-icon :icon="locationOutline" />
               {{ addressLine1 }} · {{ addressLine2 }}
@@ -35,11 +36,11 @@ defineProps<{
             <div class="ion-margin-top contact-strip__actions">
               <ion-button :href="`mailto:${email}`" fill="outline">
                 <ion-icon slot="start" :icon="mailOutline" />
-                Send us an email
+                {{ contactStripContent.emailCta }}
               </ion-button>
               <ion-button class="contact-strip__phone" :href="`tel:${phone}`">
                 <ion-icon slot="start" :icon="callOutline" />
-                Call us
+                {{ contactStripContent.phoneCta }}
               </ion-button>
             </div>
           </ion-col>

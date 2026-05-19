@@ -11,6 +11,7 @@ import {
 } from "@ionic/vue"
 import { bedOutline, cafeOutline, leafOutline } from "ionicons/icons"
 import type { RouteLocationRaw } from "vue-router"
+import { heroBannerContent } from "@/data/hotelContent"
 
 defineProps<{
   title: string
@@ -28,7 +29,7 @@ defineProps<{
       <ion-grid>
         <ion-row class="ion-align-items-center">
           <ion-col size="12" size-md="8">
-            <ion-text class="hero__eyebrow">Boutique stay in Vienna</ion-text>
+            <ion-text class="hero__eyebrow">{{ heroBannerContent.eyebrow }}</ion-text>
             <h1 class="hero__title">{{ title }}</h1>
             <p class="hero__subtitle">{{ subtitle }}</p>
             <div class="ion-margin-top ion-margin-bottom">
@@ -39,19 +40,19 @@ defineProps<{
           <ion-col size="12" size-md="4">
             <ion-card class="hero-panel">
               <ion-card-content>
-                <ion-text class="hero__panel-title">At a glance</ion-text>
+                <ion-text class="hero__panel-title">{{ heroBannerContent.panelTitle }}</ion-text>
                 <ul class="hero-panel-list" role="list">
                   <li class="hero-panel-item">
                     <ion-icon :icon="bedOutline" />
-                    28 rooms with custom details
+                    {{ heroBannerContent.panelItems[0] }}
                   </li>
                   <li class="hero-panel-item">
                     <ion-icon :icon="cafeOutline" />
-                    Late breakfast until 11:30
+                    {{ heroBannerContent.panelItems[1] }}
                   </li>
                   <li class="hero-panel-item">
                     <ion-icon :icon="leafOutline" />
-                    Quiet courtyard lounge
+                    {{ heroBannerContent.panelItems[2] }}
                   </li>
                 </ul>
               </ion-card-content>

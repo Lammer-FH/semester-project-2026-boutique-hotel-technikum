@@ -8,6 +8,7 @@ import TheHeader from "@/components/layout/TheHeader.vue"
 import TheFooter from "@/components/layout/TheFooter.vue"
 import {
   aboutContent,
+  aboutPageContent,
   aboutValues,
   contactDetails,
   neighborhoodHighlights,
@@ -29,14 +30,17 @@ import {
         </div>
 
         <div class="ion-margin-top ion-margin-bottom">
-          <base-section-title title="Our values" subtitle="What guides every stay" />
+          <base-section-title
+            :title="aboutPageContent.valuesTitle"
+            :subtitle="aboutPageContent.valuesSubtitle"
+          />
           <feature-grid :items="aboutValues" />
         </div>
 
         <div class="ion-margin-top ion-margin-bottom">
           <base-section-title
-            title="Neighborhood highlights"
-            subtitle="Creative Brigittenau, just outside the center"
+            :title="aboutPageContent.neighborhoodTitle"
+            :subtitle="aboutPageContent.neighborhoodSubtitle"
           />
           <feature-grid :items="neighborhoodHighlights" />
         </div>

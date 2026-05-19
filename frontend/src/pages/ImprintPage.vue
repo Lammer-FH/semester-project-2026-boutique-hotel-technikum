@@ -8,7 +8,7 @@ import {
 import BaseSectionTitle from "@/components/atoms/BaseSectionTitle.vue"
 import TheHeader from "@/components/layout/TheHeader.vue"
 import TheFooter from "@/components/layout/TheFooter.vue"
-import { imprintDetails } from "@/data/hotelContent"
+import { imprintDetails, imprintPageContent } from "@/data/hotelContent"
 </script>
 
 <template>
@@ -17,7 +17,10 @@ import { imprintDetails } from "@/data/hotelContent"
     <ion-content class="page-shell">
       <div class="page-shell__inner">
         <div class="ion-margin-top ion-margin-bottom">
-          <base-section-title title="Imprint" subtitle="Legal information" />
+          <base-section-title
+            :title="imprintPageContent.title"
+            :subtitle="imprintPageContent.subtitle"
+          />
           
           <ion-card class="imprint-card">
             <ion-card-content>

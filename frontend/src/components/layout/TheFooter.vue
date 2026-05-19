@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { IonCol, IonFooter, IonGrid, IonRow, IonText, IonToolbar } from "@ionic/vue"
+import { footerContent } from "@/data/hotelContent"
 </script>
 
 <template>
@@ -8,14 +9,16 @@ import { IonCol, IonFooter, IonGrid, IonRow, IonText, IonToolbar } from "@ionic/
       <ion-grid class="app-footer__grid">
         <ion-row class="ion-align-items-center app-footer__row">
           <ion-col size="12" size-md="5" class="app-footer__col">
-            <p class="app-footer__brand">Boutique Hotel Technikum</p>
-            <p class="app-footer__note">Vienna, Austria</p>
+            <p class="app-footer__brand">{{ footerContent.brandName }}</p>
+            <p class="app-footer__note">{{ footerContent.location }}</p>
           </ion-col>
           <ion-col size="12" size-md="2" class="app-footer__col">
-            <router-link class="app-footer__link" :to="{ name: 'Imprint' }">Imprint</router-link>
+            <router-link class="app-footer__link" :to="{ name: 'Imprint' }">
+              {{ footerContent.imprintLabel }}
+            </router-link>
           </ion-col>
           <ion-col size="12" size-md="5" class="app-footer__col">
-            <ion-text class="app-footer__note">A calm stay designed for curious travelers.</ion-text>
+            <ion-text class="app-footer__note">{{ footerContent.tagline }}</ion-text>
           </ion-col>
         </ion-row>
       </ion-grid>

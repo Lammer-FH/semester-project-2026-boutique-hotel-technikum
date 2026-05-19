@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { IonCol, IonGrid, IonRow } from "@ionic/vue"
-import IconBoxCard from "@/components/molecules/IconBoxCard.vue"
+import FeatureGridCard from "@/components/molecules/FeatureGridCard.vue"
 
 type FeatureItem = {
   key: string
@@ -23,7 +23,7 @@ defineProps<{
         size="12"
         size-md="4"
       >
-        <icon-box-card
+        <feature-grid-card
           :title="item.title"
           :description="item.description"
           :icon="item.icon"
