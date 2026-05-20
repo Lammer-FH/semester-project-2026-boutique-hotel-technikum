@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 100" width="100%" height="100%">
+  <defs>
+    <style>
+      /* <![CDATA[ */
+      @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&family=Source+Sans+3:wght@400;600&display=swap');
+
+      .logo-text-small {
+        font-family: 'Source Sans 3', sans-serif;
+        font-size: 14px;
+        fill: var(--color-terracotta, #a14f36);
+        letter-spacing: 4px;
+        font-weight: 600;
+        text-transform: uppercase;
+      }
+
+      .logo-text-large {
+        font-family: 'Playfair Display', serif;
+        font-size: 38px;
+        fill: var(--color-ink, #1f1b18);
+        font-weight: 500;
+        letter-spacing: 1px;
+      }
+
+      .logo-icon-path {
+        fill: none;
+        stroke: var(--color-terracotta, #a14f36);
+        stroke-width: 4.5;
+        stroke-linejoin: miter;
+        stroke-linecap: square;
+      }
+      /* ]]> */
+    </style>
+  </defs>
+
+  <g transform="translate(10, 15)">
+    <polyline points="5,5 65,5 65,25 45,25 45,70" class="logo-icon-path"/>
+    <polyline points="45,40 20,70 5,70 5,50 25,25 5,25 5,5" class="logo-icon-path"/>
+    <polyline points="45,40 65,40 65,70 85,70 85,25" class="logo-icon-path"/>
+  </g>
+
+  <g transform="translate(130, 42)">
+    <text x="0" y="0" class="logo-text-small">Boutique Hotel</text>
+    <text x="0" y="40" class="logo-text-large">Technikum</text>
+  </g>
+</svg>

@@ -2,7 +2,6 @@
 import { ref } from "vue"
 import { IonButton, IonHeader, IonIcon, IonToolbar } from "@ionic/vue"
 import { closeOutline, menuOutline } from "ionicons/icons"
-import logo1x from "@/assets/img/logo_with_text.png"
 import { navigationContent } from "@/data/hotelContent"
 
 const isMenuOpen = ref(false)
@@ -34,7 +33,7 @@ const closeMenu = () => {
           class="app-header__brand"
           :aria-label="navigationContent.homeLabel"
         >
-          <img class="app-header__logo" :src="logo1x" :alt="navigationContent.brandAlt" />
+          <img class="app-header__logo" src="/logo.svg" :alt="navigationContent.brandAlt" />
         </router-link>
         <nav class="app-header__nav" :aria-label="navigationContent.primaryNavLabel">
           <router-link class="app-header__link" :to="{ name: 'Landing' }">
@@ -99,9 +98,9 @@ const closeMenu = () => {
 }
 
 .app-header__logo {
-  height: 44px;
+  height: 58px;
   width: auto;
-  max-width: 220px;
+  max-width: 300px;
   object-fit: contain;
   display: block;
 }
@@ -177,7 +176,7 @@ const closeMenu = () => {
   }
 
   .app-header__logo {
-    height: 36px;
+    height: 46px;
   }
 }
 
