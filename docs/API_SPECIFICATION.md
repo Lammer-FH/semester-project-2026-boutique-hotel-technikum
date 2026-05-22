@@ -4,7 +4,7 @@
 
 REST API for the Boutique Hotel Technikum booking application.
 
-**Base URL:** `/api/v1` – Explicit versioning allows backward compatibility if future API changes are needed. 
+**Base URL:** `/api` – The API uses a non-versioned base path. Controller-level versioning (`/v1/...`) can be introduced in the future if needed. 
 
 ---
 
@@ -98,7 +98,7 @@ Response (200):
 ```json
 {
   "room_id": 1,
-  "is_available": true,
+  "available": true,
   "message": "Room is available"
 }
 ```
@@ -127,7 +127,13 @@ Request:
   "breakfast_included": true
 }
 ```
-Response (201): Booking confirmation data with booking period, guest data, and room details used by U5
+Response (201): Booking confirmation data with booking period, guest data, and room details used by U5.
+
+Pricing calculation:
+- `total_price` = (`room_rate` x `nights`) + `breakfast_rate` (if `breakfast_included`)
+- `breakfast_rate` = `breakfast_per_person_per_day` x `guest_count` x `nights`
+- `breakfast_per_person_per_day` is configured via `app.hotel.breakfast-price-per-person` in application.yaml / HotelProperties
+
 ```json
 {
   "booking_id": 42,
@@ -189,7 +195,7 @@ Response (201): Booking confirmation data with booking period, guest data, and r
 Errors: 400 (validation), 409 (unavailable dates)
 
 **GET /bookings/{bookingId}** – Retrieve booking confirmation
-Response (200): Returns the same booking confirmation object as `POST /bookings`
+Response (200): Returns the same booking confirmation object as `POST /bookings` (same pricing calculation logic applies).
 ```json
 {
   "booking_id": 42,
@@ -237,8 +243,9 @@ Errors: 404 (booking not found)
 
 Validation:
 - `room_id`, guest names, `guest_count`, `guest_email`, `confirm_email`, `check_in_date`, and `check_out_date` are required.
-- `guest_email` must be a valid email address (client-side should validate it matches `confirm_email` before submission).
-- `guest_count` must be between 1 and the room's `max_guests`.
+- `guest_email` must be a valid email address.
+- `confirm_email` must match `guest_email` (validated server-side via custom annotation or service-level check; client-side should also validate before submission).
+- `guest_count` must be between 1 and the room's `max_guests` (the `bookings.guest_count` column was added via a Flyway migration — verify the migration exists before implementing).
 - `check_in_date` and `check_out_date` must be today or in the future.
 - `check_out_date` must be after `check_in_date`.
 - If the requested dates overlap an existing booking, return 409 Conflict.
@@ -294,6 +301,7 @@ Extras are returned as objects with `id, code, title, description, icon_name`.
 | `BOOKING_NOT_FOUND` | The requested booking does not exist |
 | `DATES_UNAVAILABLE` | The requested dates overlap with an existing booking |
 | `INVALID_DATE_RANGE` | Check-out date is not after check-in date or invalid date format |
+| `EMAIL_MISMATCH` | `confirm_email` does not match `guest_email` |
 
 ---
 

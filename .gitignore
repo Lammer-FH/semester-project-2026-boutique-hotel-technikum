@@ -57,5 +57,10 @@ coverage/
 *.tsbuildinfo
 tsconfig.tsbuildinfo
 
+# OpenCode
+.opencode/
+# OCX
+.ocx/
+
 # Local notes (do not commit)
 todo.md

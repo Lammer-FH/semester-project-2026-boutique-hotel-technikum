@@ -1,0 +1,16 @@
+:root {
+	--app-font-display: 'Playfair Display', serif;
+	--app-font-body: 'Source Sans 3', sans-serif;
+	--color-ink: #1f1b18;
+	--color-sand: #f6f1e7;
+	--color-cream: #fff9f0;
+	--color-terracotta: #a14f36;
+	--color-olive: #5b6d52;
+	--color-midnight: #1f2f3a;
+	--color-mist: #e3e0d6;
+	--ion-font-family: var(--app-font-body);
+	--ion-color-primary: var(--color-terracotta);
+	--ion-color-primary-contrast: #fff;
+	--ion-color-primary-shade: #9b5633;
+	--ion-color-primary-tint: #c57751;
+}
