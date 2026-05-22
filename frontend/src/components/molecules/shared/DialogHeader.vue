@@ -2,9 +2,9 @@
 import { IonButton } from "@ionic/vue"
 
 const props = defineProps<{
-  eyebrow: string
+  eyebrow?: string
   title: string
-  dateRangeLabel: string
+  subtitle?: string
   closeLabel: string
 }>()
 
@@ -18,18 +18,18 @@ const handleClose = () => {
 </script>
 
 <template>
-  <div class="booking-dialog__header">
+  <div class="dialog-header">
     <div>
-      <p class="booking-dialog__eyebrow">{{ props.eyebrow }}</p>
-      <h3 class="booking-dialog__title">{{ props.title }}</h3>
-      <p v-if="props.dateRangeLabel" class="booking-dialog__dates">{{ props.dateRangeLabel }}</p>
+      <p v-if="props.eyebrow" class="dialog-header__eyebrow">{{ props.eyebrow }}</p>
+      <h3 class="dialog-header__title">{{ props.title }}</h3>
+      <p v-if="props.subtitle" class="dialog-header__subtitle">{{ props.subtitle }}</p>
     </div>
     <ion-button fill="clear" @click="handleClose">{{ props.closeLabel }}</ion-button>
   </div>
 </template>
 
 <style scoped>
-.booking-dialog__header {
+.dialog-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -37,7 +37,7 @@ const handleClose = () => {
   margin-bottom: 16px;
 }
 
-.booking-dialog__eyebrow {
+.dialog-header__eyebrow {
   margin: 0 0 4px;
   text-transform: uppercase;
   letter-spacing: 0.12em;
@@ -45,19 +45,19 @@ const handleClose = () => {
   color: var(--color-olive);
 }
 
-.booking-dialog__title {
+.dialog-header__title {
   margin: 0;
   font-size: 1.4rem;
 }
 
-.booking-dialog__dates {
+.dialog-header__subtitle {
   margin: 6px 0 0;
   color: var(--color-olive);
   font-weight: 600;
 }
 
 @media (max-width: 640px) {
-  .booking-dialog__header {
+  .dialog-header {
     flex-direction: column;
     align-items: flex-start;
   }

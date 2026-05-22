@@ -6,7 +6,7 @@ import { storeToRefs } from "pinia"
 import { useAvailabilityStore } from "@/application/stores/availabilityStore"
 import BasePopup from "@/components/atoms/BasePopup.vue"
 import BookingDialog from "@/components/molecules/BookingDialog.vue"
-import RoomAvailabilityDialogHeader from "@/components/molecules/availability/RoomAvailabilityDialogHeader.vue"
+import DialogHeader from "@/components/molecules/shared/DialogHeader.vue"
 import RoomAvailabilityDialogDateForm from "@/components/molecules/availability/RoomAvailabilityDialogDateForm.vue"
 import RoomAvailabilityDialogResult from "@/components/molecules/availability/RoomAvailabilityDialogResult.vue"
 import { availabilityDialogContent } from "@/data/hotelContent"
@@ -134,9 +134,9 @@ watch([checkInDate, checkOutDate], () => {
       content-class="availability-dialog"
       @close="closeDialog"
     >
-        <room-availability-dialog-header
-          :title="availabilityDialogContent.title"
-          :room-title="roomTitle"
+        <dialog-header
+          :eyebrow="availabilityDialogContent.title"
+          :title="roomTitle"
           :close-label="availabilityDialogContent.closeLabel"
           @close="closeDialog"
         />

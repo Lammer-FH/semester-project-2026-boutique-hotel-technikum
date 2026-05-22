@@ -48,16 +48,9 @@ import {
   </ion-card>
 </template>
 
-<style scoped>
-.room-card {
-  --background: #fff;
-  border-radius: 20px;
-  background: linear-gradient(160deg, #fffaf3 0%, #f3e7d6 100%);
-  border: 1px solid rgba(31, 27, 24, 0.08);
-  box-shadow: 0 18px 30px rgba(31, 27, 24, 0.08);
-  overflow: hidden;
-}
+<style scoped src="./room-card.shared.css"></style>
 
+<style scoped>
 .room-card__media {
   position: relative;
   overflow: hidden;
@@ -69,44 +62,11 @@ import {
   border-radius: 0;
 }
 
-.room-card__header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-}
-
 .room-card__price {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
   gap: 6px;
 }
 
-.room-card__subtitle {
-  margin-top: 6px;
-}
-
 .room-card__extras {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
   margin-top: 12px;
-}
-
-.room-card__chip {
-  --background: #fff;
-  border: 1px solid rgba(31, 27, 24, 0.1);
-}
-
-@media (max-width: 640px) {
-  .room-card__header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .room-card__price {
-    align-items: flex-start;
-  }
 }
 </style>

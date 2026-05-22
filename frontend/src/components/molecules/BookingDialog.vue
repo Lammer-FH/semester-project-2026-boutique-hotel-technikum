@@ -6,7 +6,7 @@ import { useBookingStore } from "@/application/stores/bookingStore"
 import { formatDate, validateDateRange } from "@/core/dateutils"
 import { bookingDialogContent } from "@/data/hotelContent"
 import type { BookingRequest } from "@/core/models/booking"
-import BookingDialogHeader from "@/components/molecules/booking/BookingDialogHeader.vue"
+import DialogHeader from "@/components/molecules/shared/DialogHeader.vue"
 import BookingDialogDetailsForm from "@/components/molecules/booking/BookingDialogDetailsForm.vue"
 import BookingDialogReview from "@/components/molecules/booking/BookingDialogReview.vue"
 import BookingDialogConfirmation from "@/components/molecules/booking/BookingDialogConfirmation.vue"
@@ -179,10 +179,10 @@ watch(
     content-class="booking-dialog"
     @close="closeDialog"
   >
-      <booking-dialog-header
+      <dialog-header
         :eyebrow="bookingDialogContent.eyebrow"
         :title="roomTitle"
-        :date-range-label="dateRangeLabel"
+        :subtitle="dateRangeLabel"
         :close-label="bookingDialogContent.buttons.close"
         @close="closeDialog"
       />

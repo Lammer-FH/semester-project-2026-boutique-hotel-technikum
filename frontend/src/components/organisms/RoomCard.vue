@@ -24,6 +24,7 @@ import {
   wineOutline,
 } from "ionicons/icons"
 import type { Room } from "@/core/models/room"
+import { formatPrice } from "@/core/formatters"
 import RoomAvailabilityDialog from "@/components/molecules/RoomAvailabilityDialog.vue"
 
 const props = defineProps<{
@@ -53,8 +54,6 @@ const primaryImage = computed(() => {
   const sorted = [...props.room.images].sort((a, b) => a.sortOrder - b.sortOrder)
   return sorted[0]
 })
-
-const formatPrice = (value: number) => new Intl.NumberFormat("en-US").format(value)
 
 const resolveExtraIcon = (iconName: string) => iconMap[iconName] ?? sparklesOutline
 </script>
@@ -97,14 +96,10 @@ const resolveExtraIcon = (iconName: string) => iconMap[iconName] ?? sparklesOutl
   </ion-card>
 </template>
 
+<style scoped src="./room-card.shared.css"></style>
+
 <style scoped>
 .room-card {
-  --background: #fff;
-  border-radius: 20px;
-  background: linear-gradient(160deg, #fffaf3 0%, #f3e7d6 100%);
-  border: 1px solid rgba(31, 27, 24, 0.08);
-  box-shadow: 0 18px 30px rgba(31, 27, 24, 0.08);
-  overflow: hidden;
   display: flex;
   flex-direction: column;
   align-self: start;
@@ -116,17 +111,7 @@ const resolveExtraIcon = (iconName: string) => iconMap[iconName] ?? sparklesOutl
   object-fit: cover;
 }
 
-.room-card__header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-}
-
 .room-card__price {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
   gap: 2px;
   font-weight: 600;
 }
@@ -147,7 +132,6 @@ const resolveExtraIcon = (iconName: string) => iconMap[iconName] ?? sparklesOutl
   display: flex;
   align-items: center;
   gap: 6px;
-  margin-top: 6px;
   font-weight: 600;
   color: var(--color-midnight);
 }
@@ -156,19 +140,11 @@ const resolveExtraIcon = (iconName: string) => iconMap[iconName] ?? sparklesOutl
   margin-bottom: 14px;
 }
 
-.room-card__extras {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
 .room-card__availability {
   margin-top: 8px;
 }
 
 .room-card__chip {
-  --background: #fff;
-  border: 1px solid rgba(31, 27, 24, 0.1);
   color: var(--color-ink);
   font-weight: 600;
 }
@@ -177,14 +153,4 @@ const resolveExtraIcon = (iconName: string) => iconMap[iconName] ?? sparklesOutl
   color: var(--color-terracotta);
 }
 
-@media (max-width: 640px) {
-  .room-card__header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .room-card__price {
-    align-items: flex-start;
-  }
-}
 </style>
