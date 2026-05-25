@@ -2,22 +2,18 @@
 import {
   IonCard,
   IonCardContent,
-  IonContent,
-  IonPage,
 } from "@ionic/vue"
-import BaseSectionTitle from "@/components/atoms/BaseSectionTitle.vue"
-import TheHeader from "@/components/layout/TheHeader.vue"
-import TheFooter from "@/components/layout/TheFooter.vue"
-import { imprintDetails } from "@/data/hotelContent"
+import PageLayout from "@/components/layout/PageLayout.vue"
+import SectionBlock from "@/components/molecules/SectionBlock.vue"
+import { imprintDetails, imprintPageContent } from "@/data/content/imprintContent"
 </script>
 
 <template>
-  <ion-page>
-    <the-header />
-    <ion-content class="page-shell">
-      <div class="page-shell__inner">
-        <div class="ion-margin-top ion-margin-bottom">
-          <base-section-title title="Imprint" subtitle="Legal information" />
+  <page-layout>
+        <section-block
+          :title="imprintPageContent.title"
+          :subtitle="imprintPageContent.subtitle"
+        >
           
           <ion-card class="imprint-card">
             <ion-card-content>
@@ -31,11 +27,8 @@ import { imprintDetails } from "@/data/hotelContent"
               </div>
             </ion-card-content>
           </ion-card>
-        </div>
-      </div>
-      <the-footer />
-    </ion-content>
-  </ion-page>
+        </section-block>
+  </page-layout>
 </template>
 
 <style scoped>

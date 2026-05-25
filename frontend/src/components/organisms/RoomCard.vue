@@ -10,37 +10,15 @@ import {
   IonIcon,
   IonImg,
 } from "@ionic/vue"
-import {
-  accessibilityOutline,
-  bedOutline,
-  briefcaseOutline,
-  cafeOutline,
-  homeOutline,
-  leafOutline,
-  peopleOutline,
-  sparklesOutline,
-  sunnyOutline,
-  wifiOutline,
-  wineOutline,
-} from "ionicons/icons"
+import { peopleOutline } from "ionicons/icons"
 import type { Room } from "@/core/models/room"
-import RoomAvailabilityDialog from "@/components/molecules/RoomAvailabilityDialog.vue"
+import { resolveExtraIcon } from "@/core/extraIcons"
+import { formatPrice } from "@/core/formatters"
+import RoomAvailabilityFlow from "@/components/molecules/RoomAvailabilityFlow.vue"
 
 const props = defineProps<{
   room: Room
 }>()
-
-const iconMap: Record<string, string> = {
-  accessible: accessibilityOutline,
-  balcony: homeOutline,
-  bed: bedOutline,
-  breakfast: cafeOutline,
-  minibar: wineOutline,
-  spa: leafOutline,
-  view: sunnyOutline,
-  wifi: wifiOutline,
-  workspace: briefcaseOutline,
-}
 
 const primaryImage = computed(() => {
   if (!props.room.images.length) {
@@ -54,14 +32,16 @@ const primaryImage = computed(() => {
   return sorted[0]
 })
 
-const formatPrice = (value: number) => new Intl.NumberFormat("en-US").format(value)
-
-const resolveExtraIcon = (iconName: string) => iconMap[iconName] ?? sparklesOutline
 </script>
 
 <template>
   <ion-card class="room-card">
-    <ion-img class="room-card__image" :src="primaryImage.url" :alt="primaryImage.altText" />
+    <ion-img
+      class="room-card__image"
+      :src="primaryImage.url"
+      :alt="primaryImage.altText"
+      loading="lazy"
+    />
     <ion-card-header>
       <div class="room-card__header">
         <ion-card-title>{{ room.title }}</ion-card-title>
@@ -87,23 +67,20 @@ const resolveExtraIcon = (iconName: string) => iconMap[iconName] ?? sparklesOutl
           <span>{{ extra.title }}</span>
         </ion-chip>
       </div>
-      <room-availability-dialog
+      <room-availability-flow
         class="room-card__availability"
         :room-id="room.id"
         :room-title="room.title"
+        :room-max-guests="room.maxGuests"
       />
     </ion-card-content>
   </ion-card>
 </template>
 
+<style scoped src="./room-card.shared.css"></style>
+
 <style scoped>
 .room-card {
-  --background: #fff;
-  border-radius: 20px;
-  background: linear-gradient(160deg, #fffaf3 0%, #f3e7d6 100%);
-  border: 1px solid rgba(31, 27, 24, 0.08);
-  box-shadow: 0 18px 30px rgba(31, 27, 24, 0.08);
-  overflow: hidden;
   display: flex;
   flex-direction: column;
   align-self: start;
@@ -115,17 +92,7 @@ const resolveExtraIcon = (iconName: string) => iconMap[iconName] ?? sparklesOutl
   object-fit: cover;
 }
 
-.room-card__header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-}
-
 .room-card__price {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
   gap: 2px;
   font-weight: 600;
 }
@@ -146,7 +113,6 @@ const resolveExtraIcon = (iconName: string) => iconMap[iconName] ?? sparklesOutl
   display: flex;
   align-items: center;
   gap: 6px;
-  margin-top: 6px;
   font-weight: 600;
   color: var(--color-midnight);
 }
@@ -155,19 +121,11 @@ const resolveExtraIcon = (iconName: string) => iconMap[iconName] ?? sparklesOutl
   margin-bottom: 14px;
 }
 
-.room-card__extras {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
 .room-card__availability {
   margin-top: 8px;
 }
 
 .room-card__chip {
-  --background: #fff;
-  border: 1px solid rgba(31, 27, 24, 0.1);
   color: var(--color-ink);
   font-weight: 600;
 }
@@ -176,14 +134,4 @@ const resolveExtraIcon = (iconName: string) => iconMap[iconName] ?? sparklesOutl
   color: var(--color-terracotta);
 }
 
-@media (max-width: 640px) {
-  .room-card__header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .room-card__price {
-    align-items: flex-start;
-  }
-}
 </style>

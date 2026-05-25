@@ -32,7 +32,7 @@ defineProps<{
 
 <style scoped>
 .story__title {
-  font-size: 1.5rem;
+  font-size: var(--text-heading-md);
 }
 
 .story__paragraph {
@@ -43,10 +43,10 @@ defineProps<{
 }
 
 .story__accent {
-  border-radius: 18px;
+  border-radius: var(--radius-md);
   background: var(--color-midnight);
   color: #fff;
-  box-shadow: 0 16px 30px rgba(15, 25, 32, 0.25);
+  box-shadow: var(--shadow-accent);
   display: flex;
   flex-direction: column;
 }
@@ -57,8 +57,8 @@ defineProps<{
 
 .story__accent-title {
   text-transform: uppercase;
-  letter-spacing: 0.12em;
-  font-size: 0.7rem;
+  letter-spacing: var(--tracking-wide);
+  font-size: var(--text-label-xs);
   margin-bottom: 6px;
 }
 

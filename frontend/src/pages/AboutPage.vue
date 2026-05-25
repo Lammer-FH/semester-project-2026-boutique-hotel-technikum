@@ -1,45 +1,42 @@
 <script setup lang="ts">
-import { IonContent, IonPage } from "@ionic/vue"
-import BaseSectionTitle from "@/components/atoms/BaseSectionTitle.vue"
 import StorySection from "@/components/organisms/StorySection.vue"
 import FeatureGrid from "@/components/organisms/FeatureGrid.vue"
 import ContactStrip from "@/components/organisms/ContactStrip.vue"
-import TheHeader from "@/components/layout/TheHeader.vue"
-import TheFooter from "@/components/layout/TheFooter.vue"
+import PageLayout from "@/components/layout/PageLayout.vue"
+import SectionBlock from "@/components/molecules/SectionBlock.vue"
 import {
   aboutContent,
+  aboutPageContent,
   aboutValues,
-  contactDetails,
   neighborhoodHighlights,
-} from "@/data/hotelContent"
+} from "@/data/content/aboutContent"
+import { contactDetails } from "@/data/content/contactContent"
 </script>
 
 <template>
-  <ion-page>
-    <the-header />
-    <ion-content class="page-shell">
-      <div class="page-shell__inner">
-        <div class="ion-margin-top ion-margin-bottom">
+  <page-layout>
+        <section-block>
           <story-section
             :title="aboutContent.title"
             :paragraphs="aboutContent.paragraphs"
             :accent-title="aboutContent.accentTitle"
             :accent-text="aboutContent.accentText"
           />
-        </div>
+        </section-block>
 
-        <div class="ion-margin-top ion-margin-bottom">
-          <base-section-title title="Our values" subtitle="What guides every stay" />
+        <section-block
+          :title="aboutPageContent.valuesTitle"
+          :subtitle="aboutPageContent.valuesSubtitle"
+        >
           <feature-grid :items="aboutValues" />
-        </div>
+        </section-block>
 
-        <div class="ion-margin-top ion-margin-bottom">
-          <base-section-title
-            title="Neighborhood highlights"
-            subtitle="Creative Brigittenau, just outside the center"
-          />
+        <section-block
+          :title="aboutPageContent.neighborhoodTitle"
+          :subtitle="aboutPageContent.neighborhoodSubtitle"
+        >
           <feature-grid :items="neighborhoodHighlights" />
-        </div>
+        </section-block>
 
         <contact-strip
           :phone="contactDetails.phone"
@@ -47,8 +44,5 @@ import {
           :address-line1="contactDetails.addressLine1"
           :address-line2="contactDetails.addressLine2"
         />
-      </div>
-      <the-footer />
-    </ion-content>
-  </ion-page>
+  </page-layout>
 </template>

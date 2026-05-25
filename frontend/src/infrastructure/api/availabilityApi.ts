@@ -1,11 +1,7 @@
-import type { AvailabilityResult } from "../../core/models/availability";
 import httpClient from "./httpClient";
-
-interface AvailabilityResponseApi {
-  room_id: number;
-  available: boolean;
-  message: string;
-}
+import type { AvailabilityResult } from "../../core/models/availability";
+import type { AvailabilityResponseApi } from "../mappers/apiMapper";
+import { mapAvailabilityResponse } from "../mappers/apiMapper";
 
 export const checkAvailability = async (
   roomId: number,
@@ -22,9 +18,5 @@ export const checkAvailability = async (
     }
   );
 
-  return {
-    roomId: response.data.room_id,
-    available: response.data.available,
-    message: response.data.message,
-  };
+  return mapAvailabilityResponse(response.data);
 };

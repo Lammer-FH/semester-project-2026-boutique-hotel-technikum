@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from "vue"
 import { IonText } from "@ionic/vue"
 
 const props = withDefaults(
@@ -12,7 +13,9 @@ const props = withDefaults(
   }
 )
 
-const alignClass = props.align === "center" ? "ion-text-center" : "ion-text-start"
+const alignClass = computed(() =>
+  props.align === "center" ? "ion-text-center" : "ion-text-start"
+)
 </script>
 
 <template>
@@ -27,13 +30,13 @@ const alignClass = props.align === "center" ? "ion-text-center" : "ion-text-star
 <style scoped>
 .section-title__subtitle {
   text-transform: uppercase;
-  letter-spacing: 0.12em;
-  font-size: 0.75rem;
+  letter-spacing: var(--tracking-wide);
+  font-size: var(--text-label-sm);
   color: var(--color-olive);
   margin-bottom: 6px;
 }
 
 .section-title__heading {
-  font-size: 1.9rem;
+  font-size: var(--text-heading-lg);
 }
 </style>

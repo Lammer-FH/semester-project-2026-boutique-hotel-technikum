@@ -1,26 +1,22 @@
 <script setup lang="ts">
-import { IonContent, IonPage } from "@ionic/vue"
-import BaseSectionTitle from "@/components/atoms/BaseSectionTitle.vue"
 import HeroBanner from "@/components/molecules/HeroBanner.vue"
+import SectionBlock from "@/components/molecules/SectionBlock.vue"
 import FeatureGrid from "@/components/organisms/FeatureGrid.vue"
 import StorySection from "@/components/organisms/StorySection.vue"
 import ContactStrip from "@/components/organisms/ContactStrip.vue"
-import TheHeader from "@/components/layout/TheHeader.vue"
-import TheFooter from "@/components/layout/TheFooter.vue"
+import PageLayout from "@/components/layout/PageLayout.vue"
 import {
-  contactDetails,
   experienceHighlights,
   heroContent,
   hotelHighlights,
   hotelStory,
-} from "@/data/hotelContent"
+  landingContent,
+} from "@/data/content/landingContent"
+import { contactDetails } from "@/data/content/contactContent"
 </script>
 
 <template>
-  <ion-page>
-    <the-header />
-    <ion-content class="page-shell">
-      <div class="page-shell__inner">
+  <page-layout>
         <hero-banner
           :title="heroContent.title"
           :subtitle="heroContent.subtitle"
@@ -30,27 +26,25 @@ import {
           :secondary-route="heroContent.secondaryRoute"
         />
 
-        <div class="ion-margin-top ion-margin-bottom">
-          <base-section-title
-            title="Why guests choose us"
-            subtitle="Boutique comfort, designed for modern travelers"
-          />
+        <section-block
+          :title="landingContent.highlightsTitle"
+          :subtitle="landingContent.highlightsSubtitle"
+        >
           <feature-grid :items="hotelHighlights" />
-        </div>
+        </section-block>
 
-        <div class="ion-margin-top ion-margin-bottom">
+        <section-block>
           <story-section
             :title="hotelStory.title"
             :paragraphs="hotelStory.paragraphs"
             :accent-title="hotelStory.accentTitle"
             :accent-text="hotelStory.accentText"
           />
-        </div>
+        </section-block>
 
-        <div class="ion-margin-top ion-margin-bottom">
-          <base-section-title title="Your stay, curated" />
+        <section-block :title="landingContent.curatedTitle">
           <feature-grid :items="experienceHighlights" />
-        </div>
+        </section-block>
 
         <contact-strip
           :phone="contactDetails.phone"
@@ -58,8 +52,5 @@ import {
           :address-line1="contactDetails.addressLine1"
           :address-line2="contactDetails.addressLine2"
         />
-      </div>
-      <the-footer />
-    </ion-content>
-  </ion-page>
+  </page-layout>
 </template>

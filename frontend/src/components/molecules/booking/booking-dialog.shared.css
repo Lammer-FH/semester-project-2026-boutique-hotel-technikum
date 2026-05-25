@@ -1,0 +1,52 @@
+.booking-dialog__section {
+  display: grid;
+  gap: 16px;
+}
+
+.booking-dialog__intro {
+  display: grid;
+  gap: 6px;
+}
+
+.booking-dialog__step {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.7rem;
+  color: var(--color-olive);
+  font-weight: 600;
+}
+
+.booking-dialog__step-title {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.booking-dialog__hint {
+  margin: 0;
+  color: var(--color-ink);
+  font-size: 0.95rem;
+}
+
+.booking-dialog__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.booking-dialog__error {
+  margin: 0;
+  color: var(--color-terracotta);
+  font-weight: 600;
+}
+
+@media (max-width: 640px) {
+  .booking-dialog__actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .booking-dialog__actions ion-button {
+    width: 100%;
+  }
+}

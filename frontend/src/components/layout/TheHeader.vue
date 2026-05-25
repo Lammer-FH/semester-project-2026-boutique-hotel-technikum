@@ -2,7 +2,7 @@
 import { ref } from "vue"
 import { IonButton, IonHeader, IonIcon, IonToolbar } from "@ionic/vue"
 import { closeOutline, menuOutline } from "ionicons/icons"
-import logo1x from "@/assets/img/logo_with_text.png"
+import { navigationContent } from "@/data/content/layoutContent"
 
 const isMenuOpen = ref(false)
 
@@ -23,31 +23,41 @@ const closeMenu = () => {
           class="menu-button"
           fill="clear"
           :aria-expanded="isMenuOpen ? 'true' : 'false'"
-          aria-label="Toggle navigation"
+          :aria-label="navigationContent.menuToggleLabel"
           @click="toggleMenu"
         >
           <ion-icon :icon="isMenuOpen ? closeOutline : menuOutline" />
         </ion-button>
-        <router-link :to="{ name: 'Landing' }" class="app-header__brand" aria-label="Home">
-          <img class="app-header__logo" :src="logo1x" alt="Boutique Hotel Technikum" />
+        <router-link
+          :to="{ name: 'Landing' }"
+          class="app-header__brand"
+          :aria-label="navigationContent.homeLabel"
+        >
+          <img class="app-header__logo" src="/logo.svg" :alt="navigationContent.brandAlt" />
         </router-link>
-        <nav class="app-header__nav" aria-label="Primary">
-          <router-link class="app-header__link" :to="{ name: 'Landing' }">Home</router-link>
-          <router-link class="app-header__link" :to="{ name: 'RoomsIndex' }">Rooms</router-link>
-          <router-link class="app-header__link" :to="{ name: 'About' }">About</router-link>
+        <nav class="app-header__nav" :aria-label="navigationContent.primaryNavLabel">
+          <router-link class="app-header__link" :to="{ name: 'Landing' }">
+            {{ navigationContent.homeLabel }}
+          </router-link>
+          <router-link class="app-header__link" :to="{ name: 'RoomsIndex' }">
+            {{ navigationContent.roomsLabel }}
+          </router-link>
+          <router-link class="app-header__link" :to="{ name: 'About' }">
+            {{ navigationContent.aboutLabel }}
+          </router-link>
         </nav>
       </div>
     </ion-toolbar>
     <div v-if="isMenuOpen" class="app-header__dropdown" role="presentation">
-      <nav class="app-header__dropdown-nav" aria-label="Mobile">
+      <nav class="app-header__dropdown-nav" :aria-label="navigationContent.mobileNavLabel">
         <router-link class="app-header__dropdown-link" :to="{ name: 'Landing' }" @click="closeMenu">
-          Home
+          {{ navigationContent.homeLabel }}
         </router-link>
         <router-link class="app-header__dropdown-link" :to="{ name: 'RoomsIndex' }" @click="closeMenu">
-          Rooms
+          {{ navigationContent.roomsLabel }}
         </router-link>
         <router-link class="app-header__dropdown-link" :to="{ name: 'About' }" @click="closeMenu">
-          About
+          {{ navigationContent.aboutLabel }}
         </router-link>
       </nav>
     </div>
@@ -88,9 +98,9 @@ const closeMenu = () => {
 }
 
 .app-header__logo {
-  height: 44px;
+  height: 58px;
   width: auto;
-  max-width: 220px;
+  max-width: 300px;
   object-fit: contain;
   display: block;
 }
@@ -166,7 +176,7 @@ const closeMenu = () => {
   }
 
   .app-header__logo {
-    height: 36px;
+    height: 46px;
   }
 }
 
