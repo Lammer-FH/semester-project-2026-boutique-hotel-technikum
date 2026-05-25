@@ -1,6 +1,7 @@
 <script setup lang="ts">
+import { nextTick, onMounted, ref } from "vue"
 import { IonButton } from "@ionic/vue"
-import { bookingDialogContent } from "@/data/hotelContent"
+import { bookingDialogContent } from "@/data/content/bookingContent"
 import type { BookingRequest } from "@/core/models/booking"
 
 type StepContent = {
@@ -28,13 +29,22 @@ const handleBack = () => {
 const handleSubmit = () => {
   emit("submit")
 }
+
+const titleRef = ref<HTMLHeadingElement | null>(null)
+
+onMounted(async () => {
+  await nextTick()
+  titleRef.value?.focus()
+})
 </script>
 
 <template>
   <div class="booking-dialog__section">
     <div class="booking-dialog__intro">
       <p class="booking-dialog__step">{{ props.stepContent.label }}</p>
-      <h4 class="booking-dialog__step-title">{{ props.stepContent.title }}</h4>
+      <h4 class="booking-dialog__step-title" ref="titleRef" tabindex="-1">
+        {{ props.stepContent.title }}
+      </h4>
       <p class="booking-dialog__hint">{{ props.stepContent.hint }}</p>
     </div>
     <div class="booking-review">
@@ -62,7 +72,13 @@ const handleSubmit = () => {
       </div>
     </div>
 
-    <p v-if="props.bookingMessage" class="booking-dialog__error" aria-live="polite">
+    <p
+      v-if="props.bookingMessage"
+      class="booking-dialog__error"
+      role="alert"
+      aria-live="assertive"
+      aria-atomic="true"
+    >
       {{ props.bookingMessage }}
     </p>
 
@@ -81,37 +97,9 @@ const handleSubmit = () => {
   </div>
 </template>
 
+<style scoped src="./booking-dialog.shared.css"></style>
+
 <style scoped>
-.booking-dialog__section {
-  display: grid;
-  gap: 16px;
-}
-
-.booking-dialog__intro {
-  display: grid;
-  gap: 6px;
-}
-
-.booking-dialog__step {
-  margin: 0;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  font-size: 0.7rem;
-  color: var(--color-olive);
-  font-weight: 600;
-}
-
-.booking-dialog__step-title {
-  margin: 0;
-  font-size: 1.05rem;
-}
-
-.booking-dialog__hint {
-  margin: 0;
-  color: var(--color-ink);
-  font-size: 0.95rem;
-}
-
 .booking-review {
   background: var(--color-cream);
   border-radius: 16px;
@@ -131,31 +119,10 @@ const handleSubmit = () => {
   color: var(--color-midnight);
 }
 
-.booking-dialog__actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-}
-
-.booking-dialog__error {
-  margin: 0;
-  color: var(--color-terracotta);
-  font-weight: 600;
-}
-
 @media (max-width: 640px) {
   .booking-review__row {
     flex-direction: column;
     align-items: flex-start;
-  }
-
-  .booking-dialog__actions {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .booking-dialog__actions ion-button {
-    width: 100%;
   }
 }
 </style>

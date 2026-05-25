@@ -10,38 +10,15 @@ import {
   IonIcon,
   IonImg,
 } from "@ionic/vue"
-import {
-  accessibilityOutline,
-  bedOutline,
-  briefcaseOutline,
-  cafeOutline,
-  homeOutline,
-  leafOutline,
-  peopleOutline,
-  sparklesOutline,
-  sunnyOutline,
-  wifiOutline,
-  wineOutline,
-} from "ionicons/icons"
+import { peopleOutline } from "ionicons/icons"
 import type { Room } from "@/core/models/room"
+import { resolveExtraIcon } from "@/core/extraIcons"
 import { formatPrice } from "@/core/formatters"
-import RoomAvailabilityDialog from "@/components/molecules/RoomAvailabilityDialog.vue"
+import RoomAvailabilityFlow from "@/components/molecules/RoomAvailabilityFlow.vue"
 
 const props = defineProps<{
   room: Room
 }>()
-
-const iconMap: Record<string, string> = {
-  accessible: accessibilityOutline,
-  balcony: homeOutline,
-  bed: bedOutline,
-  breakfast: cafeOutline,
-  minibar: wineOutline,
-  spa: leafOutline,
-  view: sunnyOutline,
-  wifi: wifiOutline,
-  workspace: briefcaseOutline,
-}
 
 const primaryImage = computed(() => {
   if (!props.room.images.length) {
@@ -55,12 +32,16 @@ const primaryImage = computed(() => {
   return sorted[0]
 })
 
-const resolveExtraIcon = (iconName: string) => iconMap[iconName] ?? sparklesOutline
 </script>
 
 <template>
   <ion-card class="room-card">
-    <ion-img class="room-card__image" :src="primaryImage.url" :alt="primaryImage.altText" />
+    <ion-img
+      class="room-card__image"
+      :src="primaryImage.url"
+      :alt="primaryImage.altText"
+      loading="lazy"
+    />
     <ion-card-header>
       <div class="room-card__header">
         <ion-card-title>{{ room.title }}</ion-card-title>
@@ -86,7 +67,7 @@ const resolveExtraIcon = (iconName: string) => iconMap[iconName] ?? sparklesOutl
           <span>{{ extra.title }}</span>
         </ion-chip>
       </div>
-      <room-availability-dialog
+      <room-availability-flow
         class="room-card__availability"
         :room-id="room.id"
         :room-title="room.title"

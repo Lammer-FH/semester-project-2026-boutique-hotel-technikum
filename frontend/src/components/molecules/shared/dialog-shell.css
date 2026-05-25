@@ -1,0 +1,19 @@
+:deep(.dialog-shell) {
+  --padding-start: 18px;
+  --padding-end: 18px;
+  --padding-top: 18px;
+  --padding-bottom: 24px;
+}
+
+@media (min-width: 900px) {
+  :deep(.dialog-modal) {
+    --width: min(860px, 94vw);
+    --max-height: 96vh;
+    --height: 96vh;
+  }
+
+  :deep(.dialog-shell) {
+    --padding-top: 14px;
+    --padding-bottom: 16px;
+  }
+}

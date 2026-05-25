@@ -2,7 +2,7 @@
 import { ref } from "vue"
 import { IonButton, IonHeader, IonIcon, IonToolbar } from "@ionic/vue"
 import { closeOutline, menuOutline } from "ionicons/icons"
-import { navigationContent } from "@/data/hotelContent"
+import { navigationContent } from "@/data/content/layoutContent"
 
 const isMenuOpen = ref(false)
 

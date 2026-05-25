@@ -11,7 +11,7 @@ import {
 } from "@ionic/vue"
 import { bedOutline, cafeOutline, leafOutline } from "ionicons/icons"
 import type { RouteLocationRaw } from "vue-router"
-import { heroBannerContent } from "@/data/hotelContent"
+import { heroBannerContent } from "@/data/content/landingContent"
 
 defineProps<{
   title: string
@@ -21,6 +21,12 @@ defineProps<{
   secondaryLabel: string
   secondaryRoute: RouteLocationRaw
 }>()
+
+const heroPanelIcons = {
+  bed: bedOutline,
+  cafe: cafeOutline,
+  leaf: leafOutline,
+} as const
 </script>
 
 <template>
@@ -42,17 +48,13 @@ defineProps<{
               <ion-card-content>
                 <ion-text class="hero__panel-title">{{ heroBannerContent.panelTitle }}</ion-text>
                 <ul class="hero-panel-list" role="list">
-                  <li class="hero-panel-item">
-                    <ion-icon :icon="bedOutline" />
-                    {{ heroBannerContent.panelItems[0] }}
-                  </li>
-                  <li class="hero-panel-item">
-                    <ion-icon :icon="cafeOutline" />
-                    {{ heroBannerContent.panelItems[1] }}
-                  </li>
-                  <li class="hero-panel-item">
-                    <ion-icon :icon="leafOutline" />
-                    {{ heroBannerContent.panelItems[2] }}
+                  <li
+                    v-for="item in heroBannerContent.panelItems"
+                    :key="item.label"
+                    class="hero-panel-item"
+                  >
+                    <ion-icon :icon="heroPanelIcons[item.icon]" />
+                    {{ item.label }}
                   </li>
                 </ul>
               </ion-card-content>
@@ -66,9 +68,9 @@ defineProps<{
 
 <style scoped>
 .hero-card {
-  border-radius: 24px;
+  border-radius: var(--radius-lg);
   background: linear-gradient(135deg, #f8efe0 0%, #e9dcc8 100%);
-  box-shadow: 0 16px 30px rgba(31, 27, 24, 0.08);
+  box-shadow: var(--shadow-soft);
   display: flex;
   flex-direction: column;
 }
@@ -79,14 +81,14 @@ defineProps<{
 
 .hero__eyebrow {
   text-transform: uppercase;
-  letter-spacing: 0.14em;
-  font-size: 0.75rem;
+  letter-spacing: var(--tracking-wider);
+  font-size: var(--text-label-sm);
   color: var(--color-terracotta);
   margin-bottom: 10px;
 }
 
 .hero__title {
-  font-size: 2.4rem;
+  font-size: var(--text-heading-xl);
 }
 
 .hero__subtitle {
@@ -96,7 +98,7 @@ defineProps<{
 
 .hero-panel {
   background: var(--color-cream);
-  border-radius: 16px;
+  border-radius: var(--radius-sm);
   border: 1px solid var(--color-mist);
   display: flex;
   flex-direction: column;

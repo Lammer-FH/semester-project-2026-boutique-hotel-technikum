@@ -2,54 +2,129 @@ import { defineStore } from "pinia";
 import type { PaginationMeta } from "../../core/models/api";
 import type { Room } from "../../core/models/room";
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from "../../core/constants";
-import { getRoom, listRooms } from "../../infrastructure/api/roomApi";
+import { listRooms } from "../../infrastructure/api/roomApi";
 import { toErrorMessage } from "./storeErrors";
+
+const ROOM_CACHE_TTL_MS = 2 * 60 * 1000;
+
+interface RoomCacheEntry {
+  rooms: Room[];
+  pagination: PaginationMeta;
+  fetchedAt: number;
+}
 
 interface RoomState {
   rooms: Room[];
   pagination: PaginationMeta | null;
-  selectedRoom: Room | null;
   isLoading: boolean;
   error: string | null;
+  currentPage: number;
+  pageSize: number;
+  lastQuery: { page: number; size: number } | null;
+  cache: Record<string, RoomCacheEntry>;
+  latestRequestId: number;
 }
 
 export const useRoomStore = defineStore("rooms", {
   state: (): RoomState => ({
     rooms: [],
     pagination: null,
-    selectedRoom: null,
     isLoading: false,
     error: null,
+    currentPage: DEFAULT_PAGE,
+    pageSize: DEFAULT_PAGE_SIZE,
+    lastQuery: null,
+    cache: {},
+    latestRequestId: 0,
   }),
   actions: {
-    async getRooms(page = DEFAULT_PAGE, size = DEFAULT_PAGE_SIZE) {
+    isCacheFresh(cacheKey: string) {
+      const cached = this.cache[cacheKey];
+      if (!cached) {
+        return false;
+      }
+
+      return Date.now() - cached.fetchedAt < ROOM_CACHE_TTL_MS;
+    },
+    async fetchRooms(options?: { page?: number; size?: number; force?: boolean }) {
+      const requestedPage = options?.page ?? this.currentPage;
+      const requestedSize = options?.size ?? this.pageSize;
+      const cacheKey = `${requestedPage}-${requestedSize}`;
+      const cached = this.cache[cacheKey];
+
+      if (!options?.force && cached && this.isCacheFresh(cacheKey)) {
+        this.rooms = cached.rooms;
+        this.pagination = cached.pagination;
+        this.currentPage = requestedPage;
+        this.pageSize = requestedSize;
+        this.lastQuery = { page: requestedPage, size: requestedSize };
+        this.error = null;
+        return;
+      }
+
+      const requestId = ++this.latestRequestId;
       this.isLoading = true;
       this.error = null;
+
+      try {
+        const response = await listRooms(requestedPage, requestedSize);
+        if (requestId !== this.latestRequestId) {
+          return;
+        }
+        this.rooms = response.data;
+        this.pagination = response.pagination;
+        this.currentPage = requestedPage;
+        this.pageSize = requestedSize;
+        this.lastQuery = { page: requestedPage, size: requestedSize };
+        this.cache[cacheKey] = {
+          rooms: response.data,
+          pagination: response.pagination,
+          fetchedAt: Date.now(),
+        };
+      } catch (error) {
+        if (requestId !== this.latestRequestId) {
+          return;
+        }
+        this.error = toErrorMessage(error);
+      } finally {
+        if (requestId === this.latestRequestId) {
+          this.isLoading = false;
+        }
+      }
+    },
+    async prefetchRooms(page: number, size: number) {
+      const cacheKey = `${page}-${size}`;
+      if (this.isCacheFresh(cacheKey)) {
+        return;
+      }
 
       try {
         const response = await listRooms(page, size);
-        this.rooms = response.data;
-        this.pagination = response.pagination;
-      } catch (error) {
-        this.error = toErrorMessage(error);
-      } finally {
-        this.isLoading = false;
+        this.cache[cacheKey] = {
+          rooms: response.data,
+          pagination: response.pagination,
+          fetchedAt: Date.now(),
+        };
+      } catch {
+        // Prefetch failures are non-blocking.
       }
     },
-    async getRoom(roomId: number) {
-      this.isLoading = true;
-      this.error = null;
+    setPage(page: number) {
+      if (page === this.currentPage && !this.error) {
+        return;
+      }
 
-      try {
-        this.selectedRoom = await getRoom(roomId);
-      } catch (error) {
-        this.error = toErrorMessage(error);
-      } finally {
-        this.isLoading = false;
-      }
+      this.currentPage = page;
+      void this.fetchRooms({ page, size: this.pageSize, force: !!this.error });
     },
-    clearSelectedRoom() {
-      this.selectedRoom = null;
+    setPageSize(size: number) {
+      if (size === this.pageSize) {
+        return;
+      }
+
+      this.pageSize = size;
+      this.currentPage = DEFAULT_PAGE;
+      void this.fetchRooms({ page: this.currentPage, size, force: true });
     },
   },
 });

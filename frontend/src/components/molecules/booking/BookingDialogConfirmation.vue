@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { nextTick, onMounted, ref } from "vue"
 import { IonButton } from "@ionic/vue"
 
 const props = defineProps<{
@@ -15,12 +16,19 @@ const emit = defineEmits<{
 const handleDone = () => {
   emit("done")
 }
+
+const titleRef = ref<HTMLHeadingElement | null>(null)
+
+onMounted(async () => {
+  await nextTick()
+  titleRef.value?.focus()
+})
 </script>
 
 <template>
   <div class="booking-dialog__section">
     <div class="booking-confirmation">
-      <h4>{{ props.title }}</h4>
+      <h4 ref="titleRef" tabindex="-1">{{ props.title }}</h4>
       <p v-if="props.bookingIdText">{{ props.bookingIdText }}</p>
       <p v-if="props.dateRangeLabel">{{ props.dateRangeLabel }}</p>
     </div>
@@ -30,12 +38,9 @@ const handleDone = () => {
   </div>
 </template>
 
-<style scoped>
-.booking-dialog__section {
-  display: grid;
-  gap: 16px;
-}
+<style scoped src="./booking-dialog.shared.css"></style>
 
+<style scoped>
 .booking-confirmation {
   text-align: center;
   padding: 20px 14px;
@@ -46,20 +51,4 @@ const handleDone = () => {
   gap: 8px;
 }
 
-.booking-dialog__actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-}
-
-@media (max-width: 640px) {
-  .booking-dialog__actions {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .booking-dialog__actions ion-button {
-    width: 100%;
-  }
-}
 </style>

@@ -17,6 +17,10 @@ export const useExtraStore = defineStore("extras", {
   }),
   actions: {
     async getExtras() {
+      if (this.extras.length) {
+        return;
+      }
+
       this.isLoading = true;
       this.error = null;
 

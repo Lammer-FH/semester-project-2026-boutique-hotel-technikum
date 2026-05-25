@@ -10,7 +10,7 @@ import {
   IonText,
 } from "@ionic/vue"
 import { callOutline, mailOutline, locationOutline } from "ionicons/icons"
-import { contactStripContent } from "@/data/hotelContent"
+import { contactStripContent } from "@/data/content/contactContent"
 
 defineProps<{
   phone: string
@@ -52,10 +52,10 @@ defineProps<{
 
 <style scoped>
 .contact-card {
-  border-radius: 20px;
+  border-radius: var(--radius-md);
   background: linear-gradient(160deg, #1f2f3a 0%, #162229 100%);
   color: #fff;
-  box-shadow: 0 18px 36px rgba(15, 25, 32, 0.28);
+  box-shadow: var(--shadow-strong);
   display: flex;
   flex-direction: column;
 }

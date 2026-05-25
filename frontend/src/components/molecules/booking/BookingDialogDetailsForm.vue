@@ -1,6 +1,7 @@
 <script setup lang="ts">
+import { nextTick, onMounted, ref } from "vue"
 import { IonButton } from "@ionic/vue"
-import { bookingDialogContent } from "@/data/hotelContent"
+import { bookingDialogContent } from "@/data/content/bookingContent"
 import type { BookingRequest } from "@/core/models/booking"
 
 type StepContent = {
@@ -29,9 +30,16 @@ const updateField = <K extends keyof BookingRequest>(
   emit("update-field", key, value)
 }
 
+const firstFieldRef = ref<HTMLInputElement | null>(null)
+
 const handleProceed = () => {
   emit("proceed")
 }
+
+onMounted(async () => {
+  await nextTick()
+  firstFieldRef.value?.focus()
+})
 </script>
 
 <template>
@@ -53,6 +61,7 @@ const handleProceed = () => {
           autocomplete="given-name"
           :placeholder="bookingDialogContent.placeholders.firstName"
           required
+          ref="firstFieldRef"
           :value="props.draft.guestFirstName ?? ''"
           @input="updateField('guestFirstName', ($event.target as HTMLInputElement).value)"
         />
@@ -137,7 +146,13 @@ const handleProceed = () => {
       </div>
     </div>
 
-    <p v-if="props.bookingMessage" class="booking-dialog__error" aria-live="polite">
+    <p
+      v-if="props.bookingMessage"
+      class="booking-dialog__error"
+      role="alert"
+      aria-live="assertive"
+      aria-atomic="true"
+    >
       {{ props.bookingMessage }}
     </p>
 
@@ -147,37 +162,9 @@ const handleProceed = () => {
   </div>
 </template>
 
+<style scoped src="./booking-dialog.shared.css"></style>
+
 <style scoped>
-.booking-dialog__section {
-  display: grid;
-  gap: 16px;
-}
-
-.booking-dialog__intro {
-  display: grid;
-  gap: 6px;
-}
-
-.booking-dialog__step {
-  margin: 0;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  font-size: 0.7rem;
-  color: var(--color-olive);
-  font-weight: 600;
-}
-
-.booking-dialog__step-title {
-  margin: 0;
-  font-size: 1.05rem;
-}
-
-.booking-dialog__hint {
-  margin: 0;
-  color: var(--color-ink);
-  font-size: 0.95rem;
-}
-
 .booking-dialog__grid {
   display: grid;
   gap: 14px;
@@ -216,29 +203,6 @@ const handleProceed = () => {
 .booking-field__checkbox {
   width: 18px;
   height: 18px;
-}
-
-.booking-dialog__actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-}
-
-.booking-dialog__error {
-  margin: 0;
-  color: var(--color-terracotta);
-  font-weight: 600;
-}
-
-@media (max-width: 640px) {
-  .booking-dialog__actions {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .booking-dialog__actions ion-button {
-    width: 100%;
-  }
 }
 
 @media (min-width: 720px) {

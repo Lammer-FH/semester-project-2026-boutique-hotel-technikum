@@ -1,55 +1,110 @@
 <script setup lang="ts">
-import { computed, nextTick, ref, watch } from "vue"
-import { IonButton, IonContent, IonPage } from "@ionic/vue"
+import type { VNodeRef } from "vue"
+import { computed, nextTick, onMounted, ref, watch } from "vue"
+import { IonButton, IonToast } from "@ionic/vue"
+import type { IonContent } from "@ionic/vue"
 import { storeToRefs } from "pinia"
 import BaseSectionTitle from "@/components/atoms/BaseSectionTitle.vue"
+import BaseErrorBanner from "@/components/atoms/BaseErrorBanner.vue"
+import ExtrasStrip from "@/components/organisms/ExtrasStrip.vue"
 import RoomCard from "@/components/organisms/RoomCard.vue"
-import RoomCardSkeleton from "@/components/organisms/RoomCardSkeleton.vue"
-import TheHeader from "@/components/layout/TheHeader.vue"
-import TheFooter from "@/components/layout/TheFooter.vue"
+import RoomCardSkeletonList from "@/components/organisms/RoomCardSkeletonList.vue"
+import PageLayout from "@/components/layout/PageLayout.vue"
+import { useExtraStore } from "@/application/stores/extraStore"
 import { useRoomStore } from "@/application/stores/roomStore"
-import { roomsPageContent } from "@/data/hotelContent"
+import { extrasContent, roomsPageContent } from "@/data/content/roomsContent"
+import { scrollIonContentToTop, updateIonContentRef } from "@/core/scroll"
 
-const pageSize = 5
-const currentPage = ref(1)
-const contentRef = ref<InstanceType<typeof IonContent> | null>(null)
+const contentEl = ref<InstanceType<typeof IonContent> | null>(null)
+const contentRef: VNodeRef = (refValue) => updateIonContentRef(contentEl, refValue)
 
 const roomStore = useRoomStore()
-const { rooms, isLoading, error: errorMessage, pagination } = storeToRefs(roomStore)
+const {
+  rooms,
+  isLoading,
+  error: errorMessage,
+  pagination,
+  currentPage,
+  pageSize,
+} = storeToRefs(roomStore)
+
+const extraStore = useExtraStore()
+const {
+  extras,
+  isLoading: extrasLoading,
+  error: extrasError,
+} = storeToRefs(extraStore)
 
 const totalPages = computed(() => pagination.value?.totalPages ?? 1)
 const pages = computed(() => Array.from({ length: totalPages.value }, (_, index) => index + 1))
 const totalRooms = computed(() => pagination.value?.total ?? rooms.value.length)
+const hasRooms = computed(() => rooms.value.length > 0)
+const isReady = computed(() => !isLoading.value)
+const isToastOpen = ref(false)
+const toastMessage = ref("")
 
 const startNumber = computed(() => {
   if (!rooms.value.length) {
     return 0
   }
-  return (currentPage.value - 1) * pageSize + 1
+  return (currentPage.value - 1) * pageSize.value + 1
 })
 
 const endNumber = computed(() => {
   if (!rooms.value.length) {
     return 0
   }
-  return Math.min(currentPage.value * pageSize, totalRooms.value)
+  return Math.min(currentPage.value * pageSize.value, totalRooms.value)
 })
 
+const roomsMetaLabel = computed(() =>
+  roomsPageContent.roomsMeta(startNumber.value, endNumber.value, totalRooms.value)
+)
+
 const setPage = (page: number) => {
-  currentPage.value = page
-  nextTick(() => contentRef.value?.$el?.scrollToTop(0))
+  roomStore.setPage(page)
+  nextTick(() => scrollIonContentToTop(contentEl.value))
 }
 
-watch(currentPage, (page) => roomStore.getRooms(page, pageSize), { immediate: true })
+const prefetchPage = (page: number) => {
+  void roomStore.prefetchRooms(page, pageSize.value)
+}
+
+const retryFetch = () => {
+  void roomStore.fetchRooms({
+    page: currentPage.value,
+    size: pageSize.value,
+    force: true,
+  })
+}
+
+onMounted(() => {
+  roomStore.fetchRooms()
+  extraStore.getExtras()
+})
+
+watch(
+  () => errorMessage.value,
+  (message) => {
+    if (!message) {
+      return
+    }
+
+    toastMessage.value = message
+    isToastOpen.value = true
+  }
+)
 </script>
 
 <template>
-  <ion-page>
-    <the-header />
-    <ion-content ref="contentRef" class="page-shell">
-      <div class="rooms-page__layout">
-        <div class="page-shell__inner rooms-page">
-          <div class="rooms-page__intro">
+  <page-layout
+    :content-ref="contentRef"
+    content-class="page-shell"
+    layout-class="rooms-page__layout"
+    inner-class="page-shell__inner rooms-page"
+    footer-class="rooms-page__footer"
+  >
+          <div class="rooms-page__intro" v-once>
             <base-section-title
               :title="roomsPageContent.title"
               :subtitle="roomsPageContent.subtitle"
@@ -59,22 +114,38 @@ watch(currentPage, (page) => roomStore.getRooms(page, pageSize), { immediate: tr
             </p>
           </div>
 
-          <div class="rooms-page__meta" v-if="rooms.length && !isLoading">
+          <extras-strip
+            class="rooms-page__extras"
+            :title="extrasContent.title"
+            :subtitle="extrasContent.subtitle"
+            :empty-message="extrasContent.emptyMessage"
+            :extras="extras"
+            :is-loading="extrasLoading"
+            :error="extrasError"
+          />
+
+          <div class="rooms-page__meta" v-if="hasRooms && isReady">
             <span>
-              {{ roomsPageContent.roomsMeta(startNumber, endNumber, totalRooms) }}
+              {{ roomsMetaLabel }}
             </span>
           </div>
 
-          <div class="rooms-page__error" v-if="!isLoading && errorMessage">
-            {{ errorMessage }}
+          <base-error-banner v-if="isReady && errorMessage" :message="errorMessage" />
+
+          <div class="rooms-page__list" v-if="hasRooms || isLoading">
+            <room-card-skeleton-list v-if="isLoading" :count="pageSize" />
+            <room-card v-else v-for="room in rooms" :key="room.id" :room="room" v-memo="[room]" />
           </div>
 
-          <div class="rooms-page__list">
-            <room-card-skeleton v-if="isLoading" v-for="index in pageSize" :key="`skeleton-${index}`" />
-            <room-card v-else v-for="room in rooms" :key="room.id" :room="room" />
+          <div class="rooms-page__empty" v-if="isReady && !hasRooms">
+            <h3 class="rooms-page__empty-title">{{ roomsPageContent.emptyTitle }}</h3>
+            <p class="rooms-page__empty-body">{{ roomsPageContent.emptyBody }}</p>
+            <ion-button size="small" @click="retryFetch">
+              {{ roomsPageContent.emptyAction }}
+            </ion-button>
           </div>
 
-          <div class="rooms-page__pagination" v-if="totalPages > 1 && !isLoading">
+          <div class="rooms-page__pagination" v-if="totalPages > 1 && isReady">
             <div class="rooms-page__pagination-label">{{ roomsPageContent.paginationLabel }}</div>
             <div
               class="rooms-page__pagination-buttons"
@@ -88,17 +159,23 @@ watch(currentPage, (page) => roomStore.getRooms(page, pageSize), { immediate: tr
                 :fill="page === currentPage ? 'solid' : 'outline'"
                 :aria-current="page === currentPage ? 'page' : undefined"
                 :disabled="page === currentPage"
+                @mouseenter="prefetchPage(page)"
+                @focus="prefetchPage(page)"
                 @click="setPage(page)"
               >
                 {{ page }}
               </ion-button>
             </div>
           </div>
-        </div>
-        <the-footer class="rooms-page__footer" />
-      </div>
-    </ion-content>
-  </ion-page>
+
+          <ion-toast
+            :is-open="isToastOpen"
+            :message="toastMessage || roomsPageContent.toastErrorFallback"
+            :duration="3500"
+            position="bottom"
+            @didDismiss="isToastOpen = false"
+          />
+  </page-layout>
 </template>
 
 <style scoped>
@@ -122,6 +199,10 @@ watch(currentPage, (page) => roomStore.getRooms(page, pageSize), { immediate: tr
   margin-bottom: 24px;
 }
 
+.rooms-page__extras {
+  margin-bottom: 20px;
+}
+
 .rooms-page__lead {
   max-width: 620px;
   font-size: 1.02rem;
@@ -131,16 +212,6 @@ watch(currentPage, (page) => roomStore.getRooms(page, pageSize), { immediate: tr
   font-weight: 600;
   margin-bottom: 16px;
   color: var(--color-midnight);
-}
-
-.rooms-page__error {
-  margin-bottom: 16px;
-  padding: 12px 16px;
-  border-radius: 14px;
-  background: #fff4f0;
-  border: 1px solid rgba(161, 79, 54, 0.2);
-  color: var(--color-terracotta);
-  font-weight: 600;
 }
 
 .rooms-page__list {
@@ -160,8 +231,8 @@ watch(currentPage, (page) => roomStore.getRooms(page, pageSize), { immediate: tr
 
 .rooms-page__pagination-label {
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  font-size: 0.75rem;
+  letter-spacing: var(--tracking-medium);
+  font-size: var(--text-label-sm);
   color: var(--color-olive);
   font-weight: 600;
 }
@@ -171,6 +242,29 @@ watch(currentPage, (page) => roomStore.getRooms(page, pageSize), { immediate: tr
   gap: 8px;
   flex-wrap: wrap;
   justify-content: center;
+}
+
+.rooms-page__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+  padding: 32px 16px 40px;
+  background: var(--color-cream);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-soft);
+}
+
+.rooms-page__empty-title {
+  margin: 0;
+  font-size: 1.3rem;
+}
+
+.rooms-page__empty-body {
+  margin: 0;
+  max-width: 520px;
+  color: var(--color-midnight);
 }
 
 @media (min-width: 768px) {

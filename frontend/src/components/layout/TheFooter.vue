@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { IonCol, IonFooter, IonGrid, IonRow, IonText, IonToolbar } from "@ionic/vue"
-import { footerContent } from "@/data/hotelContent"
+import { footerContent } from "@/data/content/layoutContent"
 </script>
 
 <template>

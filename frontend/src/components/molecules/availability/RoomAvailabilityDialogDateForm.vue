@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from "vue"
 import { IonButton, IonIcon } from "@ionic/vue"
 import { calendarOutline } from "ionicons/icons"
 import BaseDatePicker from "@/components/atoms/BaseDatePicker.vue"
@@ -32,6 +33,10 @@ const handleCheckOutUpdate = (value?: string) => {
 const handleCheck = () => {
   emit("check")
 }
+
+const confirmText = computed(() =>
+  props.isLoading ? props.checkingLabel : props.confirmLabel
+)
 </script>
 
 <template>
@@ -54,7 +59,7 @@ const handleCheck = () => {
     <div class="availability-dialog__actions">
       <ion-button :disabled="props.isLoading" @click="handleCheck">
         <ion-icon slot="start" :icon="calendarOutline" />
-        {{ props.isLoading ? props.checkingLabel : props.confirmLabel }}
+        {{ confirmText }}
       </ion-button>
     </div>
   </div>

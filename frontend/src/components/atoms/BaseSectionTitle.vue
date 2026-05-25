@@ -30,13 +30,13 @@ const alignClass = computed(() =>
 <style scoped>
 .section-title__subtitle {
   text-transform: uppercase;
-  letter-spacing: 0.12em;
-  font-size: 0.75rem;
+  letter-spacing: var(--tracking-wide);
+  font-size: var(--text-label-sm);
   color: var(--color-olive);
   margin-bottom: 6px;
 }
 
 .section-title__heading {
-  font-size: 1.9rem;
+  font-size: var(--text-heading-lg);
 }
 </style>

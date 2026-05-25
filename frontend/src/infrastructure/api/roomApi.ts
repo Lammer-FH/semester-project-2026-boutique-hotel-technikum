@@ -3,16 +3,8 @@ import type { Room } from "../../core/models/room";
 import httpClient from "./httpClient";
 import type { RoomApi } from "../mappers/roomMapper";
 import { mapRoom } from "../mappers/roomMapper";
-
-interface PaginatedResponseApi<T> {
-  data: T[];
-  pagination: {
-    page: number;
-    size: number;
-    total: number;
-    total_pages: number;
-  };
-}
+import type { PaginatedResponseApi } from "../mappers/apiMapper";
+import { mapPaginatedResponse } from "../mappers/apiMapper";
 
 export const listRooms = async (
   page: number,
@@ -25,15 +17,7 @@ export const listRooms = async (
     }
   );
 
-  return {
-    data: response.data.data.map(mapRoom),
-    pagination: {
-      page: response.data.pagination.page,
-      size: response.data.pagination.size,
-      total: response.data.pagination.total,
-      totalPages: response.data.pagination.total_pages,
-    },
-  };
+  return mapPaginatedResponse(response.data, mapRoom);
 };
 
 export const getRoom = async (roomId: number): Promise<Room> => {

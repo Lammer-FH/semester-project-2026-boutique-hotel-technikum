@@ -1,8 +1,8 @@
 import { createRouter, createWebHistory } from '@ionic/vue-router'
-import LandingPage from '@/pages/LandingPage.vue'
-import AboutPage from '@/pages/AboutPage.vue'
-import ImprintPage from '@/pages/ImprintPage.vue'
-import RoomsPage from '@/pages/RoomsPage.vue'
+const LandingPage = () => import('@/pages/LandingPage.vue')
+const AboutPage = () => import('@/pages/AboutPage.vue')
+const ImprintPage = () => import('@/pages/ImprintPage.vue')
+const RoomsPage = () => import('@/pages/RoomsPage.vue')
 
 const routes = [
   {

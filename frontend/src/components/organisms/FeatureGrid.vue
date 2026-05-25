@@ -1,13 +1,7 @@
 <script setup lang="ts">
 import { IonCol, IonGrid, IonRow } from "@ionic/vue"
 import FeatureGridCard from "@/components/molecules/FeatureGridCard.vue"
-
-type FeatureItem = {
-  key: string
-  title: string
-  description: string
-  icon: "bed" | "globe" | "leaf" | "location" | "map" | "person" | "restaurant" | "sparkles"
-}
+import type { FeatureItem } from "@/core/models/content"
 
 defineProps<{
   items: FeatureItem[]

@@ -15,14 +15,20 @@ const props = defineProps<{
   isUnavailable: boolean
   canBook: boolean
   bookNowLabel: string
+  changeLabel: string
 }>()
 
 const emit = defineEmits<{
   (event: "book"): void
+  (event: "change"): void
 }>()
 
 const handleBook = () => {
   emit("book")
+}
+
+const handleChange = () => {
+  emit("change")
 }
 </script>
 
@@ -43,6 +49,9 @@ const handleBook = () => {
     </p>
     <ion-button v-if="props.canBook" class="availability__book" @click="handleBook">
       {{ props.bookNowLabel }}
+    </ion-button>
+    <ion-button fill="clear" size="small" class="availability__change" @click="handleChange">
+      {{ props.changeLabel }}
     </ion-button>
   </div>
 </template>
@@ -99,8 +108,19 @@ const handleBook = () => {
   width: fit-content;
 }
 
+.availability__change {
+  margin-top: 2px;
+  width: fit-content;
+  --padding-start: 0;
+  --padding-end: 0;
+}
+
 @media (max-width: 640px) {
   .availability__book {
+    width: 100%;
+  }
+
+  .availability__change {
     width: 100%;
   }
 }

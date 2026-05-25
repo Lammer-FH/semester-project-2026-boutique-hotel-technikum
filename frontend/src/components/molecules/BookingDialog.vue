@@ -4,7 +4,7 @@ import BasePopup from "@/components/atoms/BasePopup.vue"
 import { storeToRefs } from "pinia"
 import { useBookingStore } from "@/application/stores/bookingStore"
 import { formatDate, validateDateRange } from "@/core/dateutils"
-import { bookingDialogContent } from "@/data/hotelContent"
+import { bookingDialogContent } from "@/data/content/bookingContent"
 import type { BookingRequest } from "@/core/models/booking"
 import DialogHeader from "@/components/molecules/shared/DialogHeader.vue"
 import BookingDialogDetailsForm from "@/components/molecules/booking/BookingDialogDetailsForm.vue"
@@ -176,7 +176,8 @@ watch(
 <template>
   <base-popup
     :is-open="props.isOpen"
-    content-class="booking-dialog"
+    content-class="dialog-shell"
+    modal-class="dialog-modal"
     @close="closeDialog"
   >
       <dialog-header
@@ -219,11 +220,4 @@ watch(
   </base-popup>
 </template>
 
-<style scoped>
-:deep(.booking-dialog) {
-  --padding-start: 18px;
-  --padding-end: 18px;
-  --padding-top: 18px;
-  --padding-bottom: 24px;
-}
-</style>
+<style scoped src="./shared/dialog-shell.css"></style>
