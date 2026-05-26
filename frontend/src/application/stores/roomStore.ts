@@ -10,7 +10,7 @@ import {
   toPaginationCacheKey,
 } from "../../core/pagination";
 import { listRooms } from "../../infrastructure/api/roomApi";
-import { toErrorMessage } from "./storeErrors";
+import { toErrorMessage } from "../../core/storeErrors";
 
 const ROOM_CACHE_TTL_MS = 2 * 60 * 1000;
 

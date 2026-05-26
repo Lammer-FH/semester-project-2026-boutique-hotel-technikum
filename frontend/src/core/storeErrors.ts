@@ -1,4 +1,4 @@
-import { isApiError } from "../../infrastructure/api/httpClient";
+import { isApiError } from "../infrastructure/api/httpClient";
 
 export const toErrorMessage = (error: unknown): string => {
   if (isApiError(error)) {

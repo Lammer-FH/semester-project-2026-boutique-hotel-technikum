@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import type { AvailabilityResult } from "../../core/models/availability";
 import { checkAvailability } from "../../infrastructure/api/availabilityApi";
-import { toErrorMessage } from "./storeErrors";
+import { toErrorMessage } from "../../core/storeErrors";
 
 interface AvailabilityState {
   availabilityByRoomId: Record<number, AvailabilityResult>;

@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import type { Extra } from "../../core/models/room";
 import { listExtras } from "../../infrastructure/api/extraApi";
-import { toErrorMessage } from "./storeErrors";
+import { toErrorMessage } from "../../core/storeErrors";
 
 interface ExtraState {
   extras: Extra[];
