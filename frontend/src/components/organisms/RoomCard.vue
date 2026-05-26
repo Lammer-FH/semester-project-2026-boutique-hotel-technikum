@@ -23,7 +23,7 @@ const props = defineProps<{
 const primaryImage = computed(() => {
   if (!props.room.images.length) {
     return {
-      url: `/images/rooms/${props.room.id}.svg`,
+      url: `/images/rooms/${props.room.id}/main.svg`,
       altText: `${props.room.title} room interior`,
     }
   }
