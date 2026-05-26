@@ -61,6 +61,3 @@ tsconfig.tsbuildinfo
 .opencode/
 # OCX
 .ocx/
-
-# Local notes (do not commit)
-todo.md
