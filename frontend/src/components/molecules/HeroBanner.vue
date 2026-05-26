@@ -10,7 +10,7 @@ import {
   IonRow,
   IonText,
 } from "@ionic/vue"
-import { bedOutline, cafeOutline, leafOutline } from "ionicons/icons"
+import { bedOutline, cafeOutline, leafOutline, calendarOutline, informationCircleOutline } from "ionicons/icons"
 import type { RouteLocationRaw } from "vue-router"
 import { heroBannerContent } from "@/data/content/landingContent"
 
@@ -42,9 +42,15 @@ const heroPanelIcons = {
             <ion-text class="hero__eyebrow">{{ heroBannerContent.eyebrow }}</ion-text>
             <h1 class="hero__title">{{ title }}</h1>
             <p class="hero__subtitle">{{ subtitle }}</p>
-            <div class="ion-margin-top ion-margin-bottom">
-              <ion-button :router-link="primaryRoute">{{ primaryLabel }}</ion-button>
-              <ion-button :router-link="secondaryRoute" fill="outline">{{ secondaryLabel }}</ion-button>
+            <div class="hero-actions ion-margin-top ion-margin-bottom">
+              <ion-button :router-link="primaryRoute">
+                <ion-icon slot="start" :icon="calendarOutline" />
+                {{ primaryLabel }}
+              </ion-button>
+              <ion-button :router-link="secondaryRoute" fill="outline">
+                <ion-icon slot="start" :icon="informationCircleOutline" />
+                {{ secondaryLabel }}
+              </ion-button>
             </div>
           </ion-col>
           <ion-col size="12" size-md="3">
@@ -164,6 +170,17 @@ const heroPanelIcons = {
 
 .hero-panel-item ion-icon {
   color: var(--color-terracotta);
+  font-size: 1.05rem;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.hero-actions ion-icon {
   font-size: 1.05rem;
 }
 

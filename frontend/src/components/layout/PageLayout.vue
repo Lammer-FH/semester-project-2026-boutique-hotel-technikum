@@ -27,14 +27,14 @@ const props = withDefaults(
   <ion-page>
     <the-header />
     <ion-content :ref="props.contentRef" :class="props.contentClass">
-      <div :class="props.layoutClass">
+      <div class="page-shell__layout" :class="props.layoutClass">
         <div :class="props.innerClass">
           <slot />
         </div>
-        <slot name="footer">
-          <the-footer :class="props.footerClass" />
-        </slot>
       </div>
     </ion-content>
+    <slot name="footer">
+      <the-footer :class="props.footerClass" />
+    </slot>
   </ion-page>
 </template>

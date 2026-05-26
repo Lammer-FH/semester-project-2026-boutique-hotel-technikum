@@ -28,7 +28,7 @@ const iconMap: Record<string, string> = {
   sunny: sunnyOutline,
   wifi: wifiOutline,
   workspace: laptopOutline,
-  briefcase: laptopOutline,
+  briefcase: briefcaseOutline,
   parking: carOutline,
   car: carOutline,
   paw: pawOutline,

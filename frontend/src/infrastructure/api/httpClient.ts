@@ -1,6 +1,6 @@
 import axios, { AxiosError } from "axios";
 import type { ApiErrorDetail, ApiErrorPayload } from "../../core/models/api";
-import { API_BASE_URL } from "../../config";
+import { API_BASE_URL } from "@/core/constants";
 
 export class ApiError extends Error {
   code: string;

@@ -4,7 +4,6 @@ import { IonChip, IonIcon, IonSkeletonText } from "@ionic/vue"
 import type { Extra } from "@/core/models/room"
 import { resolveExtraIcon } from "@/core/extraIcons"
 import BaseSectionTitle from "@/components/atoms/BaseSectionTitle.vue"
-import BaseErrorBanner from "@/components/atoms/BaseErrorBanner.vue"
 
 const props = defineProps<{
   title: string
@@ -12,7 +11,6 @@ const props = defineProps<{
   emptyMessage?: string
   extras: Extra[]
   isLoading: boolean
-  error?: string | null
 }>()
 
 const emptyStateMessage = computed(() => props.emptyMessage ?? "No extras available right now.")
@@ -22,8 +20,7 @@ const emptyStateMessage = computed(() => props.emptyMessage ?? "No extras availa
   <section class="extras-strip">
     <base-section-title :title="props.title" :subtitle="props.subtitle" />
 
-    <base-error-banner v-if="props.error" :message="props.error" />
-    <p v-else-if="!props.isLoading && !props.extras.length" class="extras-strip__empty">
+    <p v-if="!props.isLoading && !props.extras.length" class="extras-strip__empty">
       {{ emptyStateMessage }}
     </p>
 

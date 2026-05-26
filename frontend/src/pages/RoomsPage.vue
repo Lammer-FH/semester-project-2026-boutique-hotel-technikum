@@ -1,14 +1,13 @@
 <script setup lang="ts">
 import type { VNodeRef } from "vue"
-import { computed, nextTick, onMounted, ref, watch } from "vue"
-import { IonButton, IonToast } from "@ionic/vue"
+import { computed, nextTick, onMounted, ref } from "vue"
+import { IonButton } from "@ionic/vue"
 import type { IonContent } from "@ionic/vue"
 import { storeToRefs } from "pinia"
 import BaseSectionTitle from "@/components/atoms/BaseSectionTitle.vue"
-import BaseErrorBanner from "@/components/atoms/BaseErrorBanner.vue"
 import ExtrasStrip from "@/components/organisms/ExtrasStrip.vue"
-import RoomCard from "@/components/organisms/RoomCard.vue"
-import RoomCardSkeletonList from "@/components/organisms/RoomCardSkeletonList.vue"
+import RoomCard from "@/components/organisms/roomcard/RoomCard.vue"
+import RoomCardSkeletonList from "@/components/organisms/roomcard/RoomCardSkeletonList.vue"
 import PageLayout from "@/components/layout/PageLayout.vue"
 import { useExtraStore } from "@/application/stores/extraStore"
 import { useRoomStore } from "@/application/stores/roomStore"
@@ -23,7 +22,6 @@ const roomStore = useRoomStore()
 const {
   rooms,
   isLoading,
-  error: errorMessage,
   pagination,
   currentPage,
   pageSize,
@@ -33,7 +31,6 @@ const extraStore = useExtraStore()
 const {
   extras,
   isLoading: extrasLoading,
-  error: extrasError,
 } = storeToRefs(extraStore)
 
 const totalPages = computed(() => pagination.value?.totalPages ?? 1)
@@ -41,8 +38,6 @@ const pages = computed(() => buildPaginationPages(totalPages.value))
 const totalRooms = computed(() => pagination.value?.total ?? rooms.value.length)
 const hasRooms = computed(() => rooms.value.length > 0)
 const isReady = computed(() => !isLoading.value)
-const isToastOpen = ref(false)
-const toastMessage = ref("")
 
 const visibleRange = computed(() =>
   getPaginationRange({
@@ -81,18 +76,6 @@ onMounted(() => {
   roomStore.fetchRooms()
   extraStore.getExtras()
 })
-
-watch(
-  () => errorMessage.value,
-  (message) => {
-    if (!message) {
-      return
-    }
-
-    toastMessage.value = message
-    isToastOpen.value = true
-  }
-)
 </script>
 
 <template>
@@ -120,7 +103,6 @@ watch(
             :empty-message="extrasContent.emptyMessage"
             :extras="extras"
             :is-loading="extrasLoading"
-            :error="extrasError"
           />
 
           <div class="rooms-page__meta" v-if="hasRooms && isReady">
@@ -128,8 +110,6 @@ watch(
               {{ roomsMetaLabel }}
             </span>
           </div>
-
-          <base-error-banner v-if="isReady && errorMessage" :message="errorMessage" />
 
           <div class="rooms-page__list" v-if="hasRooms || isLoading">
             <room-card-skeleton-list v-if="isLoading" :count="pageSize" />
@@ -167,27 +147,25 @@ watch(
             </div>
           </div>
 
-          <ion-toast
-            :is-open="isToastOpen"
-            :message="toastMessage || roomsPageContent.toastErrorFallback"
-            :duration="3500"
-            position="bottom"
-            @didDismiss="isToastOpen = false"
-          />
   </page-layout>
 </template>
 
 <style scoped>
 .rooms-page {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 100%;
   padding-top: 24px;
   padding-bottom: 32px;
 }
 
 
 .rooms-page__layout {
-  min-height: 100%;
   display: flex;
+  flex: 1;
   flex-direction: column;
+  min-height: 100%;
 }
 
 .rooms-page__footer {

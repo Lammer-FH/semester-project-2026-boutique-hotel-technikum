@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import RoomCardSkeleton from "@/components/organisms/RoomCardSkeleton.vue"
+import RoomCardSkeleton from "./RoomCardSkeleton.vue"
 
 const props = defineProps<{
   count: number
