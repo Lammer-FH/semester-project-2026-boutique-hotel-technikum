@@ -58,7 +58,7 @@ ion-content.page-shell::part(scroll) {
 }
 
 .page-shell__inner {
-  max-width: 1100px;
+  max-width: var(--site-max-width);
   margin: 0 auto;
   width: 100%;
   padding: 0 16px;

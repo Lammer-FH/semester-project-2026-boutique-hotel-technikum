@@ -22,6 +22,7 @@ import { contactDetails } from "@/data/content/contactContent"
           :subtitle="heroContent.subtitle"
           :primary-label="heroContent.primaryLabel"
           :primary-route="heroContent.primaryRoute"
+          hero-class="hero--landing"
           :secondary-label="heroContent.secondaryLabel"
           :secondary-route="heroContent.secondaryRoute"
         />

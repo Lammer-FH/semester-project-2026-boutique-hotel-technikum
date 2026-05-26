@@ -8,6 +8,7 @@ type HeroContent = {
   primaryRoute: RouteLocationRaw
   secondaryLabel: string
   secondaryRoute: RouteLocationRaw
+  backgroundImage?: string
 }
 
 type HeroPanelItem = {
@@ -16,14 +17,14 @@ type HeroPanelItem = {
 }
 
 export const heroContent: HeroContent = {
-  title: "Boutique Hotel Technikum",
-  subtitle:
-    "A calm hideaway in the heart of Vienna, crafted for slow mornings and bold city nights.",
-  primaryLabel: "Book a room",
-  primaryRoute: { name: "RoomsIndex" },
-  secondaryLabel: "About Us",
-  secondaryRoute: { name: "About" },
-}
+    title: "Boutique Hotel Technikum",
+    subtitle: "A calm hideaway in the heart of Vienna, crafted for slow mornings and bold city nights.",
+    primaryLabel: "Book a room",
+    primaryRoute: { name: "RoomsIndex" },
+    secondaryLabel: "About Us",
+    secondaryRoute: { name: "About" },
+    backgroundImage: "/images/landingpage.jpg",
+};
 
 export const landingContent = {
   highlightsTitle: "Why guests choose us",

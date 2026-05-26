@@ -80,7 +80,7 @@ const closeMenu = () => {
 }
 
 .app-header__inner {
-  max-width: 1100px;
+  max-width: var(--site-max-width);
   margin: 0 auto;
   width: 100%;
   display: flex;
@@ -144,7 +144,7 @@ const closeMenu = () => {
 }
 
 .app-header__dropdown-nav {
-  max-width: 1100px;
+  max-width: var(--site-max-width);
   margin: 0 auto;
   padding: 12px 16px 16px;
   display: grid;

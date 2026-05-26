@@ -36,8 +36,8 @@ export const bookingDialogContent = {
     breakfast: "Breakfast included",
   },
   placeholders: {
-    firstName: "e.g. Julia",
-    lastName: "e.g. Steiner",
+    firstName: "e.g. Max",
+    lastName: "e.g. Mustermann",
     email: "name@email.com",
     confirmEmail: "Repeat email",
   },
