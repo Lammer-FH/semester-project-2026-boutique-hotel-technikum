@@ -13,6 +13,7 @@ import PageLayout from "@/components/layout/PageLayout.vue"
 import { useExtraStore } from "@/application/stores/extraStore"
 import { useRoomStore } from "@/application/stores/roomStore"
 import { extrasContent, roomsPageContent } from "@/data/content/roomsContent"
+import { buildPaginationPages, getPaginationRange } from "@/core/pagination"
 import { scrollIonContentToTop, updateIonContentRef } from "@/core/scroll"
 
 const contentEl = ref<InstanceType<typeof IonContent> | null>(null)
@@ -36,26 +37,24 @@ const {
 } = storeToRefs(extraStore)
 
 const totalPages = computed(() => pagination.value?.totalPages ?? 1)
-const pages = computed(() => Array.from({ length: totalPages.value }, (_, index) => index + 1))
+const pages = computed(() => buildPaginationPages(totalPages.value))
 const totalRooms = computed(() => pagination.value?.total ?? rooms.value.length)
 const hasRooms = computed(() => rooms.value.length > 0)
 const isReady = computed(() => !isLoading.value)
 const isToastOpen = ref(false)
 const toastMessage = ref("")
 
-const startNumber = computed(() => {
-  if (!rooms.value.length) {
-    return 0
-  }
-  return (currentPage.value - 1) * pageSize.value + 1
-})
+const visibleRange = computed(() =>
+  getPaginationRange({
+    currentPage: currentPage.value,
+    pageSize: pageSize.value,
+    totalItems: totalRooms.value,
+    currentCount: rooms.value.length,
+  })
+)
 
-const endNumber = computed(() => {
-  if (!rooms.value.length) {
-    return 0
-  }
-  return Math.min(currentPage.value * pageSize.value, totalRooms.value)
-})
+const startNumber = computed(() => visibleRange.value.start)
+const endNumber = computed(() => visibleRange.value.end)
 
 const roomsMetaLabel = computed(() =>
   roomsPageContent.roomsMeta(startNumber.value, endNumber.value, totalRooms.value)

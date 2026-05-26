@@ -2,6 +2,13 @@ import { defineStore } from "pinia";
 import type { PaginationMeta } from "../../core/models/api";
 import type { Room } from "../../core/models/room";
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from "../../core/constants";
+import {
+  normalizePageNumber,
+  normalizePageSize,
+  resolvePaginationRequest,
+  shouldSkipPageChange,
+  toPaginationCacheKey,
+} from "../../core/pagination";
 import { listRooms } from "../../infrastructure/api/roomApi";
 import { toErrorMessage } from "./storeErrors";
 
@@ -47,9 +54,14 @@ export const useRoomStore = defineStore("rooms", {
       return Date.now() - cached.fetchedAt < ROOM_CACHE_TTL_MS;
     },
     async fetchRooms(options?: { page?: number; size?: number; force?: boolean }) {
-      const requestedPage = options?.page ?? this.currentPage;
-      const requestedSize = options?.size ?? this.pageSize;
-      const cacheKey = `${requestedPage}-${requestedSize}`;
+      const { page: requestedPage, size: requestedSize } = resolvePaginationRequest(
+        options,
+        {
+          page: this.currentPage,
+          size: this.pageSize,
+        }
+      );
+      const cacheKey = toPaginationCacheKey(requestedPage, requestedSize);
       const cached = this.cache[cacheKey];
 
       if (!options?.force && cached && this.isCacheFresh(cacheKey)) {
@@ -93,13 +105,15 @@ export const useRoomStore = defineStore("rooms", {
       }
     },
     async prefetchRooms(page: number, size: number) {
-      const cacheKey = `${page}-${size}`;
+      const safePage = normalizePageNumber(page, this.currentPage);
+      const safeSize = normalizePageSize(size, this.pageSize);
+      const cacheKey = toPaginationCacheKey(safePage, safeSize);
       if (this.isCacheFresh(cacheKey)) {
         return;
       }
 
       try {
-        const response = await listRooms(page, size);
+        const response = await listRooms(safePage, safeSize);
         this.cache[cacheKey] = {
           rooms: response.data,
           pagination: response.pagination,
@@ -110,21 +124,27 @@ export const useRoomStore = defineStore("rooms", {
       }
     },
     setPage(page: number) {
-      if (page === this.currentPage && !this.error) {
+      const nextPage = normalizePageNumber(page, this.currentPage);
+      if (shouldSkipPageChange(nextPage, this.currentPage, !!this.error)) {
         return;
       }
 
-      this.currentPage = page;
-      void this.fetchRooms({ page, size: this.pageSize, force: !!this.error });
+      this.currentPage = nextPage;
+      void this.fetchRooms({
+        page: nextPage,
+        size: this.pageSize,
+        force: !!this.error,
+      });
     },
     setPageSize(size: number) {
-      if (size === this.pageSize) {
+      const nextSize = normalizePageSize(size, this.pageSize);
+      if (nextSize === this.pageSize) {
         return;
       }
 
-      this.pageSize = size;
+      this.pageSize = nextSize;
       this.currentPage = DEFAULT_PAGE;
-      void this.fetchRooms({ page: this.currentPage, size, force: true });
+      void this.fetchRooms({ page: this.currentPage, size: nextSize, force: true });
     },
   },
 });
