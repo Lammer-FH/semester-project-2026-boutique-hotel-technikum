@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { IonButton } from "@ionic/vue"
+import { IonButton, IonIcon } from "@ionic/vue"
+import { closeOutline } from "ionicons/icons"
 
 const props = defineProps<{
   eyebrow?: string
@@ -19,47 +20,74 @@ const handleClose = () => {
 
 <template>
   <div class="dialog-header">
-    <div>
+    <div class="dialog-header__left">
       <p v-if="props.eyebrow" class="dialog-header__eyebrow">{{ props.eyebrow }}</p>
-      <h3 class="dialog-header__title">{{ props.title }}</h3>
+      <div class="dialog-header__title-row">
+        <h3 class="dialog-header__title">{{ props.title }}</h3>
+      </div>
       <p v-if="props.subtitle" class="dialog-header__subtitle">{{ props.subtitle }}</p>
     </div>
-    <ion-button fill="clear" @click="handleClose">{{ props.closeLabel }}</ion-button>
+
+    <ion-button
+      fill="clear"
+      class="dialog-header__close"
+      :aria-label="props.closeLabel"
+      :title="props.closeLabel"
+      @click="handleClose"
+    >
+      <ion-icon :icon="closeOutline" slot="icon-only" />
+    </ion-button>
   </div>
 </template>
 
 <style scoped>
+
 .dialog-header {
   display: flex;
-  align-items: center;
   justify-content: space-between;
+  align-items: center;
   gap: 12px;
   margin-bottom: 16px;
 }
 
-.dialog-header__eyebrow {
-  margin: 0 0 4px;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  font-size: 0.7rem;
-  color: var(--color-olive);
+.dialog-header__left {
+  display: flex;
+  flex-direction: column;
+}
+
+.dialog-header__left {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.dialog-header__title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .dialog-header__title {
   margin: 0;
   font-size: 1.4rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.dialog-header__subtitle {
-  margin: 6px 0 0;
-  color: var(--color-olive);
-  font-weight: 600;
+.dialog-header__close {
+  --padding-start: 0;
+  --padding-end: 0;
+  height: 36px;
+  width: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 @media (max-width: 640px) {
   .dialog-header {
-    flex-direction: column;
-    align-items: flex-start;
+    flex-direction: row;
+    align-items: center;
   }
 }
 </style>

@@ -134,7 +134,6 @@ const heroPanelIcons = {
   text-shadow: 0 4px 12px rgba(0,0,0,0.55);
 }
 
-/* Variant: landing page hero with static background image */
 .hero--landing {
   background: linear-gradient(135deg, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.25) 100%), url('/images/landingpage.jpg') center/cover no-repeat;
   color: #fff;

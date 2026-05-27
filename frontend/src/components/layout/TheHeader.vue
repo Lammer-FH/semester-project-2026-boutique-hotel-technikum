@@ -131,6 +131,19 @@ const closeMenu = () => {
 
 .menu-button {
   display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  border-radius: 10px;
+  color: var(--color-terracotta);
+  --color: var(--color-terracotta);
+  transition: transform 0.12s ease;
+}
+
+.menu-button ion-icon {
+  font-size: 26px;
+  line-height: 1;
+  color: inherit;
 }
 
 .app-header__dropdown {
@@ -173,6 +186,11 @@ const closeMenu = () => {
 
   .menu-button {
     display: flex;
+    padding: 8px;
+  }
+
+  .menu-button ion-icon {
+    font-size: 30px;
   }
 
   .app-header__logo {

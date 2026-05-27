@@ -11,6 +11,11 @@ export const availabilityDialogContent = {
   changeDatesLabel: "Change dates",
   unavailableMessage: "Unable to check availability.",
   closeLabel: "Close",
+  result: {
+    selectedDatesLabel: "Selected dates",
+    availableHint: "You can continue with the booking now.",
+    unavailableHint: "Try different dates or check another room.",
+  },
 }
 
 export const bookingDialogContent = {
@@ -52,9 +57,16 @@ export const bookingDialogContent = {
     included: "Included",
     notIncluded: "Not included",
   },
+  reviewSummary: {
+    summarySection: "Guest & stay details",
+    guestSection: "Guest details",
+    staySection: "Stay details",
+    note: "You can still change details before confirming.",
+  },
   buttons: {
     review: "Review booking",
     back: "Back",
+    changeDates: "Change dates",
     confirm: "Confirm booking",
     confirming: "Booking...",
     done: "Done",
@@ -62,10 +74,15 @@ export const bookingDialogContent = {
   },
   confirmation: {
     title: "Your booking is confirmed",
+    subtitle: "Reservation saved and emailed to you.",
+    bookingIdLabel: "Booking ID",
+    stayLabel: "Stay",
+    nextStepLabel: "Next step",
+    nextStepText: "Bring the booking ID to check-in.",
     bookingId: (id: number) => `Booking ID: ${id}`,
   },
   errors: {
-    nameMissing: "Please enter the lead guest name.",
+    nameMissing: "Please enter the guest name.",
     emailMissing: "Please enter and confirm the email address.",
     emailMismatch: "Email addresses do not match.",
     guestCountInvalid: "Please select a valid guest count.",

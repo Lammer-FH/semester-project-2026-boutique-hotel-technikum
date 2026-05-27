@@ -23,6 +23,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   (event: "close"): void
   (event: "completed"): void
+  (event: "change-dates"): void
 }>()
 
 const bookingStore = useBookingStore()
@@ -133,6 +134,11 @@ const proceedToReview = () => {
   bookingStep.value = "review"
 }
 
+const requestChangeDates = () => {
+  emit("change-dates")
+  closeDialog()
+}
+
 const submitBooking = async () => {
   clearBookingFeedback()
   const validation = validateBookingDetails()
@@ -197,12 +203,14 @@ watch(
         :booking-message="bookingMessage"
         @update-field="setDraftValue"
         @proceed="proceedToReview"
+        @change-dates="requestChangeDates"
       />
 
       <booking-dialog-review
         v-else-if="bookingStep === 'review'"
         :step-content="stepContent"
         :draft="draft"
+        :date-range-label="dateRangeLabel"
         :booking-message="bookingMessage"
         :is-submitting="isSubmitting"
         @back="bookingStep = 'details'"
