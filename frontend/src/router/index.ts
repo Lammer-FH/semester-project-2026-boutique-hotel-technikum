@@ -3,6 +3,7 @@ const LandingPage = () => import('@/pages/LandingPage.vue')
 const AboutPage = () => import('@/pages/AboutPage.vue')
 const ImprintPage = () => import('@/pages/ImprintPage.vue')
 const RoomsPage = () => import('@/pages/RoomsPage.vue')
+const BookingConfirmationPage = () => import('@/pages/BookingConfirmationPage.vue')
 
 const routes = [
   {
@@ -19,6 +20,11 @@ const routes = [
     path: '/rooms',
     name: 'RoomsIndex',
     component: RoomsPage,
+  },
+  {
+    path: '/bookings/:bookingId/confirmation',
+    name: 'BookingConfirmation',
+    component: BookingConfirmationPage,
   },
   {
     path: '/imprint',

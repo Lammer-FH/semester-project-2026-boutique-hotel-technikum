@@ -33,6 +33,8 @@ export interface HotelContact {
   country: string;
   email: string;
   phone: string;
+  latitude: number;
+  longitude: number;
 }
 
 export interface Directions {
@@ -46,6 +48,7 @@ export interface BookingConfirmation {
   checkInDate: string;
   checkOutDate: string;
   breakfastIncluded: boolean;
+  guestCount: number;
   totalPrice: number;
   priceBreakdown: PriceBreakdown;
   guest: Guest;

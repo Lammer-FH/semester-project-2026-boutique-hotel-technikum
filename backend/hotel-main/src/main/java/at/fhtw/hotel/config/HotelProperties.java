@@ -48,6 +48,10 @@ public class HotelProperties {
 
         @NotBlank
         private String country;
+
+        private double latitude;
+
+        private double longitude;
     }
 
     @Getter

@@ -140,6 +140,7 @@ Pricing calculation:
   "check_in_date": "2026-05-15",
   "check_out_date": "2026-05-20",
   "breakfast_included": true,
+  "guest_count": 2,
   "total_price": 775.00,
   "price_breakdown": {
     "nights": 5,
@@ -183,7 +184,9 @@ Pricing calculation:
     "postal_code": "1200",
     "country": "Austria",
     "email": "contact@hotel-technikum.example",
-    "phone": "+43 1 234567"
+    "phone": "+43 1 234567",
+    "latitude": 48.23924,
+    "longitude": 16.37739
   },
   "directions": {
     "by_train": "S-Bahn S1 or S2 to Technikum Wien (5 min walk)",
@@ -202,6 +205,7 @@ Response (200): Returns the same booking confirmation object as `POST /bookings`
   "check_in_date": "2026-05-15",
   "check_out_date": "2026-05-20",
   "breakfast_included": true,
+  "guest_count": 2,
   "total_price": 775.00,
   "price_breakdown": {
     "nights": 5,
@@ -230,7 +234,9 @@ Response (200): Returns the same booking confirmation object as `POST /bookings`
     "postal_code": "1200",
     "country": "Austria",
     "email": "contact@hotel-technikum.example",
-    "phone": "+43 1 234567"
+    "phone": "+43 1 234567",
+    "latitude": 48.23924,
+    "longitude": 16.37739
   },
   "directions": {
     "by_train": "S-Bahn S1 or S2 to Technikum Wien (5 min walk)",
@@ -292,6 +298,8 @@ No pagination needed (typically < 20 items)
 Room images are returned as objects with `id, url, sort_order, alt_text`. The backend stores `file_name` and `alt_text`, and constructs the URL as `/images/rooms/{room_id}/{file_name}` (e.g., `/images/rooms/1/main.jpg`). The `alt_text` defaults to the room title if not explicitly set.
 
 Extras are returned as objects with `id, code, title, description, icon_name`.
+
+Booking confirmation contact data includes `latitude` and `longitude` so the frontend can render a static OpenStreetMap-based map image in the printable U5 confirmation without runtime geocoding.
 
 ### Error Codes
 | Code | Description |

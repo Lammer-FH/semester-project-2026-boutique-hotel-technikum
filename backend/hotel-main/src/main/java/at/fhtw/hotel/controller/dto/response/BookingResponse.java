@@ -25,6 +25,9 @@ public class BookingResponse {
     @Schema(description = "Whether breakfast is included", example = "true")
     boolean breakfastIncluded;
 
+    @Schema(description = "Number of guests included in the booking", example = "2")
+    int guestCount;
+
     @Schema(description = "Total booking price in EUR", example = "675.00")
     BigDecimal totalPrice;
 
@@ -101,6 +104,12 @@ public class BookingResponse {
 
         @Schema(description = "Phone number", example = "+43 1 234567")
         String phone;
+
+        @Schema(description = "Hotel latitude for map display", example = "48.23924")
+        double latitude;
+
+        @Schema(description = "Hotel longitude for map display", example = "16.37739")
+        double longitude;
     }
 
     @Value

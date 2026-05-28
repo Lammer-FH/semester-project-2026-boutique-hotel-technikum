@@ -48,6 +48,8 @@ app:
       city: Vienna
       postal-code: "1200"
       country: Austria
+      latitude: 48.23924
+      longitude: 16.37739
     directions:
       by-train: "S-Bahn S1 or S2 to Technikum Wien (5 min walk)"
       by-car: "A2 exit 'Inzersdorf', follow B151 towards city center"

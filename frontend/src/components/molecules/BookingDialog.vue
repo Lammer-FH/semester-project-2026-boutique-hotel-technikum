@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue"
+import { useRouter } from "vue-router"
 import BasePopup from "@/components/atoms/BasePopup.vue"
 import { storeToRefs } from "pinia"
 import { useBookingStore } from "@/application/stores/bookingStore"
@@ -9,7 +10,6 @@ import type { BookingRequest } from "@/core/models/booking"
 import DialogHeader from "@/components/molecules/shared/DialogHeader.vue"
 import BookingDialogDetailsForm from "@/components/molecules/booking/BookingDialogDetailsForm.vue"
 import BookingDialogReview from "@/components/molecules/booking/BookingDialogReview.vue"
-import BookingDialogConfirmation from "@/components/molecules/booking/BookingDialogConfirmation.vue"
 
 const props = defineProps<{
   isOpen: boolean
@@ -27,10 +27,11 @@ const emit = defineEmits<{
 }>()
 
 const bookingStore = useBookingStore()
-const { currentBooking, draft, isSubmitting, error } = storeToRefs(bookingStore)
+const { draft, isSubmitting, error } = storeToRefs(bookingStore)
+const router = useRouter()
 
 const bookingErrorMessage = ref("")
-const bookingStep = ref<"details" | "review" | "confirmation">("details")
+const bookingStep = ref<"details" | "review">("details")
 
 const dateRangeLabel = computed(() => {
   return props.checkInDate && props.checkOutDate
@@ -50,11 +51,6 @@ const stepContent = computed(() => {
     title: bookingDialogContent.stepTitle[key],
     hint: bookingDialogContent.hints[key],
   }
-})
-const bookingIdText = computed(() => {
-  return currentBooking.value
-    ? bookingDialogContent.confirmation.bookingId(currentBooking.value.bookingId)
-    : ""
 })
 
 const clearBookingFeedback = () => {
@@ -149,13 +145,13 @@ const submitBooking = async () => {
 
   const result = await bookingStore.submitBooking(buildRequest())
   if (result) {
-    bookingStep.value = "confirmation"
+    bookingStore.clearDraft()
+    await router.push({
+      name: "BookingConfirmation",
+      params: { bookingId: result.bookingId },
+    })
+    emit("completed")
   }
-}
-
-const handleDone = () => {
-  emit("completed")
-  closeDialog()
 }
 
 watch(
@@ -215,15 +211,6 @@ watch(
         :is-submitting="isSubmitting"
         @back="bookingStep = 'details'"
         @submit="submitBooking"
-      />
-
-      <booking-dialog-confirmation
-        v-else
-        :title="bookingDialogContent.confirmation.title"
-        :booking-id-text="bookingIdText"
-        :date-range-label="dateRangeLabel"
-        :done-label="bookingDialogContent.buttons.done"
-        @done="handleDone"
       />
   </base-popup>
 </template>
