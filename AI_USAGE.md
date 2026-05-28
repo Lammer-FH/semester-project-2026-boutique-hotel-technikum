@@ -77,6 +77,7 @@ This document serves as the mandatory record for all AI-assisted work on the **B
 | Swagger API spec & documentation | opencode | "Integrate Swagger API specification & documentation in backend/" | Added springdoc-openapi-starter-webmvc-ui (v2.8.6) dependency, created OpenApiConfig with hotel metadata, annotated all 5 controllers with @Tag/@Operation/@ApiResponse/@Parameter, annotated all 8 DTOs with @Schema (descriptions + examples) |
 | API prefix & versioning | opencode | "Move API endpoints under /api path with versioning, keep /health and Swagger outside" | Set context-path back to `/`, created `ApiRoutes.API = "/api/v1"` constant, updated 4 controllers + 4 tests to use it via `@RequestMapping(ApiRoutes.API + "/...")`, all 20 tests passing |
 
+| Stop script console windows | GitHub Copilot | "close script soll auch die geöffnenten konsolen fenster schließen" | Hardened `start-all.bat` window titles and updated `stop-all.bat` to close backend/frontend console windows via broader window-title matching |
 | Frontend API | codex | "Implement backend endpoints based use httpClient.ts" | Added API endpoints implementation, API mappers, core models |
 | U2 rooms overview page | codex | "If the API is unreachable, skeletons for the rooms should be displayed during loading" | Added room card skeletons during loading, and surfaced API errors. |
 | Rooms footer layout fix | codex | "On network error the footer is in the middle of the page, fix that" | Made the Rooms page content a flex column and pinned the footer to the bottom even on short/error states. |
