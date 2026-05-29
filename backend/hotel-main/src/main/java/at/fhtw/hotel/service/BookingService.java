@@ -1,11 +1,10 @@
 package at.fhtw.hotel.service;
 
+import at.fhtw.hotel.application.dto.BookingResult;
+import at.fhtw.hotel.application.dto.CreateBookingCommand;
 import at.fhtw.hotel.config.HotelProperties;
 import at.fhtw.hotel.domain.DomainException;
 import at.fhtw.hotel.domain.ErrorCode;
-import at.fhtw.hotel.controller.dto.request.BookingRequest;
-import at.fhtw.hotel.controller.dto.response.BookingResponse;
-import at.fhtw.hotel.controller.mapper.BookingResponseMapper;
 import at.fhtw.hotel.domain.model.Booking;
 import at.fhtw.hotel.domain.model.Room;
 import at.fhtw.hotel.persistence.entity.BookingEntity;
@@ -35,7 +34,6 @@ public class BookingService {
     private final RoomMapper roomMapper;
     private final HotelProperties hotelProperties;
     private final RoomService roomService;
-    private final BookingResponseMapper bookingResponseMapper;
 
     public BookingService(JpaBookingRepository jpaBookingRepository,
                           BookingMapper bookingMapper,
@@ -43,8 +41,7 @@ public class BookingService {
                           JpaRoomRepository jpaRoomRepository,
                           RoomMapper roomMapper,
                           HotelProperties hotelProperties,
-                          RoomService roomService,
-                          BookingResponseMapper bookingResponseMapper) {
+                          RoomService roomService) {
         this.jpaBookingRepository = jpaBookingRepository;
         this.bookingMapper = bookingMapper;
         this.entityManager = entityManager;
@@ -52,73 +49,68 @@ public class BookingService {
         this.roomMapper = roomMapper;
         this.hotelProperties = hotelProperties;
         this.roomService = roomService;
-        this.bookingResponseMapper = bookingResponseMapper;
     }
 
     @Transactional
-    public BookingResponse createBooking(BookingRequest request) {
+    public BookingResult createBooking(CreateBookingCommand command) {
         log.debug("Creating booking for roomId={} checkIn={} checkOut={}",
-                request.getRoomId(), request.getCheckInDate(), request.getCheckOutDate());
-        validateDates(request.getCheckInDate(), request.getCheckOutDate());
-        Room room = roomService.getRoom(request.getRoomId());
-        validateGuestCount(request.getGuestCount(), room.getMaxGuests());
-        if (jpaBookingRepository.existsOverlappingBooking(room.getId(), request.getCheckInDate(), request.getCheckOutDate())) {
+                command.roomId(), command.checkInDate(), command.checkOutDate());
+        DateRange dateRange = DateRange.of(command.checkInDate(), command.checkOutDate());
+        Room room = roomService.getRoom(command.roomId());
+        validateGuestCount(command.guestCount(), room.maxGuests());
+        if (jpaBookingRepository.existsOverlappingBooking(room.id(), dateRange.checkIn(), dateRange.checkOut())) {
             throw new DomainException(ErrorCode.DATES_UNAVAILABLE, "Requested dates are unavailable");
         }
 
-        int nights = (int) ChronoUnit.DAYS.between(request.getCheckInDate(), request.getCheckOutDate());
-        BigDecimal roomRate = room.getBasePricePerNight();
-        BigDecimal breakfastPerPerson = BigDecimal.valueOf(hotelProperties.getBreakfastPricePerPerson());
-        BigDecimal breakfastRate = request.isBreakfastIncluded()
-                ? breakfastPerPerson.multiply(BigDecimal.valueOf(request.getGuestCount())).multiply(BigDecimal.valueOf(nights))
-                : BigDecimal.ZERO;
-        BigDecimal totalPrice = roomRate.multiply(BigDecimal.valueOf(nights)).add(breakfastRate);
+        PriceCalculation price = PriceCalculation.forBooking(
+                room, dateRange, command.guestCount(), command.breakfastIncluded(),
+                hotelProperties.getBreakfastPricePerPerson());
 
         BookingEntity entity = new BookingEntity();
-        entity.setRoom(entityManager.getReference(RoomEntity.class, room.getId()));
-        entity.setGuestFirstName(request.getGuestFirstName());
-        entity.setGuestLastName(request.getGuestLastName());
-        entity.setGuestEmail(request.getGuestEmail());
-        entity.setGuestCount(request.getGuestCount());
-        entity.setCheckInDate(request.getCheckInDate());
-        entity.setCheckOutDate(request.getCheckOutDate());
-        entity.setBreakfastIncluded(request.isBreakfastIncluded());
-        entity.setTotalPrice(totalPrice);
+        entity.setRoom(entityManager.getReference(RoomEntity.class, room.id()));
+        entity.setGuestFirstName(command.guestFirstName());
+        entity.setGuestLastName(command.guestLastName());
+        entity.setGuestEmail(command.guestEmail());
+        entity.setGuestCount(command.guestCount());
+        entity.setCheckInDate(dateRange.checkIn());
+        entity.setCheckOutDate(dateRange.checkOut());
+        entity.setBreakfastIncluded(command.breakfastIncluded());
+        entity.setTotalPrice(price.totalPrice());
+        entity.setNights(price.nights());
+        entity.setRoomRatePerNight(price.roomRatePerNight());
+        entity.setBreakfastRate(price.breakfastRate());
+        entity.setBreakfastPerPersonPerDay(price.breakfastPerPersonPerDay());
         BookingEntity saved = jpaBookingRepository.save(entity);
 
-        BookingResponse.PriceBreakdown breakdown = BookingResponse.PriceBreakdown.builder()
-                .nights(nights)
-                .roomRate(roomRate)
-                .breakfastRate(breakfastRate)
-                .breakfastPerPersonPerDay(breakfastPerPerson)
-                .build();
-        return bookingResponseMapper.toResponse(bookingMapper.toDomain(saved), room, breakdown);
+        return toResult(bookingMapper.toDomain(saved));
     }
 
     @Transactional(readOnly = true)
-    public BookingResponse getBooking(long bookingId) {
+    public BookingResult getBooking(long bookingId) {
         log.debug("Fetching booking bookingId={}", bookingId);
         Booking booking = jpaBookingRepository.findById(bookingId)
                 .map(bookingMapper::toDomain)
                 .orElseThrow(() -> new DomainException(ErrorCode.BOOKING_NOT_FOUND, "Booking not found"));
-        Room room = jpaRoomRepository.findById(booking.getRoomId())
-                .map(roomMapper::toDomain)
-                .orElseThrow(() -> new DomainException(ErrorCode.ROOM_NOT_FOUND, "Room not found"));
+        return toResult(booking);
+    }
 
-        int nights = (int) ChronoUnit.DAYS.between(booking.getCheckInDate(), booking.getCheckOutDate());
-        BigDecimal roomRate = room.getBasePricePerNight();
-        BigDecimal breakfastPerPerson = BigDecimal.valueOf(hotelProperties.getBreakfastPricePerPerson());
-        BigDecimal breakfastRate = booking.isBreakfastIncluded()
-                ? breakfastPerPerson.multiply(BigDecimal.valueOf(booking.getGuestCount())).multiply(BigDecimal.valueOf(nights))
-                : BigDecimal.ZERO;
-
-        BookingResponse.PriceBreakdown breakdown = BookingResponse.PriceBreakdown.builder()
-                .nights(nights)
-                .roomRate(roomRate)
-                .breakfastRate(breakfastRate)
-                .breakfastPerPersonPerDay(breakfastPerPerson)
-                .build();
-        return bookingResponseMapper.toResponse(booking, room, breakdown);
+    private BookingResult toResult(Booking booking) {
+        return new BookingResult(
+                booking.id(),
+                booking.checkInDate(),
+                booking.checkOutDate(),
+                booking.breakfastIncluded(),
+                booking.guestCount(),
+                booking.totalPrice(),
+                booking.nights(),
+                booking.roomRatePerNight(),
+                booking.breakfastRate(),
+                booking.breakfastPerPersonPerDay(),
+                booking.guestFirstName(),
+                booking.guestLastName(),
+                booking.guestEmail(),
+                booking.roomId()
+        );
     }
 
     private void validateGuestCount(int guestCount, int maxGuests) {
@@ -127,13 +119,31 @@ public class BookingService {
         }
     }
 
-    private void validateDates(LocalDate checkInDate, LocalDate checkOutDate) {
-        if (!checkOutDate.isAfter(checkInDate)) {
-            throw new DomainException(ErrorCode.INVALID_DATE_RANGE, "Check-out must be after check-in");
+    public record DateRange(LocalDate checkIn, LocalDate checkOut) {
+        public DateRange {
+            if (!checkOut.isAfter(checkIn)) {
+                throw new DomainException(ErrorCode.INVALID_DATE_RANGE, "Check-out must be after check-in");
+            }
         }
-        if (checkInDate.isBefore(LocalDate.now()) || checkOutDate.isBefore(LocalDate.now())) {
-            throw new DomainException(ErrorCode.INVALID_INPUT, "Dates must be today or in the future");
+
+        public static DateRange of(LocalDate checkIn, LocalDate checkOut) {
+            DateRange range = new DateRange(checkIn, checkOut);
+            if (checkIn.isBefore(LocalDate.now()) || checkOut.isBefore(LocalDate.now())) {
+                throw new DomainException(ErrorCode.INVALID_INPUT, "Dates must be today or in the future");
+            }
+            return range;
         }
     }
 
+    public record PriceCalculation(int nights, BigDecimal roomRatePerNight, BigDecimal breakfastRate, BigDecimal breakfastPerPersonPerDay, BigDecimal totalPrice) {
+        public static PriceCalculation forBooking(Room room, DateRange dateRange, int guestCount, boolean breakfastIncluded, BigDecimal breakfastPricePerPerson) {
+            int nights = (int) ChronoUnit.DAYS.between(dateRange.checkIn(), dateRange.checkOut());
+            BigDecimal roomRatePerNight = room.basePricePerNight();
+            BigDecimal breakfastRate = breakfastIncluded
+                    ? breakfastPricePerPerson.multiply(BigDecimal.valueOf(guestCount)).multiply(BigDecimal.valueOf(nights))
+                    : BigDecimal.ZERO;
+            BigDecimal totalPrice = roomRatePerNight.multiply(BigDecimal.valueOf(nights)).add(breakfastRate);
+            return new PriceCalculation(nights, roomRatePerNight, breakfastRate, breakfastPricePerPerson, totalPrice);
+        }
+    }
 }

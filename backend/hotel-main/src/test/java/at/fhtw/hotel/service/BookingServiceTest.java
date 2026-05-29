@@ -1,11 +1,10 @@
 package at.fhtw.hotel.service;
 
+import at.fhtw.hotel.application.dto.BookingResult;
+import at.fhtw.hotel.application.dto.CreateBookingCommand;
 import at.fhtw.hotel.config.HotelProperties;
 import at.fhtw.hotel.domain.DomainException;
 import at.fhtw.hotel.domain.ErrorCode;
-import at.fhtw.hotel.controller.dto.request.BookingRequest;
-import at.fhtw.hotel.controller.dto.response.BookingResponse;
-import at.fhtw.hotel.controller.mapper.BookingResponseMapper;
 import at.fhtw.hotel.domain.model.Booking;
 import at.fhtw.hotel.domain.model.Room;
 import at.fhtw.hotel.persistence.entity.BookingEntity;
@@ -52,21 +51,12 @@ class BookingServiceTest {
     @Mock
     private RoomService roomService;
 
-    @Mock
-    private BookingResponseMapper bookingResponseMapper;
-
     private HotelProperties hotelProperties;
     private BookingService bookingService;
 
-    private final Room room = Room.builder()
-            .id(1L)
-            .title("Deluxe Room")
-            .description("Bright room with city view")
-            .maxGuests(2)
-            .basePricePerNight(new BigDecimal("129.00"))
-            .images(List.of())
-            .extras(List.of())
-            .build();
+    private final Room room = new Room(
+            1L, "Deluxe Room", "Bright room with city view", 2,
+            new BigDecimal("129.00"), List.of(), List.of());
 
     private final LocalDate checkIn = LocalDate.of(2026, 6, 1);
     private final LocalDate checkOut = LocalDate.of(2026, 6, 6);
@@ -77,7 +67,7 @@ class BookingServiceTest {
         hotelProperties.setName("Boutique Hotel Technikum");
         hotelProperties.setEmail("contact@hotel.com");
         hotelProperties.setPhone("+43 1 234567");
-        hotelProperties.setBreakfastPricePerPerson(26.00);
+        hotelProperties.setBreakfastPricePerPerson(new BigDecimal("26.00"));
 
         HotelProperties.Address address = new HotelProperties.Address();
         address.setStreet("Hochstadtplatz 6");
@@ -93,27 +83,14 @@ class BookingServiceTest {
         hotelProperties.setDirections(directions);
 
         bookingService = new BookingService(jpaBookingRepository, bookingMapper, entityManager,
-                jpaRoomRepository, roomMapper, hotelProperties, roomService, bookingResponseMapper);
+                jpaRoomRepository, roomMapper, hotelProperties, roomService);
     }
 
     @Test
-    void createBooking_success_returnsBookingResponse() {
-        BookingResponse expectedResponse = BookingResponse.builder()
-                .bookingId(42L)
-                .checkInDate(checkIn)
-                .checkOutDate(checkOut)
-                .build();
-        BookingRequest request = BookingRequest.builder()
-                .roomId(1L)
-                .guestFirstName("John")
-                .guestLastName("Doe")
-                .guestEmail("john@example.com")
-                .confirmEmail("john@example.com")
-                .guestCount(2)
-                .checkInDate(checkIn)
-                .checkOutDate(checkOut)
-                .breakfastIncluded(true)
-                .build();
+    void createBooking_success_returnsBookingResult() {
+        CreateBookingCommand command = new CreateBookingCommand(
+                1L, "John", "Doe", "john@example.com", 2,
+                checkIn, checkOut, true);
 
         when(roomService.getRoom(1L)).thenReturn(room);
         when(jpaBookingRepository.existsOverlappingBooking(1L, checkIn, checkOut)).thenReturn(false);
@@ -122,120 +99,74 @@ class BookingServiceTest {
         savedEntity.setId(42L);
         when(jpaBookingRepository.save(any(BookingEntity.class))).thenReturn(savedEntity);
 
-        Booking mappedBooking = Booking.builder()
-                .id(42L)
-                .roomId(1L)
-                .guestFirstName("John")
-                .guestLastName("Doe")
-                .guestEmail("john@example.com")
-                .guestCount(2)
-                .checkInDate(checkIn)
-                .checkOutDate(checkOut)
-                .breakfastIncluded(true)
-                .totalPrice(new BigDecimal("905.00"))
-                .build();
+        Booking mappedBooking = new Booking(
+                42L, 1L, "John", "Doe", "john@example.com", 2,
+                checkIn, checkOut, true, new BigDecimal("905.00"),
+                5, new BigDecimal("129.00"), new BigDecimal("260.00"), new BigDecimal("26.00"));
         when(bookingMapper.toDomain(savedEntity)).thenReturn(mappedBooking);
 
-        when(bookingResponseMapper.toResponse(any(), any(), any()))
-                .thenReturn(expectedResponse);
+        BookingResult result = bookingService.createBooking(command);
 
-        BookingResponse response = bookingService.createBooking(request);
-
-        assertThat(response.getBookingId()).isEqualTo(42L);
-        assertThat(response.getCheckInDate()).isEqualTo(checkIn);
-        assertThat(response.getCheckOutDate()).isEqualTo(checkOut);
+        assertThat(result.bookingId()).isEqualTo(42L);
+        assertThat(result.checkInDate()).isEqualTo(checkIn);
+        assertThat(result.checkOutDate()).isEqualTo(checkOut);
+        assertThat(result.nights()).isEqualTo(5);
+        assertThat(result.roomRatePerNight()).isEqualByComparingTo("129.00");
+        assertThat(result.breakfastRate()).isEqualByComparingTo("260.00");
+        assertThat(result.totalPrice()).isEqualByComparingTo("905.00");
     }
 
     @Test
     void createBooking_guestCountExceedsMax_throwsDomainException() {
-        BookingRequest request = BookingRequest.builder()
-                .roomId(1L)
-                .guestFirstName("John")
-                .guestLastName("Doe")
-                .guestEmail("john@example.com")
-                .confirmEmail("john@example.com")
-                .guestCount(5)
-                .checkInDate(checkIn)
-                .checkOutDate(checkOut)
-                .breakfastIncluded(false)
-                .build();
+        CreateBookingCommand command = new CreateBookingCommand(
+                1L, "John", "Doe", "john@example.com", 5,
+                checkIn, checkOut, false);
 
         when(roomService.getRoom(1L)).thenReturn(room);
 
-        assertThatThrownBy(() -> bookingService.createBooking(request))
+        assertThatThrownBy(() -> bookingService.createBooking(command))
                 .isInstanceOf(DomainException.class)
                 .hasFieldOrPropertyWithValue("code", ErrorCode.INVALID_INPUT);
     }
 
     @Test
     void createBooking_datesUnavailable_throwsDomainException() {
-        BookingRequest request = BookingRequest.builder()
-                .roomId(1L)
-                .guestFirstName("John")
-                .guestLastName("Doe")
-                .guestEmail("john@example.com")
-                .confirmEmail("john@example.com")
-                .guestCount(2)
-                .checkInDate(checkIn)
-                .checkOutDate(checkOut)
-                .breakfastIncluded(false)
-                .build();
+        CreateBookingCommand command = new CreateBookingCommand(
+                1L, "John", "Doe", "john@example.com", 2,
+                checkIn, checkOut, false);
 
         when(roomService.getRoom(1L)).thenReturn(room);
         when(jpaBookingRepository.existsOverlappingBooking(1L, checkIn, checkOut)).thenReturn(true);
 
-        assertThatThrownBy(() -> bookingService.createBooking(request))
+        assertThatThrownBy(() -> bookingService.createBooking(command))
                 .isInstanceOf(DomainException.class)
                 .hasFieldOrPropertyWithValue("code", ErrorCode.DATES_UNAVAILABLE);
     }
 
     @Test
-    void getBooking_returnsBookingResponse() {
+    void getBooking_returnsBookingResult() {
         LocalDate today = LocalDate.now();
         LocalDate futureCheckIn = today.plusDays(10);
         LocalDate futureCheckOut = today.plusDays(15);
 
         BookingEntity entity = new BookingEntity();
         entity.setId(42L);
-        HotelProperties.Address address = new HotelProperties.Address();
-        address.setStreet("x");
-        address.setCity("x");
-        address.setPostalCode("x");
-        address.setCountry("x");
-        hotelProperties.setAddress(address);
-        HotelProperties.Directions directions = new HotelProperties.Directions();
-        directions.setByTrain("x");
-        directions.setByCar("x");
-        directions.setParking("x");
-        hotelProperties.setDirections(directions);
 
-        Booking booking = Booking.builder()
-                .id(42L)
-                .roomId(1L)
-                .guestFirstName("John")
-                .guestLastName("Doe")
-                .guestEmail("john@example.com")
-                .guestCount(2)
-                .checkInDate(futureCheckIn)
-                .checkOutDate(futureCheckOut)
-                .breakfastIncluded(true)
-                .totalPrice(new BigDecimal("905.00"))
-                .build();
-
-        BookingResponse expectedResponse = BookingResponse.builder()
-                .bookingId(42L)
-                .build();
+        Booking booking = new Booking(
+                42L, 1L, "John", "Doe", "john@example.com", 2,
+                futureCheckIn, futureCheckOut, true, new BigDecimal("905.00"),
+                5, new BigDecimal("129.00"), new BigDecimal("260.00"), new BigDecimal("26.00"));
 
         when(jpaBookingRepository.findById(42L)).thenReturn(Optional.of(entity));
         when(bookingMapper.toDomain(entity)).thenReturn(booking);
-        when(jpaRoomRepository.findById(1L)).thenReturn(Optional.of(new at.fhtw.hotel.persistence.entity.RoomEntity()));
-        when(roomMapper.toDomain(any())).thenReturn(room);
-        when(bookingResponseMapper.toResponse(any(), any(), any()))
-                .thenReturn(expectedResponse);
 
-        BookingResponse response = bookingService.getBooking(42L);
+        BookingResult result = bookingService.getBooking(42L);
 
-        assertThat(response.getBookingId()).isEqualTo(42L);
+        assertThat(result.bookingId()).isEqualTo(42L);
+        assertThat(result.nights()).isEqualTo(5);
+        assertThat(result.roomRatePerNight()).isEqualByComparingTo("129.00");
+        assertThat(result.breakfastRate()).isEqualByComparingTo("260.00");
+        assertThat(result.totalPrice()).isEqualByComparingTo("905.00");
     }
 
     @Test
@@ -249,89 +180,61 @@ class BookingServiceTest {
 
     @Test
     void createBooking_withPastDates_throwsDomainException() {
-        BookingRequest request = BookingRequest.builder()
-                .roomId(1L)
-                .guestFirstName("John")
-                .guestLastName("Doe")
-                .guestEmail("john@example.com")
-                .confirmEmail("john@example.com")
-                .guestCount(1)
-                .checkInDate(LocalDate.of(2020, 1, 1))
-                .checkOutDate(LocalDate.of(2020, 1, 5))
-                .breakfastIncluded(false)
-                .build();
+        CreateBookingCommand command = new CreateBookingCommand(
+                1L, "John", "Doe", "john@example.com", 1,
+                LocalDate.of(2020, 1, 1), LocalDate.of(2020, 1, 5), false);
 
-        assertThatThrownBy(() -> bookingService.createBooking(request))
+        assertThatThrownBy(() -> bookingService.createBooking(command))
                 .isInstanceOf(DomainException.class)
                 .hasFieldOrPropertyWithValue("code", ErrorCode.INVALID_INPUT);
     }
 
     @Test
     void createBooking_withGuestCountZero_throwsDomainException() {
-        BookingRequest request = BookingRequest.builder()
-                .roomId(1L)
-                .guestFirstName("John")
-                .guestLastName("Doe")
-                .guestEmail("john@example.com")
-                .confirmEmail("john@example.com")
-                .guestCount(0)
-                .checkInDate(checkIn)
-                .checkOutDate(checkOut)
-                .breakfastIncluded(false)
-                .build();
+        CreateBookingCommand command = new CreateBookingCommand(
+                1L, "John", "Doe", "john@example.com", 0,
+                checkIn, checkOut, false);
 
         when(roomService.getRoom(1L)).thenReturn(room);
 
-        assertThatThrownBy(() -> bookingService.createBooking(request))
+        assertThatThrownBy(() -> bookingService.createBooking(command))
                 .isInstanceOf(DomainException.class)
                 .hasFieldOrPropertyWithValue("code", ErrorCode.INVALID_INPUT);
     }
 
     @Test
-    void createBooking_withoutBreakfast_calculatesCorrectPrice() {
-        BookingRequest request = BookingRequest.builder()
-                .roomId(1L)
-                .guestFirstName("John")
-                .guestLastName("Doe")
-                .guestEmail("john@example.com")
-                .confirmEmail("john@example.com")
-                .guestCount(1)
-                .checkInDate(checkIn)
-                .checkOutDate(checkOut)
-                .breakfastIncluded(false)
-                .build();
-
-        BookingResponse expectedResponse = BookingResponse.builder()
-                .bookingId(1L)
-                .build();
+    void createBooking_withoutBreakfast_storesCorrectBreakdown() {
+        CreateBookingCommand command = new CreateBookingCommand(
+                1L, "John", "Doe", "john@example.com", 1,
+                checkIn, checkOut, false);
 
         when(roomService.getRoom(1L)).thenReturn(room);
         when(jpaBookingRepository.existsOverlappingBooking(1L, checkIn, checkOut)).thenReturn(false);
-        when(jpaBookingRepository.save(any(BookingEntity.class))).thenAnswer(returnsFirstArg());
-        when(bookingMapper.toDomain(any())).thenAnswer(invocation -> {
-            BookingEntity entity = invocation.getArgument(0);
-            return Booking.builder()
-                    .id(entity.getId())
-                    .roomId(1L)
-                    .guestFirstName("John")
-                    .guestLastName("Doe")
-                    .guestEmail("john@example.com")
-                    .guestCount(entity.getGuestCount())
-                    .checkInDate(entity.getCheckInDate())
-                    .checkOutDate(entity.getCheckOutDate())
-                    .breakfastIncluded(entity.isBreakfastIncluded())
-                    .totalPrice(entity.getTotalPrice())
-                    .build();
+        when(jpaBookingRepository.save(any(BookingEntity.class))).thenAnswer(invocation -> {
+            BookingEntity e = invocation.getArgument(0);
+            e.setId(1L);
+            return e;
         });
-        when(bookingResponseMapper.toResponse(any(), any(), any()))
-                .thenReturn(expectedResponse);
+        when(bookingMapper.toDomain(any())).thenAnswer(invocation -> {
+            BookingEntity e = invocation.getArgument(0);
+            return new Booking(
+                    e.getId(), 1L, "John", "Doe", "john@example.com",
+                    e.getGuestCount(), e.getCheckInDate(), e.getCheckOutDate(),
+                    e.isBreakfastIncluded(), e.getTotalPrice(),
+                    e.getNights(), e.getRoomRatePerNight(),
+                    e.getBreakfastRate(), e.getBreakfastPerPersonPerDay());
+        });
 
         ArgumentCaptor<BookingEntity> captor = ArgumentCaptor.forClass(BookingEntity.class);
-        bookingService.createBooking(request);
+        bookingService.createBooking(command);
         verify(jpaBookingRepository).save(captor.capture());
 
         BookingEntity captured = captor.getValue();
         assertThat(captured.isBreakfastIncluded()).isFalse();
         assertThat(captured.getTotalPrice()).isEqualByComparingTo("645.00");
+        assertThat(captured.getNights()).isEqualTo(5);
+        assertThat(captured.getRoomRatePerNight()).isEqualByComparingTo("129.00");
+        assertThat(captured.getBreakfastRate()).isEqualByComparingTo("0.00");
+        assertThat(captured.getBreakfastPerPersonPerDay()).isEqualByComparingTo("26.00");
     }
 }

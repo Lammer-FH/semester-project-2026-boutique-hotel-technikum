@@ -28,7 +28,8 @@ const emit = defineEmits<{
 }>()
 
 const availabilityStore = useAvailabilityStore()
-const { availabilityByRoomId, isLoading, error } = storeToRefs(availabilityStore)
+const { availabilityByRoomId, error } = storeToRefs(availabilityStore)
+const isRoomLoading = computed(() => availabilityStore.loadingByRoomId[props.roomId] ?? false)
 
 const isBookingOpen = ref(false)
 const step = ref<"form" | "result">("form")
@@ -71,11 +72,11 @@ const isUnavailable = computed(() => availability.value && !availability.value.a
 const clearFeedback = () => {
   localError.value = ""
   step.value = "form"
-  availabilityStore.clearAvailability(props.roomId)
 }
 
 const closeDialog = () => {
   clearFeedback()
+  availabilityStore.resetAvailabilityFlow(props.roomId)
   closeBookingDialog()
   emit("close")
 }
@@ -85,6 +86,16 @@ const handleCheck = async () => {
   const validation = validateDateRange(checkInValue.value, checkOutValue.value)
   if (validation) {
     localError.value = validation
+    return
+  }
+
+  const existing = availability.value
+  if (
+    existing &&
+    existing.checkInDate === checkInValue.value &&
+    existing.checkOutDate === checkOutValue.value
+  ) {
+    step.value = "result"
     return
   }
 
@@ -121,7 +132,11 @@ const closeAvailabilityAfterBooking = () => {
 }
 
 watch([checkInDate, checkOutDate], () => {
-  clearFeedback()
+  localError.value = ""
+  if (availability.value) {
+    availabilityStore.clearAvailability(props.roomId)
+  }
+  step.value = "form"
   if (isBookingOpen.value) {
     closeBookingDialog()
   }
@@ -137,6 +152,7 @@ watch(
     }
 
     clearFeedback()
+    availabilityStore.resetAvailabilityFlow(props.roomId)
     closeBookingDialog()
   }
 )
@@ -165,7 +181,7 @@ watch(
           :check-out-label="availabilityDialogContent.checkOutLabel"
           :min-check-in="minCheckIn"
           :min-check-out="minCheckOut"
-          :is-loading="isLoading"
+          :is-loading="isRoomLoading"
           :checking-label="availabilityDialogContent.checkingLabel"
           :confirm-label="availabilityDialogContent.confirmLabel"
           @check="handleCheck"

@@ -41,11 +41,11 @@ class RoomMapperTest {
 
         Room result = mapper.toDomain(room);
 
-        assertThat(result.getId()).isEqualTo(1L);
-        assertThat(result.getTitle()).isEqualTo("Deluxe Room");
-        assertThat(result.getImages()).hasSize(1);
-        assertThat(result.getImages().getFirst().getFileName()).isEqualTo("main.jpg");
-        assertThat(result.getExtras()).hasSize(1);
-        assertThat(result.getExtras().getFirst().getCode()).isEqualTo("wifi");
+        assertThat(result.id()).isEqualTo(1L);
+        assertThat(result.title()).isEqualTo("Deluxe Room");
+        assertThat(result.images()).hasSize(1);
+        assertThat(result.images().getFirst().fileName()).isEqualTo("main.jpg");
+        assertThat(result.extras()).hasSize(1);
+        assertThat(result.extras().getFirst().code()).isEqualTo("wifi");
     }
 }

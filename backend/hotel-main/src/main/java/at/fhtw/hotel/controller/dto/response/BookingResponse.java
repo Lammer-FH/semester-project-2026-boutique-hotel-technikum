@@ -54,8 +54,8 @@ public class BookingResponse {
         @Schema(description = "Number of nights", example = "3")
         int nights;
 
-        @Schema(description = "Room rate subtotal in EUR", example = "597.00")
-        BigDecimal roomRate;
+        @Schema(description = "Room rate per night in EUR", example = "199.00")
+        BigDecimal roomRatePerNight;
 
         @Schema(description = "Breakfast subtotal in EUR", example = "78.00")
         BigDecimal breakfastRate;

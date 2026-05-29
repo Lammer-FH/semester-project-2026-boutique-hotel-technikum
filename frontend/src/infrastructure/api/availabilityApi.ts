@@ -6,7 +6,8 @@ import { mapAvailabilityResponse } from "../mappers/apiMapper";
 export const checkAvailability = async (
   roomId: number,
   checkInDate: string,
-  checkOutDate: string
+  checkOutDate: string,
+  signal?: AbortSignal
 ): Promise<AvailabilityResult> => {
   const response = await httpClient.get<AvailabilityResponseApi>(
     `/rooms/${roomId}/availability`,
@@ -15,8 +16,9 @@ export const checkAvailability = async (
         check_in_date: checkInDate,
         check_out_date: checkOutDate,
       },
+      signal,
     }
   );
 
-  return mapAvailabilityResponse(response.data);
+  return mapAvailabilityResponse(response.data, checkInDate, checkOutDate);
 };

@@ -8,12 +8,12 @@ import org.springframework.stereotype.Component;
 public class ExtraMapper {
 
     public Extra toDomain(ExtraEntity entity) {
-        return Extra.builder()
-                .id(entity.getId())
-                .code(entity.getCode())
-                .title(entity.getTitle())
-                .description(entity.getDescription())
-                .iconName(entity.getIconName())
-                .build();
+        return new Extra(
+                entity.getId(),
+                entity.getCode(),
+                entity.getTitle(),
+                entity.getDescription(),
+                entity.getIconName()
+        );
     }
 }

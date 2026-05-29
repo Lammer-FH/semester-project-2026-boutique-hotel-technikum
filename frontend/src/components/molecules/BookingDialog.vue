@@ -4,7 +4,7 @@ import { useRouter } from "vue-router"
 import BasePopup from "@/components/atoms/BasePopup.vue"
 import { storeToRefs } from "pinia"
 import { useBookingStore } from "@/application/stores/bookingStore"
-import { formatDate, validateDateRange } from "@/core/dateutils"
+import { formatDate } from "@/core/dateutils"
 import { bookingDialogContent } from "@/data/content/bookingContent"
 import type { BookingRequest } from "@/core/models/booking"
 import DialogHeader from "@/components/molecules/shared/DialogHeader.vue"
@@ -60,8 +60,7 @@ const clearBookingFeedback = () => {
 
 const closeDialog = () => {
   bookingStep.value = "details"
-  clearBookingFeedback()
-  bookingStore.clearDraft()
+  bookingStore.resetBookingFlow()
   emit("close")
 }
 
@@ -85,34 +84,13 @@ const buildRequest = (): BookingRequest => ({
 })
 
 const validateBookingDetails = () => {
-  const dateError = validateDateRange(props.checkInDate, props.checkOutDate)
-  if (dateError) {
-    return dateError
+  const request = buildRequest()
+  const storeError = bookingStore.validateRequest(request)
+  if (storeError) {
+    return storeError
   }
 
-  const firstName = draft.value.guestFirstName?.trim()
-  const lastName = draft.value.guestLastName?.trim()
-  const email = draft.value.guestEmail?.trim()
-  const confirmEmail = draft.value.confirmEmail?.trim()
-
-  if (!firstName || !lastName) {
-    return bookingDialogContent.errors.nameMissing
-  }
-
-  if (!email || !confirmEmail) {
-    return bookingDialogContent.errors.emailMissing
-  }
-
-  if (email !== confirmEmail) {
-    return bookingDialogContent.errors.emailMismatch
-  }
-
-  const guests = Number(draft.value.guestCount ?? 1)
-  if (Number.isNaN(guests) || guests < 1) {
-    return bookingDialogContent.errors.guestCountInvalid
-  }
-
-  if (guests > props.roomMaxGuests) {
+  if (request.guestCount > props.roomMaxGuests) {
     return bookingDialogContent.errors.maxGuestsExceeded(props.roomMaxGuests)
   }
 
@@ -162,7 +140,7 @@ watch(
   () => props.isOpen,
   (open) => {
     if (!open) {
-      bookingStore.clearDraft()
+      bookingStore.resetBookingFlow()
       return
     }
 
@@ -182,7 +160,6 @@ watch(
 <template>
   <base-popup
     :is-open="props.isOpen"
-    :keep-mounted="false"
     content-class="dialog-shell"
     modal-class="dialog-modal"
     @close="closeDialog"

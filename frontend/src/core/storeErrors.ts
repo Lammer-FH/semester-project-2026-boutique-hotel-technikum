@@ -2,7 +2,8 @@ import { isApiError } from "../infrastructure/api/httpClient";
 
 export const toErrorMessage = (error: unknown): string => {
   if (isApiError(error)) {
-    return error.message;
+    const suffix = error.status ? ` (HTTP ${error.status})` : "";
+    return `${error.message}${suffix}`;
   }
 
   if (error instanceof Error) {

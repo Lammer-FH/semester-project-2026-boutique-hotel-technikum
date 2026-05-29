@@ -1,10 +1,14 @@
 <script setup lang="ts">
-import { ref } from "vue"
+import { computed, ref, watch } from "vue"
 import { IonButton, IonHeader, IonIcon, IonToolbar } from "@ionic/vue"
 import { closeOutline, menuOutline } from "ionicons/icons"
+import { useRoute } from "vue-router"
 import { navigationContent } from "@/data/content/layoutContent"
 
 const isMenuOpen = ref(false)
+const route = useRoute()
+
+const currentRouteName = computed(() => route.name)
 
 const toggleMenu = () => {
   isMenuOpen.value = !isMenuOpen.value
@@ -13,6 +17,13 @@ const toggleMenu = () => {
 const closeMenu = () => {
   isMenuOpen.value = false
 }
+
+watch(
+  () => route.fullPath,
+  () => {
+    closeMenu()
+  }
+)
 </script>
 
 <template>
@@ -36,13 +47,25 @@ const closeMenu = () => {
           <img class="app-header__logo" src="/logo.svg?v=3" :alt="navigationContent.brandAlt" />
         </router-link>
         <nav class="app-header__nav" :aria-label="navigationContent.primaryNavLabel">
-          <router-link class="app-header__link" :to="{ name: 'Landing' }">
+          <router-link
+            class="app-header__link"
+            :to="{ name: 'Landing' }"
+            :aria-current="currentRouteName === 'Landing' ? 'page' : undefined"
+          >
             {{ navigationContent.homeLabel }}
           </router-link>
-          <router-link class="app-header__link" :to="{ name: 'RoomsIndex' }">
+          <router-link
+            class="app-header__link"
+            :to="{ name: 'RoomsIndex' }"
+            :aria-current="currentRouteName === 'RoomsIndex' ? 'page' : undefined"
+          >
             {{ navigationContent.roomsLabel }}
           </router-link>
-          <router-link class="app-header__link" :to="{ name: 'About' }">
+          <router-link
+            class="app-header__link"
+            :to="{ name: 'About' }"
+            :aria-current="currentRouteName === 'About' ? 'page' : undefined"
+          >
             {{ navigationContent.aboutLabel }}
           </router-link>
         </nav>
@@ -50,13 +73,28 @@ const closeMenu = () => {
     </ion-toolbar>
     <div v-if="isMenuOpen" class="app-header__dropdown" role="presentation">
       <nav class="app-header__dropdown-nav" :aria-label="navigationContent.mobileNavLabel">
-        <router-link class="app-header__dropdown-link" :to="{ name: 'Landing' }" @click="closeMenu">
+        <router-link
+          class="app-header__dropdown-link"
+          :to="{ name: 'Landing' }"
+          :aria-current="currentRouteName === 'Landing' ? 'page' : undefined"
+          @click="closeMenu"
+        >
           {{ navigationContent.homeLabel }}
         </router-link>
-        <router-link class="app-header__dropdown-link" :to="{ name: 'RoomsIndex' }" @click="closeMenu">
+        <router-link
+          class="app-header__dropdown-link"
+          :to="{ name: 'RoomsIndex' }"
+          :aria-current="currentRouteName === 'RoomsIndex' ? 'page' : undefined"
+          @click="closeMenu"
+        >
           {{ navigationContent.roomsLabel }}
         </router-link>
-        <router-link class="app-header__dropdown-link" :to="{ name: 'About' }" @click="closeMenu">
+        <router-link
+          class="app-header__dropdown-link"
+          :to="{ name: 'About' }"
+          :aria-current="currentRouteName === 'About' ? 'page' : undefined"
+          @click="closeMenu"
+        >
           {{ navigationContent.aboutLabel }}
         </router-link>
       </nav>

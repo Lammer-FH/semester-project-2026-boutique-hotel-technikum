@@ -115,12 +115,16 @@ onMounted(async () => {
     </p>
 
     <div class="booking-dialog__actions">
-      <ion-button fill="outline" @click="handleBack">
-        <ion-icon :icon="arrowBackOutline" slot="start" />
+      <ion-button class="booking-dialog__back-button" fill="outline" @click="handleBack">
+        <template v-slot:start>
+          <ion-icon :icon="arrowBackOutline" />
+        </template>
         {{ bookingDialogContent.buttons.back }}
       </ion-button>
       <ion-button :disabled="props.isSubmitting" @click="handleSubmit">
-        <ion-icon :icon="checkmarkOutline" slot="start" />
+        <template v-slot:start>
+          <ion-icon :icon="checkmarkOutline" />
+        </template>
         {{
           props.isSubmitting
             ? bookingDialogContent.buttons.confirming
@@ -255,18 +259,17 @@ onMounted(async () => {
 
 @media (max-width: 640px) {
   .booking-review {
-    padding-bottom: calc(92px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: 18px;
   }
 
   .booking-dialog__actions {
-    position: fixed;
-    left: 16px;
-    right: 16px;
+    position: sticky;
     bottom: calc(10px + env(safe-area-inset-bottom, 0px));
     z-index: 80;
     flex-direction: column;
     align-items: stretch;
     justify-content: flex-end;
+    width: 100%;
     padding-top: 0;
     background: transparent;
     backdrop-filter: none;
@@ -280,6 +283,14 @@ onMounted(async () => {
     min-width: 0;
     width: 100%;
     min-height: 46px;
+  }
+
+  .booking-dialog__back-button {
+    --background: #fff;
+    --background-hover: #fff;
+    --background-focused: #fff;
+    --border-color: var(--color-terracotta);
+    --color: var(--color-terracotta);
   }
 }
 </style>

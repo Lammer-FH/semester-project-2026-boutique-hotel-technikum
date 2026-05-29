@@ -7,7 +7,11 @@
     "dev": "vite",
     "build": "vue-tsc -b && vite build",
     "preview": "vite preview",
-    "lint": "vue-tsc -b --noEmit"
+    "lint": "eslint src/",
+    "lint:fix": "eslint src/ --fix",
+    "format": "prettier --write src/",
+    "format:check": "prettier --check src/",
+    "typecheck": "vue-tsc -b --noEmit"
   },
   "dependencies": {
     "@ionic/vue": "^7.0.0",
@@ -21,7 +25,12 @@
   "devDependencies": {
     "@types/node": "^24.12.2",
     "@vitejs/plugin-vue": "^6.0.6",
+    "@vue/eslint-config-typescript": "^14.7.0",
     "@vue/tsconfig": "^0.9.1",
+    "eslint": "^10.2.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-vue": "^10.9.0",
+    "prettier": "^3.8.3",
     "typescript": "~6.0.2",
     "vite": "^8.0.10",
     "vue-tsc": "^3.2.7"

@@ -52,6 +52,18 @@ public class BookingEntity {
     @Column(name = "total_price", nullable = false, precision = 10, scale = 2)
     private BigDecimal totalPrice;
 
+    @Column(name = "nights", nullable = false)
+    private int nights;
+
+    @Column(name = "room_rate_per_night", nullable = false, precision = 10, scale = 2)
+    private BigDecimal roomRatePerNight;
+
+    @Column(name = "breakfast_rate", nullable = false, precision = 10, scale = 2)
+    private BigDecimal breakfastRate;
+
+    @Column(name = "breakfast_per_person_per_day", nullable = false, precision = 10, scale = 2)
+    private BigDecimal breakfastPerPersonPerDay;
+
     @Column(name = "created_at", nullable = false, insertable = false, updatable = false)
     private Instant createdAt;
 

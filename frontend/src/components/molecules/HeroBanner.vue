@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { } from "vue"
 import {
   IonButton,
   IonCard,
@@ -10,7 +9,13 @@ import {
   IonRow,
   IonText,
 } from "@ionic/vue"
-import { bedOutline, cafeOutline, leafOutline, calendarOutline, informationCircleOutline } from "ionicons/icons"
+import {
+  bedOutline,
+  cafeOutline,
+  leafOutline,
+  calendarOutline,
+  informationCircleOutline,
+} from "ionicons/icons"
 import type { RouteLocationRaw } from "vue-router"
 import { heroBannerContent } from "@/data/content/landingContent"
 
@@ -24,7 +29,6 @@ const props = defineProps<{
   backgroundImage?: string
   heroClass?: string
 }>()
-
 
 const heroPanelIcons = {
   bed: bedOutline,
@@ -44,11 +48,15 @@ const heroPanelIcons = {
             <p class="hero__subtitle">{{ subtitle }}</p>
             <div class="hero-actions ion-margin-top ion-margin-bottom">
               <ion-button :router-link="primaryRoute">
-                <ion-icon slot="start" :icon="calendarOutline" />
+                <template v-slot:start>
+                  <ion-icon :icon="calendarOutline" />
+                </template>
                 {{ primaryLabel }}
               </ion-button>
               <ion-button :router-link="secondaryRoute" fill="outline">
-                <ion-icon slot="start" :icon="informationCircleOutline" />
+                <template v-slot:start>
+                  <ion-icon :icon="informationCircleOutline" />
+                </template>
                 {{ secondaryLabel }}
               </ion-button>
             </div>
@@ -188,6 +196,12 @@ const heroPanelIcons = {
   font-size: 1.05rem;
   display: block;
   margin-bottom: 18px;
+}
+
+@media (max-width: 370px) {
+  .hero-panel {
+    display: none;
+  }
 }
 
 @media (min-width: 768px) {

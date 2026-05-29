@@ -9,13 +9,15 @@ import { toPaginationQueryParams } from "../../core/pagination";
 
 export const listRooms = async (
   page: number,
-  size: number
+  size: number,
+  signal?: AbortSignal
 ): Promise<PaginatedResponse<Room>> => {
   const params = toPaginationQueryParams(page, size);
   const response = await httpClient.get<PaginatedResponseApi<RoomApi>>(
     "/rooms",
     {
       params,
+      signal,
     }
   );
 

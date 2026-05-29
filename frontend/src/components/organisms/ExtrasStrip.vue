@@ -25,13 +25,14 @@ const emptyStateMessage = computed(() => props.emptyMessage ?? "No extras availa
     </p>
 
     <div class="extras-strip__list">
-      <ion-skeleton-text
-        v-if="props.isLoading"
-        v-for="index in 6"
-        :key="`extra-skeleton-${index}`"
-        animated
-        class="extras-strip__skeleton"
-      />
+      <template v-if="props.isLoading">
+        <ion-skeleton-text
+          v-for="index in 6"
+          :key="`extra-skeleton-${index}`"
+          animated
+          class="extras-strip__skeleton"
+        />
+      </template>
       <ion-chip v-else v-for="extra in props.extras" :key="extra.id" class="extras-strip__chip">
         <ion-icon :icon="resolveExtraIcon(extra.iconName)" />
         <span>{{ extra.title }}</span>

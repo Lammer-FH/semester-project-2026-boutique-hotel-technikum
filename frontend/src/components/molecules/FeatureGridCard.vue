@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from "vue"
 import { IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonIcon } from "@ionic/vue"
 import {
   bedOutline,
@@ -22,16 +23,18 @@ const iconMap = {
   sparkles: sparklesOutline,
 }
 
-defineProps<{
+const props = defineProps<{
   title: string
   description: string
   icon: keyof typeof iconMap
 }>()
+
+const resolvedIcon = computed(() => iconMap[props.icon] ?? sparklesOutline)
 </script>
 
 <template>
   <ion-card class="feature-card icon-box">
-    <ion-icon :icon="iconMap[icon]" class="feature-card__icon" />
+    <ion-icon :icon="resolvedIcon" class="feature-card__icon" />
     <ion-card-header>
       <ion-card-title>{{ title }}</ion-card-title>
     </ion-card-header>

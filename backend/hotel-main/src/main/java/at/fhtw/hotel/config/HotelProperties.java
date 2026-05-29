@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
+import java.math.BigDecimal;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -32,7 +33,7 @@ public class HotelProperties {
     private Directions directions = new Directions();
 
     @Positive
-    private double breakfastPricePerPerson;
+    private BigDecimal breakfastPricePerPerson;
 
     @Getter
     @Setter

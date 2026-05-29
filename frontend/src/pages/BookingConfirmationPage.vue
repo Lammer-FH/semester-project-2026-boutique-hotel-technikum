@@ -12,7 +12,7 @@ import { bookingDialogContent } from "@/data/content/bookingContent"
 const route = useRoute()
 const router = useRouter()
 const bookingStore = useBookingStore()
-const { currentBooking, isSubmitting, error } = storeToRefs(bookingStore)
+const { currentBooking, isLoading, error } = storeToRefs(bookingStore)
 
 const bookingId = computed(() => Number(route.params.bookingId))
 const hasValidBookingId = computed(() => Number.isInteger(bookingId.value) && bookingId.value > 0)
@@ -46,7 +46,7 @@ watch(
 watch(
   () => currentBooking.value?.bookingId,
   (loadedBookingId) => {
-    if (!loadedBookingId && hasValidBookingId.value && !isSubmitting.value) {
+    if (!loadedBookingId && hasValidBookingId.value && !isLoading.value) {
       void loadBooking()
     }
   }
@@ -60,7 +60,7 @@ watch(
     inner-class="page-shell__inner booking-confirmation-page"
     footer-class="booking-confirmation-page__footer"
   >
-    <div class="booking-confirmation-page__intro">
+    <div class="booking-confirmation-page__intro ion-margin-top">
       <p class="booking-confirmation-page__eyebrow">
         {{ bookingDialogContent.confirmation.pageEyebrow }}
       </p>
@@ -72,9 +72,13 @@ watch(
       :message="bookingDialogContent.confirmation.invalidBookingMessage"
     />
 
-    <base-error-banner v-else-if="error" :message="error" />
+    <base-error-banner
+      v-else-if="error"
+      :message="bookingDialogContent.confirmation.invalidBookingMessage"
+      :detail="error"
+    />
 
-    <div v-else-if="isSubmitting" class="booking-confirmation-page__loading">
+    <div v-else-if="isLoading" class="booking-confirmation-page__loading">
       {{ bookingDialogContent.confirmation.loadingText }}
     </div>
 
@@ -101,7 +105,6 @@ watch(
   flex-direction: column;
   gap: 18px;
   min-height: 100%;
-  padding-top: 24px;
   padding-bottom: 32px;
 }
 

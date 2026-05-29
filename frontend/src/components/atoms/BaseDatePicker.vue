@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { IonDatetime, IonLabel } from "@ionic/vue"
 
+const inputId = `date-picker-${Math.random().toString(16).slice(2, 10)}`
+
 const props = withDefaults(
   defineProps<{
     modelValue?: string
@@ -27,8 +29,9 @@ const handleChange = (event: CustomEvent) => {
 
 <template>
   <div class="date-picker">
-    <ion-label class="date-picker__label">{{ props.label }}</ion-label>
+    <ion-label :for="inputId" class="date-picker__label">{{ props.label }}</ion-label>
     <ion-datetime
+      :id="inputId"
       :presentation="props.presentation"
       :min="props.min"
       :max="props.max"
