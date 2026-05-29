@@ -58,7 +58,6 @@ This document serves as the mandatory record for all AI-assisted work on the **B
 | U2 rooms overview page | codex | "If the API is unreachable, skeletons for the rooms should be displayed during loading" | Added room card skeletons during loading, and surfaced API errors. |
 | Rooms footer layout fix | codex | "On network error the footer is in the middle of the page, fix that" | Made the Rooms page content a flex column and pinned the footer to the bottom even on short/error states. |
 | Global footer layout fix | codex | "Adapt this for the footer in general, not just for the rooms page" | Made page-shell scroll content a flex column and set the app footer to push to the bottom across all pages. |
-| U3 availability dialog CSS | codex| "Polish the availability dialog styling to match the terracotta/cream design system" | Tweaked gradients, borders, and spacing to align with existing UI tokens. |
 | U3 availability status chip CSS | codex | "Improve the availability status chip styles for available/unavailable states" | Added semantic colors and refined chip borders to clarify state feedback. |
 | U3 date picker layout CSS | codex | "Adjust date picker layout for mobile-first responsiveness in U3" | Improved spacing and added responsive grid layout for date fields. |
 | Date utils refactor | codex | "Create a Date-Utils file for date utilities and refactor the code" | Added date utility helpers and refactored RoomAvailabilityDialog to use shared functions |
