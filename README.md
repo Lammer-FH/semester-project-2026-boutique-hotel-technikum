@@ -10,9 +10,7 @@ A modern, full-stack hotel booking application designed for the Boutique Hotel T
 - **Full-Stack Booking Process:** A secure multi-step validation form allowing users to submit reservations and review data.
 - **Comprehensive Confirmation:** A dedicated booking summary layout containing registration details, contact options, and practical info.
 
-## Overview
-
-This repository contains the backend, frontend and project documentation for the hotel booking application. The initial project specification is documented in [docs/pre-project/project_specification.md](docs/pre-project/project_specification.md).
+>The initial project specification is documented in [docs/pre-project/project_specification.md](docs/pre-project/project_specification.md).
 
 ## Tech Stack
 
