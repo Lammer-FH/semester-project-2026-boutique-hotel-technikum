@@ -52,12 +52,12 @@ VALUES
 
 INSERT INTO room_images (id, room_id, file_name, sort_order, alt_text)
 VALUES
-  (1, 1, 'main.svg', 0, 'Deluxe Room'),
-  (2, 2, 'main.svg', 0, 'Garden Suite'),
-  (3, 3, 'main.svg', 0, 'City Loft'),
-  (4, 4, 'main.svg', 0, 'Family Studio'),
-  (5, 5, 'main.svg', 0, 'Skyline Suite'),
-  (6, 6, 'main.svg', 0, 'Cozy Single'),
-  (7, 7, 'main.svg', 0, 'Wellness Retreat'),
-  (8, 8, 'main.svg', 0, 'Business King'),
-  (9, 9, 'main.svg', 0, 'Heritage Room');
+  (1, 1, 'main.jpg', 0, 'Deluxe Room'),
+  (2, 2, 'main.jpg', 0, 'Garden Suite'),
+  (3, 3, 'main.jpg', 0, 'City Loft'),
+  (4, 4, 'main.jpg', 0, 'Family Studio'),
+  (5, 5, 'main.jpg', 0, 'Skyline Suite'),
+  (6, 6, 'main.jpg', 0, 'Cozy Single'),
+  (7, 7, 'main.jpg', 0, 'Wellness Retreat'),
+  (8, 8, 'main.jpg', 0, 'Business King'),
+  (9, 9, 'main.jpg', 0, 'Heritage Room');

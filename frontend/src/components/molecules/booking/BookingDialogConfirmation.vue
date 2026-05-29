@@ -53,7 +53,7 @@ const dateRangeLabel = computed(() =>
 const primaryImage = computed(() => {
   if (!props.booking.room.images.length) {
     return {
-      url: `/images/rooms/${props.booking.room.id}/main.svg`,
+      url: `/images/rooms/${props.booking.room.id}/main.jpg`,
       altText: `${props.booking.room.title} room interior`,
     }
   }

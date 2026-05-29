@@ -3,12 +3,14 @@ import type { VNodeRef } from "vue"
 import { computed, nextTick, onMounted, ref } from "vue"
 import { IonButton } from "@ionic/vue"
 import type { IonContent } from "@ionic/vue"
+import type { ScrollDetail } from "@ionic/core/components"
 import { storeToRefs } from "pinia"
 import BaseSectionTitle from "@/components/atoms/BaseSectionTitle.vue"
 import ExtrasStrip from "@/components/organisms/ExtrasStrip.vue"
 import RoomCard from "@/components/organisms/roomcard/RoomCard.vue"
 import RoomCardSkeletonList from "@/components/organisms/roomcard/RoomCardSkeletonList.vue"
 import PageLayout from "@/components/layout/PageLayout.vue"
+import SectionBlock from "@/components/molecules/SectionBlock.vue"
 import { useExtraStore } from "@/application/stores/extraStore"
 import { useRoomStore } from "@/application/stores/roomStore"
 import { extrasContent, roomsPageContent } from "@/data/content/roomsContent"
@@ -17,6 +19,9 @@ import { scrollIonContentToTop, updateIonContentRef } from "@/core/scroll"
 
 const contentEl = ref<InstanceType<typeof IonContent> | null>(null)
 const contentRef: VNodeRef = (refValue) => updateIonContentRef(contentEl, refValue)
+
+const PAGINATION_SHOW_THRESHOLD = 240
+const scrolledDown = ref(false)
 
 const roomStore = useRoomStore()
 const {
@@ -48,11 +53,8 @@ const visibleRange = computed(() =>
   })
 )
 
-const startNumber = computed(() => visibleRange.value.start)
-const endNumber = computed(() => visibleRange.value.end)
-
 const roomsMetaLabel = computed(() =>
-  roomsPageContent.roomsMeta(startNumber.value, endNumber.value, totalRooms.value)
+  roomsPageContent.roomsMeta(visibleRange.value.start, visibleRange.value.end, totalRooms.value)
 )
 
 const setPage = (page: number) => {
@@ -72,6 +74,12 @@ const retryFetch = () => {
   })
 }
 
+const onContentScroll = (detail: ScrollDetail) => {
+  if (!scrolledDown.value && detail.scrollTop > PAGINATION_SHOW_THRESHOLD) {
+    scrolledDown.value = true
+  }
+}
+
 onMounted(() => {
   roomStore.fetchRooms()
   extraStore.getExtras()
@@ -85,16 +93,19 @@ onMounted(() => {
     layout-class="rooms-page__layout"
     inner-class="page-shell__inner rooms-page"
     footer-class="rooms-page__footer"
+    @scroll="onContentScroll"
   >
-          <div class="rooms-page__intro" v-once>
-            <base-section-title
-              :title="roomsPageContent.title"
-              :subtitle="roomsPageContent.subtitle"
-            />
-            <p class="rooms-page__lead">
-              {{ roomsPageContent.lead }}
-            </p>
-          </div>
+          <section-block>
+            <div class="rooms-page__intro" v-once>
+              <base-section-title
+                :title="roomsPageContent.title"
+                :subtitle="roomsPageContent.subtitle"
+              />
+              <p class="rooms-page__lead">
+                {{ roomsPageContent.lead }}
+              </p>
+            </div>
+          </section-block>
 
           <extras-strip
             class="rooms-page__extras"
@@ -124,7 +135,13 @@ onMounted(() => {
             </ion-button>
           </div>
 
-          <div class="rooms-page__pagination" v-if="totalPages > 1 && isReady">
+          <div
+            class="rooms-page__pagination"
+            :class="{ 'rooms-page__pagination--visible': scrolledDown }"
+            :aria-hidden="!scrolledDown"
+            :inert="!scrolledDown"
+            v-if="totalPages > 1 && isReady"
+          >
             <div class="rooms-page__pagination-label">{{ roomsPageContent.paginationLabel }}</div>
             <div
               class="rooms-page__pagination-buttons"
@@ -156,7 +173,6 @@ onMounted(() => {
   flex: 1;
   flex-direction: column;
   min-height: 100%;
-  padding-top: 16px;
   padding-bottom: 32px;
 }
 
@@ -166,10 +182,6 @@ onMounted(() => {
   flex: 1;
   flex-direction: column;
   min-height: 100%;
-}
-
-.rooms-page__footer {
-  margin-top: auto;
 }
 
 .rooms-page__intro {
@@ -203,15 +215,32 @@ onMounted(() => {
   flex-direction: column;
   align-items: center;
   gap: 10px;
-  padding-bottom: 20px;
+  padding: 8px 16px 12px;
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  background: rgba(255, 249, 240, 0.55);
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  margin: 0 auto;
+  width: fit-content;
+  max-width: 100%;
+  backdrop-filter: blur(4px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.rooms-page__pagination--visible {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .rooms-page__pagination-label {
   text-transform: uppercase;
   letter-spacing: var(--tracking-medium);
   font-size: var(--text-label-sm);
-  color: var(--color-olive);
-  font-weight: 600;
+  color: var(--color-midnight);
+  font-weight: 700;
 }
 
 .rooms-page__pagination-buttons {
