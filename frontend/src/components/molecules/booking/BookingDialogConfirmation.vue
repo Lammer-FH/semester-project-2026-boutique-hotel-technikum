@@ -587,7 +587,8 @@ onMounted(async () => {
 }
 
 .booking-confirmation-shell--page .booking-dialog__actions {
-  justify-content: flex-start;
+  justify-content: center;
+  padding-bottom: 16px;
 }
 
 @media (min-width: 720px) {
