@@ -198,6 +198,12 @@ const heroPanelIcons = {
   margin-bottom: 18px;
 }
 
+@media (max-width: 370px) {
+  .hero-panel {
+    display: none;
+  }
+}
+
 @media (min-width: 768px) {
   .hero__title {
     font-size: 3rem;
