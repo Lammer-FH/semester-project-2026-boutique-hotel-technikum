@@ -1,6 +1,8 @@
 package at.fhtw.hotel.controller;
 
 import at.fhtw.hotel.config.ApiRoutes;
+import at.fhtw.hotel.controller.dto.response.ExtraResponse;
+import at.fhtw.hotel.controller.mapper.ExtraResponseMapper;
 import at.fhtw.hotel.domain.model.Extra;
 import at.fhtw.hotel.service.ExtraService;
 import java.util.List;
@@ -9,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -23,12 +26,18 @@ class ExtraControllerTest {
     @MockitoBean
     private ExtraService extraService;
 
+    @MockitoBean
+    private ExtraResponseMapper extraResponseMapper;
+
     @Test
     void listExtras_returnsExtraList() throws Exception {
-        Extra wifi = Extra.builder().id(1L).code("wifi").title("WiFi").description("Free WiFi").iconName("wifi").build();
-        Extra breakfast = Extra.builder().id(2L).code("breakfast").title("Breakfast").description("Buffet").iconName("coffee").build();
+        Extra wifi = new Extra(1L, "wifi", "WiFi", "Free WiFi", "wifi");
+        Extra breakfast = new Extra(2L, "breakfast", "Breakfast", "Buffet", "coffee");
+        ExtraResponse wifiResponse = ExtraResponse.builder().id(1L).code("wifi").title("WiFi").description("Free WiFi").iconName("wifi").build();
+        ExtraResponse breakfastResponse = ExtraResponse.builder().id(2L).code("breakfast").title("Breakfast").description("Buffet").iconName("coffee").build();
 
         when(extraService.listExtras()).thenReturn(List.of(wifi, breakfast));
+        when(extraResponseMapper.toResponseList(any())).thenReturn(List.of(wifiResponse, breakfastResponse));
 
         mockMvc.perform(get(ApiRoutes.API + "/extras"))
                 .andExpect(status().isOk())
@@ -43,6 +52,7 @@ class ExtraControllerTest {
     @Test
     void listExtras_emptyList_returnsEmptyArray() throws Exception {
         when(extraService.listExtras()).thenReturn(List.of());
+        when(extraResponseMapper.toResponseList(any())).thenReturn(List.of());
         mockMvc.perform(get(ApiRoutes.API + "/extras"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray())

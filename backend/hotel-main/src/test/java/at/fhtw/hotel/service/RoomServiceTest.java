@@ -75,14 +75,7 @@ class RoomServiceTest {
     }
 
     private Room createRoom(Long id) {
-        return Room.builder()
-                .id(id)
-                .title("Room " + id)
-                .description("Description " + id)
-                .maxGuests(2)
-                .basePricePerNight(new BigDecimal("100.00"))
-                .images(List.of())
-                .extras(List.of())
-                .build();
+        return new Room(id, "Room " + id, "Description " + id, 2,
+                new BigDecimal("100.00"), List.of(), List.of());
     }
 }

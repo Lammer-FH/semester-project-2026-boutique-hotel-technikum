@@ -1,6 +1,5 @@
 package at.fhtw.hotel.controller.dto.response;
 
-import at.fhtw.hotel.domain.model.Extra;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
 import java.util.List;
@@ -30,8 +29,9 @@ public class RoomResponse {
 
     @Schema(description = "Room images")
     List<RoomImageResponse> images;
+
     @Schema(description = "Bookable extras associated with this room")
-    List<Extra> extras;
+    List<ExtraResponse> extras;
 
     @Value
     @Builder

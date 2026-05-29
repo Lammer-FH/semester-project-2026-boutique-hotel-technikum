@@ -1,0 +1,5 @@
+ALTER TABLE bookings
+    ADD COLUMN nights INT NOT NULL DEFAULT 0,
+    ADD COLUMN room_rate_per_night DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    ADD COLUMN breakfast_rate DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    ADD COLUMN breakfast_per_person_per_day DECIMAL(10,2) NOT NULL DEFAULT 0.00;

@@ -1,7 +1,8 @@
 package at.fhtw.hotel.controller;
 
 import at.fhtw.hotel.config.ApiRoutes;
-import at.fhtw.hotel.domain.model.Extra;
+import at.fhtw.hotel.controller.dto.response.ExtraResponse;
+import at.fhtw.hotel.controller.mapper.ExtraResponseMapper;
 import at.fhtw.hotel.service.ExtraService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -21,16 +22,18 @@ public class ExtraController {
     private static final Logger log = LoggerFactory.getLogger(ExtraController.class);
 
     private final ExtraService extraService;
+    private final ExtraResponseMapper extraResponseMapper;
 
-    public ExtraController(ExtraService extraService) {
+    public ExtraController(ExtraService extraService, ExtraResponseMapper extraResponseMapper) {
         this.extraService = extraService;
+        this.extraResponseMapper = extraResponseMapper;
     }
 
     @GetMapping
     @Operation(summary = "List all extras", description = "Returns all bookable extras and amenities available at the hotel.")
     @ApiResponse(responseCode = "200")
-    public List<Extra> listExtras() {
-        List<Extra> extras = extraService.listExtras();
+    public List<ExtraResponse> listExtras() {
+        List<ExtraResponse> extras = extraResponseMapper.toResponseList(extraService.listExtras());
         log.debug("Extras listed size={}", extras.size());
         return extras;
     }

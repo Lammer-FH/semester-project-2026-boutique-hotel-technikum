@@ -1,8 +1,11 @@
 package at.fhtw.hotel.controller;
 
+import at.fhtw.hotel.application.dto.BookingResult;
+import at.fhtw.hotel.application.dto.CreateBookingCommand;
 import at.fhtw.hotel.config.ApiRoutes;
 import at.fhtw.hotel.controller.dto.request.BookingRequest;
 import at.fhtw.hotel.controller.dto.response.BookingResponse;
+import at.fhtw.hotel.controller.mapper.BookingResponseMapper;
 import at.fhtw.hotel.service.BookingService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -10,10 +13,10 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.net.URI;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,9 +33,11 @@ public class BookingController {
     private static final Logger log = LoggerFactory.getLogger(BookingController.class);
 
     private final BookingService bookingService;
+    private final BookingResponseMapper bookingResponseMapper;
 
-    public BookingController(BookingService bookingService) {
+    public BookingController(BookingService bookingService, BookingResponseMapper bookingResponseMapper) {
         this.bookingService = bookingService;
+        this.bookingResponseMapper = bookingResponseMapper;
     }
 
     @PostMapping
@@ -43,8 +48,19 @@ public class BookingController {
     @ApiResponse(responseCode = "409", description = "Room not available for selected dates", content = @Content(schema = @Schema(implementation = at.fhtw.hotel.controller.dto.response.ErrorResponse.class)))
     public ResponseEntity<BookingResponse> createBooking(@Valid @RequestBody BookingRequest request) {
         log.debug("Creating booking for roomId={}", request.getRoomId());
-        BookingResponse response = bookingService.createBooking(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        CreateBookingCommand command = new CreateBookingCommand(
+                request.getRoomId(),
+                request.getGuestFirstName(),
+                request.getGuestLastName(),
+                request.getGuestEmail(),
+                request.getGuestCount(),
+                request.getCheckInDate(),
+                request.getCheckOutDate(),
+                request.isBreakfastIncluded());
+        BookingResult result = bookingService.createBooking(command);
+        BookingResponse response = bookingResponseMapper.toResponse(result);
+        URI location = URI.create(ApiRoutes.API + "/bookings/" + result.bookingId());
+        return ResponseEntity.created(location).body(response);
     }
 
     @GetMapping("/{bookingId}")
@@ -52,6 +68,7 @@ public class BookingController {
     @ApiResponse(responseCode = "200", description = "Booking details")
     @ApiResponse(responseCode = "404", description = "Booking not found", content = @Content(schema = @Schema(implementation = at.fhtw.hotel.controller.dto.response.ErrorResponse.class)))
     public BookingResponse getBooking(@Parameter(description = "Booking ID") @PathVariable long bookingId) {
-        return bookingService.getBooking(bookingId);
+        BookingResult result = bookingService.getBooking(bookingId);
+        return bookingResponseMapper.toResponse(result);
     }
 }

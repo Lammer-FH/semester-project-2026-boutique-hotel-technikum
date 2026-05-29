@@ -29,8 +29,8 @@ class ExtraServiceTest {
     void listExtras_returnsAllExtras() {
         ExtraEntity entity1 = new ExtraEntity();
         ExtraEntity entity2 = new ExtraEntity();
-        Extra extra1 = Extra.builder().id(1L).code("wifi").title("WiFi").description("Free WiFi").iconName("wifi").build();
-        Extra extra2 = Extra.builder().id(2L).code("breakfast").title("Breakfast").description("Buffet").iconName("coffee").build();
+        Extra extra1 = new Extra(1L, "wifi", "WiFi", "Free WiFi", "wifi");
+        Extra extra2 = new Extra(2L, "breakfast", "Breakfast", "Buffet", "coffee");
 
         when(jpaExtraRepository.findAll()).thenReturn(List.of(entity1, entity2));
         when(extraMapper.toDomain(entity1)).thenReturn(extra1);

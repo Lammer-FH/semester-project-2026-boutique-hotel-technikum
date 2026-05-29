@@ -24,34 +24,34 @@ public class RoomMapper {
                 .map(this::toDomain)
                 .toList();
 
-        return Room.builder()
-                .id(entity.getId())
-                .title(entity.getTitle())
-                .description(entity.getDescription())
-                .maxGuests(entity.getMaxGuests())
-                .basePricePerNight(entity.getBasePricePerNight())
-                .images(images)
-                .extras(extras)
-                .build();
+        return new Room(
+                entity.getId(),
+                entity.getTitle(),
+                entity.getDescription(),
+                entity.getMaxGuests(),
+                entity.getBasePricePerNight(),
+                images,
+                extras
+        );
     }
 
     private RoomImage toDomain(RoomImageEntity entity) {
-        return RoomImage.builder()
-                .id(entity.getId())
-                .roomId(entity.getRoom().getId())
-                .fileName(entity.getFileName())
-                .altText(entity.getAltText())
-                .sortOrder(entity.getSortOrder())
-                .build();
+        return new RoomImage(
+                entity.getId(),
+                entity.getRoom().getId(),
+                entity.getFileName(),
+                entity.getAltText(),
+                entity.getSortOrder()
+        );
     }
 
     private Extra toDomain(ExtraEntity entity) {
-        return Extra.builder()
-                .id(entity.getId())
-                .code(entity.getCode())
-                .title(entity.getTitle())
-                .description(entity.getDescription())
-                .iconName(entity.getIconName())
-                .build();
+        return new Extra(
+                entity.getId(),
+                entity.getCode(),
+                entity.getTitle(),
+                entity.getDescription(),
+                entity.getIconName()
+        );
     }
 }

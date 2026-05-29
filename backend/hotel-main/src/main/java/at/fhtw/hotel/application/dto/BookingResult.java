@@ -1,21 +1,21 @@
-package at.fhtw.hotel.domain.model;
+package at.fhtw.hotel.application.dto;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-public record Booking(
-        Long id,
-        Long roomId,
-        String guestFirstName,
-        String guestLastName,
-        String guestEmail,
-        int guestCount,
+public record BookingResult(
+        long bookingId,
         LocalDate checkInDate,
         LocalDate checkOutDate,
         boolean breakfastIncluded,
+        int guestCount,
         BigDecimal totalPrice,
         int nights,
         BigDecimal roomRatePerNight,
         BigDecimal breakfastRate,
-        BigDecimal breakfastPerPersonPerDay
+        BigDecimal breakfastPerPersonPerDay,
+        String guestFirstName,
+        String guestLastName,
+        String guestEmail,
+        long roomId
 ) {}

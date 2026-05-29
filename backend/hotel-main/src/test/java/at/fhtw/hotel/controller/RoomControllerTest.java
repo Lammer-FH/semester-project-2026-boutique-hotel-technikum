@@ -34,15 +34,8 @@ class RoomControllerTest {
 
     @Test
     void listRooms_returnsPaginatedResponse() throws Exception {
-        Room room = Room.builder()
-                .id(1L)
-                .title("Deluxe Room")
-                .description("Bright room")
-                .maxGuests(2)
-                .basePricePerNight(new BigDecimal("129.00"))
-                .images(List.of())
-                .extras(List.of())
-                .build();
+        Room room = new Room(1L, "Deluxe Room", "Bright room", 2,
+                new BigDecimal("129.00"), List.of(), List.of());
 
         when(roomService.listRooms(0, 5)).thenReturn(List.of(room));
         when(roomService.countRooms()).thenReturn(1L);
@@ -50,8 +43,8 @@ class RoomControllerTest {
                 .thenAnswer(invocation -> {
                     Room r = invocation.getArgument(0);
                     return RoomResponse.builder()
-                            .id(r.getId()).title(r.getTitle()).description(r.getDescription())
-                            .maxGuests(r.getMaxGuests()).basePricePerNight(r.getBasePricePerNight())
+                            .id(r.id()).title(r.title()).description(r.description())
+                            .maxGuests(r.maxGuests()).basePricePerNight(r.basePricePerNight())
                             .images(List.of()).extras(List.of())
                             .build();
                 });
@@ -79,23 +72,16 @@ class RoomControllerTest {
 
     @Test
     void getRoom_withValidId_returnsRoom() throws Exception {
-        Room room = Room.builder()
-                .id(1L)
-                .title("Deluxe Room")
-                .description("Bright room")
-                .maxGuests(2)
-                .basePricePerNight(new BigDecimal("129.00"))
-                .images(List.of())
-                .extras(List.of())
-                .build();
+        Room room = new Room(1L, "Deluxe Room", "Bright room", 2,
+                new BigDecimal("129.00"), List.of(), List.of());
 
         when(roomService.getRoom(1L)).thenReturn(room);
         when(roomResponseMapper.toResponse(any(Room.class)))
                 .thenAnswer(invocation -> {
                     Room r = invocation.getArgument(0);
                     return RoomResponse.builder()
-                            .id(r.getId()).title(r.getTitle()).description(r.getDescription())
-                            .maxGuests(r.getMaxGuests()).basePricePerNight(r.getBasePricePerNight())
+                            .id(r.id()).title(r.title()).description(r.description())
+                            .maxGuests(r.maxGuests()).basePricePerNight(r.basePricePerNight())
                             .images(List.of()).extras(List.of())
                             .build();
                 });

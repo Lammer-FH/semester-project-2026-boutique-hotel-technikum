@@ -8,17 +8,21 @@ import org.springframework.stereotype.Component;
 public class BookingMapper {
 
     public Booking toDomain(BookingEntity entity) {
-        return Booking.builder()
-                .id(entity.getId())
-                .roomId(entity.getRoom().getId())
-                .guestFirstName(entity.getGuestFirstName())
-                .guestLastName(entity.getGuestLastName())
-                .guestEmail(entity.getGuestEmail())
-                .guestCount(entity.getGuestCount())
-                .checkInDate(entity.getCheckInDate())
-                .checkOutDate(entity.getCheckOutDate())
-                .breakfastIncluded(entity.isBreakfastIncluded())
-                .totalPrice(entity.getTotalPrice())
-                .build();
+        return new Booking(
+                entity.getId(),
+                entity.getRoom().getId(),
+                entity.getGuestFirstName(),
+                entity.getGuestLastName(),
+                entity.getGuestEmail(),
+                entity.getGuestCount(),
+                entity.getCheckInDate(),
+                entity.getCheckOutDate(),
+                entity.isBreakfastIncluded(),
+                entity.getTotalPrice(),
+                entity.getNights(),
+                entity.getRoomRatePerNight(),
+                entity.getBreakfastRate(),
+                entity.getBreakfastPerPersonPerDay()
+        );
     }
 }
