@@ -20,6 +20,22 @@ This repository contains the backend, frontend, and project documentation for th
 - **Database**
 	- MySQL 8.1 (via Docker)
 
+## Quick Start
+
+> Requires JDK 21, Docker, and Node.js & npm. See [Prerequisites](#prerequisites).
+
+```bash
+npm start    # start database, backend and frontend
+npm stop     # stop all services
+```
+
+Alternative with `quick-start.bat`:
+
+| Command | Description |
+|---------|-------------|
+| `quick-start.bat start` | Start database, backend and frontend |
+| `quick-start.bat stop` | Stop all services |
+
 ## Prerequisites
 
 - `JDK 21`
@@ -32,7 +48,7 @@ This repository contains the backend, frontend, and project documentation for th
 
 3. Install [Node.js](https://nodejs.org/) (LTS version recommended) which includes npm.
 
-## Setup
+## Manual Setup
 
 ### Backend
 
