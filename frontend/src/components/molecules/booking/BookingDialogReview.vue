@@ -117,14 +117,14 @@ onMounted(async () => {
     <div class="booking-dialog__actions">
       <ion-button fill="outline" @click="handleBack">
         <template v-slot:start>
-<ion-icon :icon="arrowBackOutline"  />
-</template>
+          <ion-icon :icon="arrowBackOutline" />
+        </template>
         {{ bookingDialogContent.buttons.back }}
       </ion-button>
       <ion-button :disabled="props.isSubmitting" @click="handleSubmit">
         <template v-slot:start>
-<ion-icon :icon="checkmarkOutline"  />
-</template>
+          <ion-icon :icon="checkmarkOutline" />
+        </template>
         {{
           props.isSubmitting
             ? bookingDialogContent.buttons.confirming

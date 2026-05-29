@@ -74,15 +74,15 @@ const handleChange = () => {
     <div class="availability__actions">
       <ion-button fill="clear" class="availability__change" @click="handleChange">
         <template v-slot:start>
-<ion-icon :icon="swapHorizontalOutline"  />
-</template>
+          <ion-icon :icon="swapHorizontalOutline" />
+        </template>
         {{ props.changeLabel }}
       </ion-button>
 
       <ion-button v-if="props.canBook" class="availability__book" @click="handleBook">
         <template v-slot:start>
-<ion-icon :icon="bedOutline"  />
-</template>
+          <ion-icon :icon="bedOutline" />
+        </template>
         {{ props.bookNowLabel }}
       </ion-button>
     </div>

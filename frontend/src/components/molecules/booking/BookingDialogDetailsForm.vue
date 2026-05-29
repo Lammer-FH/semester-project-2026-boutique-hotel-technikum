@@ -161,14 +161,14 @@ onMounted(async () => {
     <div class="booking-dialog__actions">
       <ion-button fill="clear" @click="$emit('change-dates')">
         <template v-slot:start>
-<ion-icon :icon="swapHorizontalOutline"  />
-</template>
+          <ion-icon :icon="swapHorizontalOutline" />
+        </template>
         {{ bookingDialogContent.buttons.changeDates }}
       </ion-button>
       <ion-button @click="handleProceed">
         <template v-slot:start>
-<ion-icon :icon="eyeOutline"  />
-</template>
+          <ion-icon :icon="eyeOutline" />
+        </template>
         {{ bookingDialogContent.buttons.review }}
       </ion-button>
     </div>

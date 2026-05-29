@@ -3,16 +3,23 @@ import type { IonContent } from "@ionic/vue"
 
 type IonContentInstance = InstanceType<typeof IonContent>
 
+interface ScrollableIonContent {
+  scrollToTop: (duration?: number) => void
+}
+
 type ScrollContainer =
-  | IonContentInstance
+  | ScrollableIonContent
   | {
       $el?: {
         scrollToTop?: (duration?: number) => void
       }
     }
 
-const isIonContent = (value: unknown): value is IonContentInstance =>
-  !!value && typeof (value as IonContentInstance).scrollToTop === "function"
+const isIonContent = (value: unknown): value is ScrollableIonContent =>
+  !!value &&
+  typeof value === "object" &&
+  "scrollToTop" in value &&
+  typeof (value as ScrollableIonContent).scrollToTop === "function"
 
 const hasScrollToTop = (
   value: unknown
@@ -27,7 +34,7 @@ export const updateIonContentRef = (
   refValue: unknown
 ) => {
   if (isIonContent(refValue)) {
-    target.value = refValue
+    target.value = refValue as unknown as IonContentInstance
     return
   }
 

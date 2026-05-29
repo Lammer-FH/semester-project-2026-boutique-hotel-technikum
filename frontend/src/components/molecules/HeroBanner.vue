@@ -49,14 +49,14 @@ const heroPanelIcons = {
             <div class="hero-actions ion-margin-top ion-margin-bottom">
               <ion-button :router-link="primaryRoute">
                 <template v-slot:start>
-<ion-icon  :icon="calendarOutline" />
-</template>
+                  <ion-icon :icon="calendarOutline" />
+                </template>
                 {{ primaryLabel }}
               </ion-button>
               <ion-button :router-link="secondaryRoute" fill="outline">
                 <template v-slot:start>
-<ion-icon  :icon="informationCircleOutline" />
-</template>
+                  <ion-icon :icon="informationCircleOutline" />
+                </template>
                 {{ secondaryLabel }}
               </ion-button>
             </div>

@@ -28,7 +28,8 @@ const emit = defineEmits<{
 }>()
 
 const availabilityStore = useAvailabilityStore()
-const { availabilityByRoomId, isLoading, error } = storeToRefs(availabilityStore)
+const { availabilityByRoomId, error } = storeToRefs(availabilityStore)
+const isRoomLoading = computed(() => availabilityStore.loadingByRoomId[props.roomId] ?? false)
 
 const isBookingOpen = ref(false)
 const step = ref<"form" | "result">("form")
@@ -181,7 +182,7 @@ watch(
           :check-out-label="availabilityDialogContent.checkOutLabel"
           :min-check-in="minCheckIn"
           :min-check-out="minCheckOut"
-          :is-loading="isLoading"
+          :is-loading="isRoomLoading"
           :checking-label="availabilityDialogContent.checkingLabel"
           :confirm-label="availabilityDialogContent.confirmLabel"
           @check="handleCheck"

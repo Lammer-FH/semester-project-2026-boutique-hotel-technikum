@@ -8,7 +8,7 @@ interface AvailabilityState {
   availabilityByRoomId: Record<number, AvailabilityResult>;
   lastRequestByRoomId: Record<number, string>;
   controllersByRoomId: Record<number, AbortController>;
-  isLoading: boolean;
+  loadingByRoomId: Record<number, boolean>;
   error: string | null;
 }
 
@@ -17,9 +17,13 @@ export const useAvailabilityStore = defineStore("availability", {
     availabilityByRoomId: {},
     lastRequestByRoomId: {},
     controllersByRoomId: {},
-    isLoading: false,
+    loadingByRoomId: {},
     error: null,
   }),
+  getters: {
+    isLoading: (state): boolean =>
+      Object.values(state.loadingByRoomId).some(Boolean),
+  },
   actions: {
     async checkRoomAvailability(
       roomId: number,
@@ -38,7 +42,7 @@ export const useAvailabilityStore = defineStore("availability", {
       const controller = new AbortController();
       this.controllersByRoomId[roomId] = controller;
       this.lastRequestByRoomId[roomId] = requestKey;
-      this.isLoading = true;
+      this.loadingByRoomId[roomId] = true;
       this.error = null;
 
       try {
@@ -65,7 +69,7 @@ export const useAvailabilityStore = defineStore("availability", {
       } finally {
         delete this.controllersByRoomId[roomId];
         if (!controller.signal.aborted) {
-          this.isLoading = false;
+          this.loadingByRoomId[roomId] = false;
         }
       }
     },
@@ -77,6 +81,7 @@ export const useAvailabilityStore = defineStore("availability", {
         this.controllersByRoomId = {};
         this.availabilityByRoomId = {};
         this.lastRequestByRoomId = {};
+        this.loadingByRoomId = {};
         return;
       }
 
@@ -84,10 +89,15 @@ export const useAvailabilityStore = defineStore("availability", {
       delete this.controllersByRoomId[roomId];
       delete this.availabilityByRoomId[roomId];
       delete this.lastRequestByRoomId[roomId];
+      delete this.loadingByRoomId[roomId];
     },
     resetAvailabilityFlow(roomId?: number) {
       this.error = null;
-      this.isLoading = false;
+      if (roomId !== undefined) {
+        this.loadingByRoomId[roomId] = false;
+      } else {
+        this.loadingByRoomId = {};
+      }
       this.clearAvailability(roomId);
     },
   },

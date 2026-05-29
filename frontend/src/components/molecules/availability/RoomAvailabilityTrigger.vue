@@ -18,8 +18,8 @@ const handleOpen = () => {
 <template>
   <ion-button @click="handleOpen">
     <template v-slot:start>
-<ion-icon  :icon="calendarOutline" />
-</template>
+      <ion-icon :icon="calendarOutline" />
+    </template>
     {{ props.label }}
   </ion-button>
 </template>

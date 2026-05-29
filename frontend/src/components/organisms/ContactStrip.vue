@@ -36,14 +36,14 @@ defineProps<{
             <div class="ion-margin-top contact-strip__actions">
               <ion-button :href="`mailto:${email}`" fill="outline">
                 <template v-slot:start>
-<ion-icon  :icon="mailOutline" />
-</template>
+                  <ion-icon :icon="mailOutline" />
+                </template>
                 {{ contactStripContent.emailCta }}
               </ion-button>
               <ion-button class="contact-strip__phone" :href="`tel:${phone}`">
                 <template v-slot:start>
-<ion-icon  :icon="callOutline" />
-</template>
+                  <ion-icon :icon="callOutline" />
+                </template>
                 {{ contactStripContent.phoneCta }}
               </ion-button>
             </div>

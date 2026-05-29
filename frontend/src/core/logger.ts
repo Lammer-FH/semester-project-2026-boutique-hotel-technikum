@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 type LogLevel = "info" | "warn" | "error"
 
 interface LogEntry {
@@ -17,12 +16,15 @@ const emit = (entry: LogEntry) => {
 
   switch (entry.level) {
     case "error":
+      // eslint-disable-next-line no-console
       console.error(formatted, entry.data ?? "")
       break
     case "warn":
+      // eslint-disable-next-line no-console
       console.warn(formatted, entry.data ?? "")
       break
     default:
+      // eslint-disable-next-line no-console
       console.log(formatted, entry.data ?? "")
   }
 }

@@ -36,8 +36,8 @@ const handleClose = () => {
       @click="handleClose"
     >
       <template v-slot:icon-only>
-<ion-icon :icon="closeOutline"  />
-</template>
+        <ion-icon :icon="closeOutline" />
+      </template>
     </ion-button>
   </div>
 </template>
