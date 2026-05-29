@@ -35,9 +35,8 @@ const handleClose = () => {
       :title="props.closeLabel"
       @click="handleClose"
     >
-      <template v-slot:icon-only>
-        <ion-icon :icon="closeOutline" />
-      </template>
+      <!-- eslint-disable-next-line vue/no-deprecated-slot-attribute -- Ionic web components require this slot API. -->
+      <ion-icon slot="icon-only" :icon="closeOutline" />
     </ion-button>
   </div>
 </template>
@@ -79,11 +78,18 @@ const handleClose = () => {
 .dialog-header__close {
   --padding-start: 0;
   --padding-end: 0;
-  height: 36px;
-  width: 36px;
+  flex: 0 0 44px;
+  min-height: 44px;
+  min-width: 44px;
+  height: 44px;
+  width: 44px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+}
+
+.dialog-header__close ion-icon {
+  font-size: 1.35rem;
 }
 
 @media (max-width: 640px) {
