@@ -27,9 +27,12 @@ const roomStore = useRoomStore()
 const {
   rooms,
   isLoading,
-  pagination,
   currentPage,
   pageSize,
+  hasRooms,
+  totalPages,
+  totalRooms,
+  isReady,
 } = storeToRefs(roomStore)
 
 const extraStore = useExtraStore()
@@ -38,12 +41,7 @@ const {
   isLoading: extrasLoading,
 } = storeToRefs(extraStore)
 
-const totalPages = computed(() => pagination.value?.totalPages ?? 1)
 const pages = computed(() => buildPaginationPages(totalPages.value))
-const totalRooms = computed(() => pagination.value?.total ?? rooms.value.length)
-const hasRooms = computed(() => rooms.value.length > 0)
-const isReady = computed(() => !isLoading.value)
-
 const visibleRange = computed(() =>
   getPaginationRange({
     currentPage: currentPage.value,

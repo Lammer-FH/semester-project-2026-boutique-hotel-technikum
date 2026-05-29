@@ -60,8 +60,7 @@ const clearBookingFeedback = () => {
 
 const closeDialog = () => {
   bookingStep.value = "details"
-  clearBookingFeedback()
-  bookingStore.clearDraft()
+  bookingStore.resetBookingFlow()
   emit("close")
 }
 
@@ -162,7 +161,7 @@ watch(
   () => props.isOpen,
   (open) => {
     if (!open) {
-      bookingStore.clearDraft()
+      bookingStore.resetBookingFlow()
       return
     }
 

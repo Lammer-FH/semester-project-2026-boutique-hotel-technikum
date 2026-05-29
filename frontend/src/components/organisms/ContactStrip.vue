@@ -35,11 +35,15 @@ defineProps<{
           <ion-col size="12" size-md="5">
             <div class="ion-margin-top contact-strip__actions">
               <ion-button :href="`mailto:${email}`" fill="outline">
-                <ion-icon slot="start" :icon="mailOutline" />
+                <template v-slot:start>
+<ion-icon  :icon="mailOutline" />
+</template>
                 {{ contactStripContent.emailCta }}
               </ion-button>
               <ion-button class="contact-strip__phone" :href="`tel:${phone}`">
-                <ion-icon slot="start" :icon="callOutline" />
+                <template v-slot:start>
+<ion-icon  :icon="callOutline" />
+</template>
                 {{ contactStripContent.phoneCta }}
               </ion-button>
             </div>

@@ -14,6 +14,14 @@ type ScrollContainer =
 const isIonContent = (value: unknown): value is IonContentInstance =>
   !!value && typeof (value as IonContentInstance).scrollToTop === "function"
 
+const hasScrollToTop = (
+  value: unknown
+): value is { scrollToTop: (duration?: number) => void } =>
+  !!value &&
+  typeof value === "object" &&
+  "scrollToTop" in value &&
+  typeof (value as { scrollToTop: unknown }).scrollToTop === "function"
+
 export const updateIonContentRef = (
   target: Ref<IonContentInstance | null>,
   refValue: unknown
@@ -34,18 +42,17 @@ export const updateIonContentRef = (
 }
 
 export const scrollIonContentToTop = (content: ScrollContainer | null) => {
-    if (!content) {
-        return;
-    }
+  if (!content) {
+    return
+  }
 
-    if (isIonContent(content)) {
-        // Cast content to bypass the incomplete IonContentInstance type
-        const nativeContent = content as unknown as { scrollToTop: (duration?: number) => void };
-        nativeContent.scrollToTop(0);
-        return;
-    }
+  if (isIonContent(content)) {
+    content.scrollToTop(0)
+    return
+  }
 
-    // Cast the fallback to bypass Vue's standard HTMLElement type
-    const fallback = content as { $el?: { scrollToTop?: (duration?: number) => void } };
-    fallback.$el?.scrollToTop?.(0);
-};
+  const el = (content as { $el?: unknown }).$el
+  if (hasScrollToTop(el)) {
+    el.scrollToTop(0)
+  }
+}

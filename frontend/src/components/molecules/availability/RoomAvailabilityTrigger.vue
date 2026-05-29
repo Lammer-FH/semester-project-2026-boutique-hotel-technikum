@@ -17,7 +17,9 @@ const handleOpen = () => {
 
 <template>
   <ion-button @click="handleOpen">
-    <ion-icon slot="start" :icon="calendarOutline" />
+    <template v-slot:start>
+<ion-icon  :icon="calendarOutline" />
+</template>
     {{ props.label }}
   </ion-button>
 </template>

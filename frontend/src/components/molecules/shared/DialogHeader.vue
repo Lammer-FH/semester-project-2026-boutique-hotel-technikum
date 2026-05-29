@@ -35,7 +35,9 @@ const handleClose = () => {
       :title="props.closeLabel"
       @click="handleClose"
     >
-      <ion-icon :icon="closeOutline" slot="icon-only" />
+      <template v-slot:icon-only>
+<ion-icon :icon="closeOutline"  />
+</template>
     </ion-button>
   </div>
 </template>

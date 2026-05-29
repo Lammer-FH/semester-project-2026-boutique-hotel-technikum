@@ -36,9 +36,13 @@ export interface AvailabilityResponseApi {
 }
 
 export const mapAvailabilityResponse = (
-  api: AvailabilityResponseApi
+  api: AvailabilityResponseApi,
+  checkInDate: string,
+  checkOutDate: string
 ): AvailabilityResult => ({
   roomId: api.room_id,
   available: api.available,
   message: api.message,
+  checkInDate,
+  checkOutDate,
 });

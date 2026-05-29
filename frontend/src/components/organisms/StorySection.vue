@@ -14,7 +14,11 @@ defineProps<{
     <ion-row class="ion-align-items-start">
       <ion-col size="12" size-md="7">
         <h3 class="story__title">{{ title }}</h3>
-        <p v-for="paragraph in paragraphs" :key="paragraph" class="story__paragraph">
+        <p
+          v-for="(paragraph, index) in paragraphs"
+          :key="`${index}-${paragraph.slice(0, 20)}`"
+          class="story__paragraph"
+        >
           {{ paragraph }}
         </p>
       </ion-col>

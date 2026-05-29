@@ -21,7 +21,9 @@ const emit = defineEmits<{
 }>()
 
 const handleDismiss = () => {
-  emit("close")
+  if (props.isOpen) {
+    emit("close")
+  }
 }
 </script>
 

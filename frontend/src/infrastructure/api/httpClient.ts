@@ -7,7 +7,12 @@ export class ApiError extends Error {
   details?: ApiErrorDetail[];
   status?: number;
 
-  constructor(message: string, code: string, details?: ApiErrorDetail[], status?: number) {
+  constructor(
+    message: string,
+    code: string,
+    details?: ApiErrorDetail[],
+    status?: number
+  ) {
     super(message);
     this.name = "ApiError";
     this.code = code;
@@ -30,11 +35,15 @@ const normalizeError = (error: AxiosError): ApiError => {
   }
 
   const data = error.response.data as Partial<ApiErrorPayload> | undefined;
-  const message = data?.error?.message ?? error.message ?? "Request failed";
-  const code = data?.error?.code ?? "UNKNOWN_ERROR";
+  const status = error.response.status;
+  const message =
+    data?.error?.message ??
+    error.message ??
+    `Request failed with status ${status}`;
+  const code = data?.error?.code ?? `HTTP_${status}`;
   const details = data?.error?.details;
 
-  return new ApiError(message, code, details, error.response.status);
+  return new ApiError(message, code, details, status);
 };
 
 httpClient.interceptors.response.use(

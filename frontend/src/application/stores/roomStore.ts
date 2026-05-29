@@ -29,7 +29,7 @@ interface RoomState {
   pageSize: number;
   lastQuery: { page: number; size: number } | null;
   cache: Record<string, RoomCacheEntry>;
-  latestRequestId: number;
+  fetchController: AbortController | null;
 }
 
 export const useRoomStore = defineStore("rooms", {
@@ -42,8 +42,14 @@ export const useRoomStore = defineStore("rooms", {
     pageSize: DEFAULT_PAGE_SIZE,
     lastQuery: null,
     cache: {},
-    latestRequestId: 0,
+    fetchController: null,
   }),
+  getters: {
+    hasRooms: (state): boolean => state.rooms.length > 0,
+    totalPages: (state): number => state.pagination?.totalPages ?? 1,
+    totalRooms: (state): number => state.pagination?.total ?? state.rooms.length,
+    isReady: (state): boolean => !state.isLoading,
+  },
   actions: {
     isCacheFresh(cacheKey: string) {
       const cached = this.cache[cacheKey];
@@ -74,13 +80,15 @@ export const useRoomStore = defineStore("rooms", {
         return;
       }
 
-      const requestId = ++this.latestRequestId;
+      this.fetchController?.abort();
+      const controller = new AbortController();
+      this.fetchController = controller;
       this.isLoading = true;
       this.error = null;
 
       try {
-        const response = await listRooms(requestedPage, requestedSize);
-        if (requestId !== this.latestRequestId) {
+        const response = await listRooms(requestedPage, requestedSize, controller.signal);
+        if (controller.signal.aborted) {
           return;
         }
         this.rooms = response.data;
@@ -94,12 +102,13 @@ export const useRoomStore = defineStore("rooms", {
           fetchedAt: Date.now(),
         };
       } catch (error) {
-        if (requestId !== this.latestRequestId) {
+        if (controller.signal.aborted) {
           return;
         }
         this.error = toErrorMessage(error);
       } finally {
-        if (requestId === this.latestRequestId) {
+        this.fetchController = null;
+        if (!controller.signal.aborted) {
           this.isLoading = false;
         }
       }

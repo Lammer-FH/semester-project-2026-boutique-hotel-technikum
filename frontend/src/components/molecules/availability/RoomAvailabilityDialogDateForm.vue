@@ -58,7 +58,9 @@ const confirmText = computed(() =>
 
     <div class="availability-dialog__actions">
       <ion-button :disabled="props.isLoading" @click="handleCheck">
-        <ion-icon slot="start" :icon="calendarOutline" />
+        <template v-slot:start>
+<ion-icon  :icon="calendarOutline" />
+</template>
         {{ confirmText }}
       </ion-button>
     </div>

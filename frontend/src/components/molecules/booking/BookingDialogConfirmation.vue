@@ -290,7 +290,9 @@ onMounted(async () => {
     </div>
     <div class="booking-dialog__actions">
       <ion-button fill="outline" :disabled="isPrinting" @click="handlePrint">
-        <ion-icon :icon="printOutline" slot="start" />
+        <template v-slot:start>
+<ion-icon :icon="printOutline"  />
+</template>
         {{ bookingDialogContent.buttons.print }}
       </ion-button>
       <ion-button v-if="props.doneLabel" @click="handleDone">{{ props.doneLabel }}</ion-button>

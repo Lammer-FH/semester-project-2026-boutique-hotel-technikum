@@ -71,11 +71,11 @@ const isUnavailable = computed(() => availability.value && !availability.value.a
 const clearFeedback = () => {
   localError.value = ""
   step.value = "form"
-  availabilityStore.clearAvailability(props.roomId)
 }
 
 const closeDialog = () => {
   clearFeedback()
+  availabilityStore.resetAvailabilityFlow(props.roomId)
   closeBookingDialog()
   emit("close")
 }
@@ -85,6 +85,16 @@ const handleCheck = async () => {
   const validation = validateDateRange(checkInValue.value, checkOutValue.value)
   if (validation) {
     localError.value = validation
+    return
+  }
+
+  const existing = availability.value
+  if (
+    existing &&
+    existing.checkInDate === checkInValue.value &&
+    existing.checkOutDate === checkOutValue.value
+  ) {
+    step.value = "result"
     return
   }
 
@@ -121,7 +131,11 @@ const closeAvailabilityAfterBooking = () => {
 }
 
 watch([checkInDate, checkOutDate], () => {
-  clearFeedback()
+  localError.value = ""
+  if (availability.value) {
+    availabilityStore.clearAvailability(props.roomId)
+  }
+  step.value = "form"
   if (isBookingOpen.value) {
     closeBookingDialog()
   }
@@ -137,6 +151,7 @@ watch(
     }
 
     clearFeedback()
+    availabilityStore.resetAvailabilityFlow(props.roomId)
     closeBookingDialog()
   }
 )
@@ -146,6 +161,7 @@ watch(
   <div class="availability">
     <base-popup
       :is-open="props.isOpen"
+      :keep-mounted="false"
       content-class="dialog-shell"
       modal-class="dialog-modal"
       @close="closeDialog"
