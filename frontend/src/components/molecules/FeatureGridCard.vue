@@ -31,8 +31,8 @@ defineProps<{
 
 <template>
   <ion-card class="feature-card icon-box">
+    <ion-icon :icon="iconMap[icon]" class="feature-card__icon" />
     <ion-card-header>
-      <ion-icon :icon="iconMap[icon]" class="feature-card__icon" />
       <ion-card-title>{{ title }}</ion-card-title>
     </ion-card-header>
     <ion-card-content>
@@ -65,6 +65,7 @@ defineProps<{
 
 .feature-card__icon {
   font-size: 1.5rem;
+  padding: 1rem 1rem 0 1rem;
 }
 
 .feature-card > ion-card-content {
