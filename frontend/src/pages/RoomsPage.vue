@@ -1,28 +1,32 @@
 <script setup lang="ts">
 import type { VNodeRef } from "vue"
-import { computed, nextTick, onMounted, ref, watch } from "vue"
-import { IonButton, IonToast } from "@ionic/vue"
+import { computed, nextTick, onMounted, ref } from "vue"
+import { IonButton } from "@ionic/vue"
 import type { IonContent } from "@ionic/vue"
+import type { ScrollDetail } from "@ionic/core/components"
 import { storeToRefs } from "pinia"
 import BaseSectionTitle from "@/components/atoms/BaseSectionTitle.vue"
-import BaseErrorBanner from "@/components/atoms/BaseErrorBanner.vue"
 import ExtrasStrip from "@/components/organisms/ExtrasStrip.vue"
-import RoomCard from "@/components/organisms/RoomCard.vue"
-import RoomCardSkeletonList from "@/components/organisms/RoomCardSkeletonList.vue"
+import RoomCard from "@/components/organisms/roomcard/RoomCard.vue"
+import RoomCardSkeletonList from "@/components/organisms/roomcard/RoomCardSkeletonList.vue"
 import PageLayout from "@/components/layout/PageLayout.vue"
+import SectionBlock from "@/components/molecules/SectionBlock.vue"
 import { useExtraStore } from "@/application/stores/extraStore"
 import { useRoomStore } from "@/application/stores/roomStore"
 import { extrasContent, roomsPageContent } from "@/data/content/roomsContent"
+import { buildPaginationPages, getPaginationRange } from "@/core/pagination"
 import { scrollIonContentToTop, updateIonContentRef } from "@/core/scroll"
 
 const contentEl = ref<InstanceType<typeof IonContent> | null>(null)
 const contentRef: VNodeRef = (refValue) => updateIonContentRef(contentEl, refValue)
 
+const PAGINATION_SHOW_THRESHOLD = 240
+const scrolledDown = ref(false)
+
 const roomStore = useRoomStore()
 const {
   rooms,
   isLoading,
-  error: errorMessage,
   pagination,
   currentPage,
   pageSize,
@@ -32,33 +36,25 @@ const extraStore = useExtraStore()
 const {
   extras,
   isLoading: extrasLoading,
-  error: extrasError,
 } = storeToRefs(extraStore)
 
 const totalPages = computed(() => pagination.value?.totalPages ?? 1)
-const pages = computed(() => Array.from({ length: totalPages.value }, (_, index) => index + 1))
+const pages = computed(() => buildPaginationPages(totalPages.value))
 const totalRooms = computed(() => pagination.value?.total ?? rooms.value.length)
 const hasRooms = computed(() => rooms.value.length > 0)
 const isReady = computed(() => !isLoading.value)
-const isToastOpen = ref(false)
-const toastMessage = ref("")
 
-const startNumber = computed(() => {
-  if (!rooms.value.length) {
-    return 0
-  }
-  return (currentPage.value - 1) * pageSize.value + 1
-})
-
-const endNumber = computed(() => {
-  if (!rooms.value.length) {
-    return 0
-  }
-  return Math.min(currentPage.value * pageSize.value, totalRooms.value)
-})
+const visibleRange = computed(() =>
+  getPaginationRange({
+    currentPage: currentPage.value,
+    pageSize: pageSize.value,
+    totalItems: totalRooms.value,
+    currentCount: rooms.value.length,
+  })
+)
 
 const roomsMetaLabel = computed(() =>
-  roomsPageContent.roomsMeta(startNumber.value, endNumber.value, totalRooms.value)
+  roomsPageContent.roomsMeta(visibleRange.value.start, visibleRange.value.end, totalRooms.value)
 )
 
 const setPage = (page: number) => {
@@ -78,22 +74,16 @@ const retryFetch = () => {
   })
 }
 
+const onContentScroll = (detail: ScrollDetail) => {
+  if (!scrolledDown.value && detail.scrollTop > PAGINATION_SHOW_THRESHOLD) {
+    scrolledDown.value = true
+  }
+}
+
 onMounted(() => {
   roomStore.fetchRooms()
   extraStore.getExtras()
 })
-
-watch(
-  () => errorMessage.value,
-  (message) => {
-    if (!message) {
-      return
-    }
-
-    toastMessage.value = message
-    isToastOpen.value = true
-  }
-)
 </script>
 
 <template>
@@ -103,16 +93,19 @@ watch(
     layout-class="rooms-page__layout"
     inner-class="page-shell__inner rooms-page"
     footer-class="rooms-page__footer"
+    @scroll="onContentScroll"
   >
-          <div class="rooms-page__intro" v-once>
-            <base-section-title
-              :title="roomsPageContent.title"
-              :subtitle="roomsPageContent.subtitle"
-            />
-            <p class="rooms-page__lead">
-              {{ roomsPageContent.lead }}
-            </p>
-          </div>
+          <section-block>
+            <div class="rooms-page__intro" v-once>
+              <base-section-title
+                :title="roomsPageContent.title"
+                :subtitle="roomsPageContent.subtitle"
+              />
+              <p class="rooms-page__lead">
+                {{ roomsPageContent.lead }}
+              </p>
+            </div>
+          </section-block>
 
           <extras-strip
             class="rooms-page__extras"
@@ -121,7 +114,6 @@ watch(
             :empty-message="extrasContent.emptyMessage"
             :extras="extras"
             :is-loading="extrasLoading"
-            :error="extrasError"
           />
 
           <div class="rooms-page__meta" v-if="hasRooms && isReady">
@@ -129,8 +121,6 @@ watch(
               {{ roomsMetaLabel }}
             </span>
           </div>
-
-          <base-error-banner v-if="isReady && errorMessage" :message="errorMessage" />
 
           <div class="rooms-page__list" v-if="hasRooms || isLoading">
             <room-card-skeleton-list v-if="isLoading" :count="pageSize" />
@@ -145,7 +135,13 @@ watch(
             </ion-button>
           </div>
 
-          <div class="rooms-page__pagination" v-if="totalPages > 1 && isReady">
+          <div
+            class="rooms-page__pagination"
+            :class="{ 'rooms-page__pagination--visible': scrolledDown }"
+            :aria-hidden="!scrolledDown"
+            :inert="!scrolledDown"
+            v-if="totalPages > 1 && isReady"
+          >
             <div class="rooms-page__pagination-label">{{ roomsPageContent.paginationLabel }}</div>
             <div
               class="rooms-page__pagination-buttons"
@@ -168,31 +164,24 @@ watch(
             </div>
           </div>
 
-          <ion-toast
-            :is-open="isToastOpen"
-            :message="toastMessage || roomsPageContent.toastErrorFallback"
-            :duration="3500"
-            position="bottom"
-            @didDismiss="isToastOpen = false"
-          />
   </page-layout>
 </template>
 
 <style scoped>
 .rooms-page {
-  padding-top: 24px;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 100%;
   padding-bottom: 32px;
 }
 
 
 .rooms-page__layout {
-  min-height: 100%;
   display: flex;
+  flex: 1;
   flex-direction: column;
-}
-
-.rooms-page__footer {
-  margin-top: auto;
+  min-height: 100%;
 }
 
 .rooms-page__intro {
@@ -226,15 +215,32 @@ watch(
   flex-direction: column;
   align-items: center;
   gap: 10px;
-  padding-bottom: 20px;
+  padding: 8px 16px 12px;
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  background: rgba(255, 249, 240, 0.55);
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  margin: 0 auto;
+  width: fit-content;
+  max-width: 100%;
+  backdrop-filter: blur(4px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.rooms-page__pagination--visible {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .rooms-page__pagination-label {
   text-transform: uppercase;
   letter-spacing: var(--tracking-medium);
   font-size: var(--text-label-sm);
-  color: var(--color-olive);
-  font-weight: 600;
+  color: var(--color-midnight);
+  font-weight: 700;
 }
 
 .rooms-page__pagination-buttons {

@@ -6,30 +6,41 @@ Full-stack booking application for the Boutique Hotel Technikum, built for the F
 
 This repository contains the backend, frontend, and project documentation for the hotel booking application. The initial project specification is documented in [docs/pre-project/project_specification.md](docs/pre-project/project_specification.md).
 
-## Architecture Notes
-
-- Folder structure: keep backend code under `backend/src/main/java` with layers split by web, domain, and infrastructure; keep frontend UI and routing under `frontend/src`, and keep docs under `docs/`.
-- Frontend structure: use Atomic Design in `frontend/src/components` (atoms, molecules, organisms, layout), keep pages in `frontend/src/pages`, app data in `frontend/src/data`, and route config in `frontend/src/router`.
-- Atomic Design summary: atoms are basic UI elements; molecules combine atoms into small functional units; organisms are larger sections composed of molecules; pages assemble organisms into full views.
-- Backend structure: keep controllers/DTOs in web layer, business rules in domain layer without framework dependencies, and database/external integrations in infrastructure.
-
-## CSS File Separation (Frontend)
-
-- Global tokens live in `frontend/src/assets/styles/variables.css` (colors, spacing, typography), and base elements live in `frontend/src/assets/styles/base.css`.
-- App-wide composition lives in `frontend/src/assets/styles/main.css`, which imports variables and base styles.
-- Component-specific styles stay inside each Vue SFC as scoped blocks; avoid adding feature styles to global CSS unless multiple pages share them.
-
 ## Tech Stack
 
-- Backend: Java 21, Spring Boot 3.4.0
-- Frontend: Ionic 8.x, Vue.js 3.4.x, Pinia 2.1.x
-- Database: MySQL 8.1 via Docker Image
+- **Backend**
+	- Java 21
+	- Spring Boot 3.4.0
+- **Frontend**
+	- Ionic 7.8.6
+	- Vue.js 3.5.33
+	- Pinia 3.0.4
+	- Vue Router 4.6.4
+	- Axios 1.16.0
+- **Database**
+	- MySQL 8.1 (via Docker)
+
+## Quick Start
+
+> Requires JDK 21, Docker, and Node.js & npm. See [Prerequisites](#prerequisites).
+
+```bash
+npm start    # start database, backend and frontend
+npm stop     # stop all services
+```
+
+Alternative with `quick-start.bat`:
+
+| Command | Description |
+|---------|-------------|
+| `quick-start.bat start` | Start database, backend and frontend |
+| `quick-start.bat stop` | Stop all services |
 
 ## Prerequisites
 
-- JDK 21
-- Docker Desktop or another Docker installation
-- Node.js and npm for the frontend
+- `JDK 21`
+- `Docker Desktop` or Docker CLI
+- `Node.js` and `npm`
 
 1. Install a [JDK 21](https://www.oracle.com/java/technologies/javase/jdk21-archive-downloads.html) distribution.
 
@@ -37,7 +48,7 @@ This repository contains the backend, frontend, and project documentation for th
 
 3. Install [Node.js](https://nodejs.org/) (LTS version recommended) which includes npm.
 
-## Setup
+## Manual Setup
 
 ### Backend
 

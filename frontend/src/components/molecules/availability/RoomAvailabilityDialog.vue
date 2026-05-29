@@ -190,15 +190,16 @@ watch(
     </base-popup>
 
     <booking-dialog
-      :is-open="isBookingOpen"
-      :room-id="props.roomId"
-      :room-title="props.roomTitle"
-      :room-max-guests="props.roomMaxGuests"
-      :check-in-date="checkInValue"
-      :check-out-date="checkOutValue"
-      @close="closeBookingDialog"
-      @completed="closeAvailabilityAfterBooking"
-    />
+        :is-open="isBookingOpen"
+        :room-id="props.roomId"
+        :room-title="props.roomTitle"
+        :room-max-guests="props.roomMaxGuests"
+        :check-in-date="checkInValue"
+        :check-out-date="checkOutValue"
+        @close="closeBookingDialog"
+        @completed="closeAvailabilityAfterBooking"
+        @change-dates="() => { showForm(); closeBookingDialog(); }"
+      />
   </div>
 </template>
 

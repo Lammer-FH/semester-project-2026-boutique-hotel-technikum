@@ -1,6 +1,13 @@
 <script setup lang="ts">
 import { nextTick, onMounted, ref } from "vue"
-import { IonButton } from "@ionic/vue"
+import { IonButton, IonIcon } from "@ionic/vue"
+import {
+  arrowBackOutline,
+  checkmarkOutline,
+  mailOutline,
+  peopleOutline,
+  personOutline,
+} from "ionicons/icons"
 import { bookingDialogContent } from "@/data/content/bookingContent"
 import type { BookingRequest } from "@/core/models/booking"
 
@@ -13,6 +20,7 @@ type StepContent = {
 const props = defineProps<{
   stepContent: StepContent
   draft: Partial<BookingRequest>
+  dateRangeLabel: string
   bookingMessage: string
   isSubmitting: boolean
 }>()
@@ -46,29 +54,53 @@ onMounted(async () => {
         {{ props.stepContent.title }}
       </h4>
       <p class="booking-dialog__hint">{{ props.stepContent.hint }}</p>
+      <p class="booking-review__note">{{ bookingDialogContent.reviewSummary.note }}</p>
     </div>
     <div class="booking-review">
-      <div class="booking-review__row">
-        <span>{{ bookingDialogContent.reviewLabels.leadGuest }}</span>
-        <strong>{{ props.draft.guestFirstName }} {{ props.draft.guestLastName }}</strong>
-      </div>
-      <div class="booking-review__row">
-        <span>{{ bookingDialogContent.reviewLabels.email }}</span>
-        <strong>{{ props.draft.guestEmail }}</strong>
-      </div>
-      <div class="booking-review__row">
-        <span>{{ bookingDialogContent.reviewLabels.guests }}</span>
-        <strong>{{ props.draft.guestCount ?? 1 }}</strong>
-      </div>
-      <div class="booking-review__row">
-        <span>{{ bookingDialogContent.reviewLabels.breakfast }}</span>
-        <strong>
-          {{
-            props.draft.breakfastIncluded
-              ? bookingDialogContent.reviewLabels.included
-              : bookingDialogContent.reviewLabels.notIncluded
-          }}
-        </strong>
+      <div class="booking-review__layout">
+        <article class="booking-review__card booking-review__card--combined">
+          <div class="booking-review__card-header">
+            <ion-icon :icon="personOutline" />
+            <span>{{ bookingDialogContent.reviewSummary.summarySection }}</span>
+          </div>
+
+          <div class="booking-review__combined-grid">
+            <div class="booking-review__guest">
+              <p class="booking-review__name">
+                {{ props.draft.guestFirstName }} {{ props.draft.guestLastName }}
+              </p>
+              <div class="booking-review__meta-row">
+                <ion-icon :icon="mailOutline" />
+                <span>{{ props.draft.guestEmail }}</span>
+              </div>
+            </div>
+
+            <div class="booking-review__stay">
+              <p class="booking-review__value">{{ props.dateRangeLabel }}</p>
+              <div class="booking-review__detail-list">
+                <div class="booking-review__detail-item">
+                  <div class="booking-review__detail-label">
+                    <ion-icon :icon="peopleOutline" />
+                    <span>{{ bookingDialogContent.reviewLabels.guests }}</span>
+                  </div>
+                  <strong>{{ props.draft.guestCount ?? 1 }}</strong>
+                </div>
+                <div class="booking-review__detail-item">
+                  <div class="booking-review__detail-label">
+                    <span>{{ bookingDialogContent.reviewLabels.breakfast }}</span>
+                  </div>
+                  <strong>
+                    {{
+                      props.draft.breakfastIncluded
+                        ? bookingDialogContent.reviewLabels.included
+                        : bookingDialogContent.reviewLabels.notIncluded
+                    }}
+                  </strong>
+                </div>
+              </div>
+            </div>
+          </div>
+        </article>
       </div>
     </div>
 
@@ -84,9 +116,11 @@ onMounted(async () => {
 
     <div class="booking-dialog__actions">
       <ion-button fill="outline" @click="handleBack">
+        <ion-icon :icon="arrowBackOutline" slot="start" />
         {{ bookingDialogContent.buttons.back }}
       </ion-button>
       <ion-button :disabled="props.isSubmitting" @click="handleSubmit">
+        <ion-icon :icon="checkmarkOutline" slot="start" />
         {{
           props.isSubmitting
             ? bookingDialogContent.buttons.confirming
@@ -101,28 +135,151 @@ onMounted(async () => {
 
 <style scoped>
 .booking-review {
-  background: var(--color-cream);
-  border-radius: 16px;
-  padding: 14px 16px;
+  background: linear-gradient(180deg, rgba(255, 250, 243, 0.98), rgba(247, 239, 226, 0.94));
+  border: 1px solid rgba(31, 27, 24, 0.08);
+  border-radius: 18px;
+  padding: 18px;
+  box-shadow: 0 14px 28px rgba(84, 61, 42, 0.08);
+}
+
+.booking-review__note {
+  margin: 0;
+  color: var(--color-olive);
+  font-size: 0.92rem;
+}
+
+.booking-review__layout {
+  display: grid;
+  gap: 14px;
+}
+
+.booking-review__card--combined {
+  padding: 14px;
+}
+
+.booking-review__combined-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.booking-review__guest {
+  display: grid;
+  gap: 6px;
+}
+
+.booking-review__stay {
+  display: grid;
+  gap: 6px;
+}
+
+.booking-review__card {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(31, 27, 24, 0.08);
+}
+
+.booking-review__card--stay {
+  padding: 20px;
+  background: linear-gradient(180deg, rgba(255, 247, 239, 0.98), rgba(247, 232, 218, 0.96));
+  border-color: rgba(161, 79, 54, 0.14);
+}
+
+.booking-review__card-header {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-olive);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.booking-review__name,
+.booking-review__value {
+  margin: 0;
+  color: var(--color-midnight);
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.booking-review__meta-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-olive);
+  word-break: break-word;
+}
+
+.booking-review__detail-list {
   display: grid;
   gap: 10px;
 }
 
-.booking-review__row {
+.booking-review__detail-item {
   display: flex;
   justify-content: space-between;
   gap: 12px;
-  font-size: 0.95rem;
+  align-items: center;
 }
 
-.booking-review__row strong {
+.booking-review__detail-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-olive);
+}
+
+.booking-review__detail-item strong {
   color: var(--color-midnight);
 }
 
+@media (min-width: 720px) {
+  .booking-review__layout {
+    grid-template-columns: 1fr;
+    align-items: start;
+    gap: 18px;
+  }
+
+  .booking-review__card--stay {
+    padding: 22px;
+  }
+  .booking-review__combined-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
 @media (max-width: 640px) {
-  .booking-review__row {
+  .booking-review {
+    padding-bottom: calc(92px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .booking-dialog__actions {
+    position: fixed;
+    left: 16px;
+    right: 16px;
+    bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+    z-index: 80;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
+    justify-content: flex-end;
+    padding-top: 0;
+    background: transparent;
+    backdrop-filter: none;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .booking-dialog__actions ion-button {
+    margin: 0;
+    min-width: 0;
+    width: 100%;
+    min-height: 46px;
   }
 }
 </style>

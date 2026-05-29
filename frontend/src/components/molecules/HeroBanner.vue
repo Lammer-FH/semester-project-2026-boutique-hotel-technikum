@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { } from "vue"
 import {
   IonButton,
   IonCard,
@@ -9,18 +10,21 @@ import {
   IonRow,
   IonText,
 } from "@ionic/vue"
-import { bedOutline, cafeOutline, leafOutline } from "ionicons/icons"
+import { bedOutline, cafeOutline, leafOutline, calendarOutline, informationCircleOutline } from "ionicons/icons"
 import type { RouteLocationRaw } from "vue-router"
 import { heroBannerContent } from "@/data/content/landingContent"
 
-defineProps<{
+const props = defineProps<{
   title: string
   subtitle: string
   primaryLabel: string
   primaryRoute: RouteLocationRaw
   secondaryLabel: string
   secondaryRoute: RouteLocationRaw
+  backgroundImage?: string
+  heroClass?: string
 }>()
+
 
 const heroPanelIcons = {
   bed: bedOutline,
@@ -30,20 +34,26 @@ const heroPanelIcons = {
 </script>
 
 <template>
-  <ion-card class="hero-card">
+  <ion-card :class="['hero-card', props.heroClass]">
     <ion-card-content>
       <ion-grid>
         <ion-row class="ion-align-items-center">
-          <ion-col size="12" size-md="8">
+          <ion-col size="12" size-md="9">
             <ion-text class="hero__eyebrow">{{ heroBannerContent.eyebrow }}</ion-text>
             <h1 class="hero__title">{{ title }}</h1>
             <p class="hero__subtitle">{{ subtitle }}</p>
-            <div class="ion-margin-top ion-margin-bottom">
-              <ion-button :router-link="primaryRoute">{{ primaryLabel }}</ion-button>
-              <ion-button :router-link="secondaryRoute" fill="outline">{{ secondaryLabel }}</ion-button>
+            <div class="hero-actions ion-margin-top ion-margin-bottom">
+              <ion-button :router-link="primaryRoute">
+                <ion-icon slot="start" :icon="calendarOutline" />
+                {{ primaryLabel }}
+              </ion-button>
+              <ion-button :router-link="secondaryRoute" fill="outline">
+                <ion-icon slot="start" :icon="informationCircleOutline" />
+                {{ secondaryLabel }}
+              </ion-button>
             </div>
           </ion-col>
-          <ion-col size="12" size-md="4">
+          <ion-col size="12" size-md="3">
             <ion-card class="hero-panel">
               <ion-card-content>
                 <ion-text class="hero__panel-title">{{ heroBannerContent.panelTitle }}</ion-text>
@@ -69,10 +79,13 @@ const heroPanelIcons = {
 <style scoped>
 .hero-card {
   border-radius: var(--radius-lg);
-  background: linear-gradient(135deg, #f8efe0 0%, #e9dcc8 100%);
+  background: var(--color-cream);
   box-shadow: var(--shadow-soft);
   display: flex;
   flex-direction: column;
+  min-height: 60vh;
+  background-position: center;
+  background-size: cover;
 }
 
 .hero-card > ion-card-content {
@@ -83,23 +96,53 @@ const heroPanelIcons = {
   text-transform: uppercase;
   letter-spacing: var(--tracking-wider);
   font-size: var(--text-label-sm);
-  color: var(--color-terracotta);
+  color: #fff;
+  font-weight: 600;
+  text-shadow: 0 3px 8px rgba(0,0,0,0.6);
   margin-bottom: 10px;
+}
+
+.hero-card ion-button:not([fill="outline"]) {
+  --background: var(--color-terracotta);
+  --color: #fff;
+  border: none;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.28);
+}
+
+.hero-card ion-button[fill="outline"] {
+  --border-color: rgba(255,255,255,0.95);
+  --border-style: solid;
+  --color: #fff;
+  --background: rgba(255,255,255,0.06);
+}
+
+.hero-card ion-button:hover {
+  opacity: 0.95;
 }
 
 .hero__title {
   font-size: var(--text-heading-xl);
+  color: inherit;
+  font-weight: 700;
+  text-shadow: 0 6px 18px rgba(0,0,0,0.6);
 }
 
 .hero__subtitle {
-  font-size: 1rem;
-  max-width: 520px;
+  font-size: 1.05rem;
+  max-width: 820px;
+  color: inherit;
+  text-shadow: 0 4px 12px rgba(0,0,0,0.55);
+}
+
+.hero--landing {
+  background: linear-gradient(135deg, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.25) 100%), url('/images/landingpage.jpg') center/cover no-repeat;
+  color: #fff;
 }
 
 .hero-panel {
-  background: var(--color-cream);
+  background: rgba(255,255,255,0.92);
   border-radius: var(--radius-sm);
-  border: 1px solid var(--color-mist);
+  border: 1px solid rgba(0,0,0,0.06);
   display: flex;
   flex-direction: column;
 }
@@ -126,6 +169,17 @@ const heroPanelIcons = {
 
 .hero-panel-item ion-icon {
   color: var(--color-terracotta);
+  font-size: 1.05rem;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.hero-actions ion-icon {
   font-size: 1.05rem;
 }
 

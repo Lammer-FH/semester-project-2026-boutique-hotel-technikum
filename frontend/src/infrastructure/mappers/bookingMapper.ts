@@ -8,6 +8,7 @@ import type {
 } from "../../core/models/booking";
 import type { RoomApi } from "./roomMapper";
 import { mapRoom } from "./roomMapper";
+import { DEFAULT_HOTEL_COORDINATES } from "../../core/osmMap";
 
 export interface BookingRequestApi {
   room_id: number;
@@ -26,6 +27,7 @@ export interface BookingResponseApi {
   check_in_date: string;
   check_out_date: string;
   breakfast_included: boolean;
+  guest_count: number;
   total_price: number;
   price_breakdown: {
     nights: number;
@@ -47,6 +49,8 @@ export interface BookingResponseApi {
     country: string;
     email: string;
     phone: string;
+    latitude?: number;
+    longitude?: number;
   };
   directions: {
     by_train: string;
@@ -94,6 +98,12 @@ const mapHotelContact = (
   country: api.country,
   email: api.email,
   phone: api.phone,
+  latitude: Number.isFinite(api.latitude)
+    ? Number(api.latitude)
+    : DEFAULT_HOTEL_COORDINATES.latitude,
+  longitude: Number.isFinite(api.longitude)
+    ? Number(api.longitude)
+    : DEFAULT_HOTEL_COORDINATES.longitude,
 });
 
 const mapDirections = (
@@ -111,6 +121,7 @@ export const mapBookingConfirmation = (
   checkInDate: api.check_in_date,
   checkOutDate: api.check_out_date,
   breakfastIncluded: api.breakfast_included,
+  guestCount: api.guest_count,
   totalPrice: api.total_price,
   priceBreakdown: mapPriceBreakdown(api.price_breakdown),
   guest: mapGuest(api.guest),

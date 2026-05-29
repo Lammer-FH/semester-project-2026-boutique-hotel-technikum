@@ -4,7 +4,7 @@ import type {
   BookingRequest,
 } from "../../core/models/booking";
 import { createBooking, getBooking } from "../../infrastructure/api/bookingApi";
-import { toErrorMessage } from "./storeErrors";
+import { toErrorMessage } from "../../core/storeErrors";
 
 interface BookingState {
   currentBooking: BookingConfirmation | null;

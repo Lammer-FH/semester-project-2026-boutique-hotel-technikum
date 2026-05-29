@@ -34,6 +34,7 @@ const handleChange = (event: CustomEvent) => {
       :max="props.max"
       :disabled="props.disabled"
       :value="props.modelValue"
+      :first-day-of-week="1"
       @ionChange="handleChange"
     />
   </div>

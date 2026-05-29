@@ -1,10 +1,15 @@
 <script setup lang="ts">
 import type { VNodeRef } from "vue"
 import { IonContent, IonPage } from "@ionic/vue"
+import type { ScrollDetail } from "@ionic/core/components"
 import TheHeader from "@/components/layout/TheHeader.vue"
 import TheFooter from "@/components/layout/TheFooter.vue"
 
 type ContentRef = VNodeRef
+
+const emit = defineEmits<{
+  scroll: [detail: ScrollDetail]
+}>()
 
 const props = withDefaults(
   defineProps<{
@@ -26,15 +31,15 @@ const props = withDefaults(
 <template>
   <ion-page>
     <the-header />
-    <ion-content :ref="props.contentRef" :class="props.contentClass">
-      <div :class="props.layoutClass">
+    <ion-content :ref="props.contentRef" :class="props.contentClass" :scroll-events="true" @ionScroll="emit('scroll', $event.detail)">
+      <div class="page-shell__layout" :class="props.layoutClass">
         <div :class="props.innerClass">
           <slot />
         </div>
-        <slot name="footer">
-          <the-footer :class="props.footerClass" />
-        </slot>
       </div>
     </ion-content>
+    <slot name="footer">
+      <the-footer :class="props.footerClass" />
+    </slot>
   </ion-page>
 </template>

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { nextTick, onMounted, ref } from "vue"
-import { IonButton } from "@ionic/vue"
+import { IonButton, IonIcon } from "@ionic/vue"
+import { eyeOutline, swapHorizontalOutline } from "ionicons/icons"
 import { bookingDialogContent } from "@/data/content/bookingContent"
 import type { BookingRequest } from "@/core/models/booking"
 
@@ -21,6 +22,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   (event: "update-field", key: keyof BookingRequest, value: BookingRequest[keyof BookingRequest]): void
   (event: "proceed"): void
+  (event: "change-dates"): void
 }>()
 
 const updateField = <K extends keyof BookingRequest>(
@@ -157,7 +159,14 @@ onMounted(async () => {
     </p>
 
     <div class="booking-dialog__actions">
-      <ion-button @click="handleProceed">{{ bookingDialogContent.buttons.review }}</ion-button>
+      <ion-button fill="clear" @click="$emit('change-dates')">
+        <ion-icon :icon="swapHorizontalOutline" slot="start" />
+        {{ bookingDialogContent.buttons.changeDates }}
+      </ion-button>
+      <ion-button @click="handleProceed">
+        <ion-icon :icon="eyeOutline" slot="start" />
+        {{ bookingDialogContent.buttons.review }}
+      </ion-button>
     </div>
   </div>
 </template>
@@ -208,6 +217,17 @@ onMounted(async () => {
 @media (min-width: 720px) {
   .booking-dialog__grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Reduce spacing between action buttons in the details form */
+.booking-dialog__actions {
+  gap: 6px;
+}
+
+@media (max-width: 640px) {
+  .booking-dialog__actions {
+    gap: 8px;
   }
 }
 </style>

@@ -6,6 +6,14 @@
   box-sizing: border-box;
 }
 
+html,
+body,
+#app,
+ion-app,
+ion-router-outlet {
+  min-height: 100vh;
+}
+
 body {
   margin: 0;
   font-family: var(--app-font-body);
@@ -38,17 +46,23 @@ a:hover {
 ion-content.page-shell {
   --background: var(--color-sand);
   --padding-bottom: 0px;
-  flex: 1;
+  --offset-bottom: 0px;
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
 }
 
 ion-page {
-  min-height: 100%;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
 }
 
 ion-content.page-shell::part(scroll) {
   padding-bottom: 0;
+  min-height: 100%;
+  flex: 1;
   display: flex;
   flex-direction: column;
 }
@@ -58,8 +72,19 @@ ion-content.page-shell::part(scroll) {
 }
 
 .page-shell__inner {
-  max-width: 1100px;
+  max-width: var(--site-max-width);
   margin: 0 auto;
   width: 100%;
+  flex: 1;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
   padding: 0 16px;
+}
+
+.page-shell__layout {
+  min-height: 100%;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
 }

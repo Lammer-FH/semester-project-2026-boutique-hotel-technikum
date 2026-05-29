@@ -9,6 +9,9 @@ import {
   sunnyOutline,
   wifiOutline,
   wineOutline,
+  carOutline,
+  pawOutline,
+  laptopOutline,
 } from "ionicons/icons"
 
 const iconMap: Record<string, string> = {
@@ -16,11 +19,19 @@ const iconMap: Record<string, string> = {
   balcony: homeOutline,
   bed: bedOutline,
   breakfast: cafeOutline,
+  coffee: cafeOutline,
   minibar: wineOutline,
+  wine: wineOutline,
   spa: leafOutline,
+  sparkles: sparklesOutline,
   view: sunnyOutline,
+  sunny: sunnyOutline,
   wifi: wifiOutline,
-  workspace: briefcaseOutline,
+  workspace: laptopOutline,
+  briefcase: briefcaseOutline,
+  parking: carOutline,
+  car: carOutline,
+  paw: pawOutline,
 }
 
 export const resolveExtraIcon = (iconName: string) => iconMap[iconName] ?? sparklesOutline

@@ -87,9 +87,5 @@ const confirmText = computed(() =>
   .availability-dialog__actions {
     justify-content: stretch;
   }
-
-  .availability-dialog__actions ion-button {
-    width: 100%;
-  }
 }
 </style>

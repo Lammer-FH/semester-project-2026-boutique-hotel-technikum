@@ -7,7 +7,6 @@ export const roomsPageContent = {
   emptyBody:
     "We could not load any rooms right now. Please try again in a moment.",
   emptyAction: "Try again",
-  toastErrorFallback: "We could not load rooms right now.",
   paginationLabel: "Page",
   paginationAriaLabel: "Room pages",
   roomsMeta: (start: number, end: number, total: number) =>

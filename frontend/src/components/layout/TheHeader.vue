@@ -33,7 +33,7 @@ const closeMenu = () => {
           class="app-header__brand"
           :aria-label="navigationContent.homeLabel"
         >
-          <img class="app-header__logo" src="/logo.svg" :alt="navigationContent.brandAlt" />
+          <img class="app-header__logo" src="/logo.svg?v=3" :alt="navigationContent.brandAlt" />
         </router-link>
         <nav class="app-header__nav" :aria-label="navigationContent.primaryNavLabel">
           <router-link class="app-header__link" :to="{ name: 'Landing' }">
@@ -75,18 +75,22 @@ const closeMenu = () => {
 .app-header ion-toolbar {
   --background: linear-gradient(180deg, var(--color-cream) 0%, #f4eadc 100%);
   --color: var(--color-ink);
+  --padding-start: 0;
+  --padding-end: 0;
   box-shadow: 0 8px 20px rgba(31, 27, 24, 0.08);
   border-bottom: 1px solid rgba(31, 27, 24, 0.06);
 }
 
 .app-header__inner {
-  max-width: 1100px;
+  max-width: var(--site-max-width);
   margin: 0 auto;
   width: 100%;
   display: flex;
   align-items: center;
-  gap: 28px;
-  padding: 10px 16px;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 6px 16px;
+  position: relative;
 }
 
 .app-header__brand {
@@ -98,7 +102,7 @@ const closeMenu = () => {
 }
 
 .app-header__logo {
-  height: 58px;
+  height: 42px;
   width: auto;
   max-width: 300px;
   object-fit: contain;
@@ -111,7 +115,7 @@ const closeMenu = () => {
   background: rgba(255, 255, 255, 0.7);
   border: 1px solid rgba(31, 27, 24, 0.08);
   border-radius: 999px;
-  padding: 4px;
+  padding: 3px;
   box-shadow: 0 8px 18px rgba(31, 27, 24, 0.08);
 }
 
@@ -119,7 +123,7 @@ const closeMenu = () => {
   color: var(--color-ink);
   text-decoration: none;
   font-weight: 600;
-  padding: 6px 14px;
+  padding: 4px 12px;
   border-radius: 999px;
   transition: background 0.2s ease, color 0.2s ease;
 }
@@ -131,6 +135,19 @@ const closeMenu = () => {
 
 .menu-button {
   display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  border-radius: 10px;
+  color: var(--color-terracotta);
+  --color: var(--color-terracotta);
+  transition: transform 0.12s ease;
+}
+
+.menu-button ion-icon {
+  font-size: 26px;
+  line-height: 1;
+  color: inherit;
 }
 
 .app-header__dropdown {
@@ -144,18 +161,18 @@ const closeMenu = () => {
 }
 
 .app-header__dropdown-nav {
-  max-width: 1100px;
+  max-width: var(--site-max-width);
   margin: 0 auto;
-  padding: 12px 16px 16px;
+  padding: 8px 16px 10px;
   display: grid;
-  gap: 8px;
+  gap: 6px;
 }
 
 .app-header__dropdown-link {
   color: var(--color-ink);
   text-decoration: none;
   font-weight: 600;
-  padding: 10px 14px;
+  padding: 8px 14px;
   border-radius: 14px;
   background: #fff;
   border: 1px solid rgba(31, 27, 24, 0.08);
@@ -167,16 +184,36 @@ const closeMenu = () => {
 }
 
 @media (max-width: 767px) {
+  .app-header__inner {
+    min-height: 48px;
+  }
+
   .app-header__nav {
     display: none;
   }
 
   .menu-button {
     display: flex;
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    padding: 6px;
+  }
+
+  .menu-button ion-icon {
+    font-size: 26px;
+  }
+
+  .app-header__brand {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
   }
 
   .app-header__logo {
-    height: 46px;
+    height: 36px;
   }
 }
 

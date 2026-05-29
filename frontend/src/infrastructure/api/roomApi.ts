@@ -5,15 +5,17 @@ import type { RoomApi } from "../mappers/roomMapper";
 import { mapRoom } from "../mappers/roomMapper";
 import type { PaginatedResponseApi } from "../mappers/apiMapper";
 import { mapPaginatedResponse } from "../mappers/apiMapper";
+import { toPaginationQueryParams } from "../../core/pagination";
 
 export const listRooms = async (
   page: number,
   size: number
 ): Promise<PaginatedResponse<Room>> => {
+  const params = toPaginationQueryParams(page, size);
   const response = await httpClient.get<PaginatedResponseApi<RoomApi>>(
     "/rooms",
     {
-      params: { page, size },
+      params,
     }
   );
 

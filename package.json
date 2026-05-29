@@ -1,0 +1,7 @@
+{
+  "scripts": {
+    "start": "quick-start.bat start",
+    "stop": "quick-start.bat stop"
+  },
+  "private": true
+}

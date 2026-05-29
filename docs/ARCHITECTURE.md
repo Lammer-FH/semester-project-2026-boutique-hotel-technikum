@@ -333,11 +333,11 @@ This project applies Clean Architecture with strict dependency rules:
 
 ## 6. External Integrations / APIs
 
-No external third-party services are integrated. All hotel contact, address, directions, and breakfast pricing data (for booking confirmation) is configured as static application properties via `HotelProperties` (`app.hotel.*`). A potential future integration with Google Maps (for directions) is mentioned in the project specification but is decided against based on the post-MVP research for U5, which uses static text directions.
+The U5 booking confirmation uses a static OpenStreetMap-based map image in the frontend print overview. All hotel contact, address, coordinates, directions, and breakfast pricing data is configured as static application properties via `HotelProperties` (`app.hotel.*`); there is no runtime geocoding.
 
 The required `app.hotel.*` properties are:
 - `name`, `email`, `phone` — hotel contact info
-- `address.street`, `address.city`, `address.postal-code`, `address.country` — hotel address for booking confirmation (U5)
+- `address.street`, `address.city`, `address.postal-code`, `address.country`, `address.latitude`, `address.longitude` — hotel address and map coordinates for booking confirmation (U5)
 - `directions.by-train`, `directions.by-car`, `directions.parking` — static text directions (U5)
 - `breakfast-price-per-person` — per-person per-night breakfast rate for price calculation
 

@@ -39,6 +39,7 @@ class BookingControllerTest {
                 .checkInDate(LocalDate.of(2026, 6, 1))
                 .checkOutDate(LocalDate.of(2026, 6, 6))
                 .breakfastIncluded(true)
+                .guestCount(2)
                 .totalPrice(new BigDecimal("905.00"))
                 .priceBreakdown(BookingResponse.PriceBreakdown.builder()
                         .nights(5)
@@ -70,6 +71,8 @@ class BookingControllerTest {
                         .country("Austria")
                         .email("contact@hotel.com")
                         .phone("+43 1 234567")
+                        .latitude(48.23924)
+                        .longitude(16.37739)
                         .build())
                 .directions(BookingResponse.Directions.builder()
                         .byTrain("S-Bahn")
@@ -102,8 +105,11 @@ class BookingControllerTest {
                 .andExpect(jsonPath("$.guest.first_name").value("John"))
                 .andExpect(jsonPath("$.guest.last_name").value("Doe"))
                 .andExpect(jsonPath("$.room.title").value("Deluxe Room"))
+                .andExpect(jsonPath("$.guest_count").value(2))
                 .andExpect(jsonPath("$.price_breakdown.nights").value(5))
                 .andExpect(jsonPath("$.hotel_contact.name").value("Boutique Hotel"))
+                .andExpect(jsonPath("$.hotel_contact.latitude").value(48.23924))
+                .andExpect(jsonPath("$.hotel_contact.longitude").value(16.37739))
                 .andExpect(jsonPath("$.directions.by_train").value("S-Bahn"));
     }
 
@@ -153,6 +159,7 @@ class BookingControllerTest {
                 .checkInDate(LocalDate.of(2026, 6, 1))
                 .checkOutDate(LocalDate.of(2026, 6, 6))
                 .breakfastIncluded(true)
+                .guestCount(2)
                 .totalPrice(new BigDecimal("905.00"))
                 .priceBreakdown(BookingResponse.PriceBreakdown.builder()
                         .nights(5).roomRate(new BigDecimal("129.00"))
@@ -167,7 +174,8 @@ class BookingControllerTest {
                 .hotelContact(BookingResponse.HotelContact.builder()
                         .name("Boutique Hotel").street("Hochstadtplatz 6")
                         .city("Vienna").postalCode("1200").country("Austria")
-                        .email("contact@hotel.com").phone("+43 1 234567").build())
+                        .email("contact@hotel.com").phone("+43 1 234567")
+                        .latitude(48.23924).longitude(16.37739).build())
                 .directions(BookingResponse.Directions.builder()
                         .byTrain("S-Bahn").byCar("A2").parking("Garage").build())
                 .build();
@@ -177,7 +185,9 @@ class BookingControllerTest {
         mockMvc.perform(get(ApiRoutes.API + "/bookings/42"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.booking_id").value(42))
-                .andExpect(jsonPath("$.guest.first_name").value("John"));
+                .andExpect(jsonPath("$.guest.first_name").value("John"))
+                .andExpect(jsonPath("$.hotel_contact.latitude").value(48.23924))
+                .andExpect(jsonPath("$.hotel_contact.longitude").value(16.37739));
     }
 
     @Test
