@@ -1,26 +1,32 @@
-# Boutique Hotel Technikum
+# Boutique Hotel Technikum ⭐⭐⭐⭐⭐
+A modern, full-stack hotel booking application designed for the Boutique Hotel Technikum. This project was developed as part of the *Advanced Webtechnologies* course at FHTW (Fachhochschule Technikum Wien).
 
-Full-stack booking application for the Boutique Hotel Technikum, built for the FHTW course Advanced Web Technologies.
+**Lecturer:** Helmuth Lammer, MSc
 
-## Overview
+### Key Features
+- **Hotel Website & Presentation:** A fully responsive user interface featuring static content pages to introduce guests to the hotel.
+- **Dynamic Room Overview:** A component-based room catalog showcasing details, imagery, and structured navigation.
+- **Availability Management:** An interactive date-selection feature providing clear user feedback on room availability.
+- **Full-Stack Booking Process:** A secure multi-step validation form allowing users to submit reservations and review data.
+- **Comprehensive Confirmation:** A dedicated booking summary layout containing registration details, contact options, and practical info.
 
-This repository contains the backend, frontend, and project documentation for the hotel booking application. The initial project specification is documented in [docs/pre-project/project_specification.md](docs/pre-project/project_specification.md).
+>The initial project specification is documented in [docs/pre-project/project_specification.md](docs/pre-project/project_specification.md).
 
 ## Tech Stack
 
-- **Backend**
-	- Java 21
-	- Spring Boot 3.4.0
-- **Frontend**
-	- Ionic 7.8.6
-	- Vue.js 3.5.33
-	- Pinia 3.0.4
-	- Vue Router 4.6.4
-	- Axios 1.16.0
-- **Database**
-	- MySQL 8.1 (via Docker)
+- **⚙️ Backend**
+  - Java 21
+  - Spring Boot 3.4.0
+- **💻 Frontend**
+  - Ionic 7.8.6
+  - Vue.js 3.5.33
+  - Pinia 3.0.4
+  - Vue Router 4.6.4
+  - Axios 1.16.0
+- **🗄️ Database**
+  - MySQL 8.1 (via Docker)
 
-## Quick Start
+## 🚀 How to Run & Quick Start
 
 > Requires JDK 21, Docker, and Node.js & npm. See [Prerequisites](#prerequisites).
 
@@ -95,7 +101,7 @@ Alternative with `quick-start.bat`:
 	npm run dev
 	```
 
-2. Open the frontend app at `http://localhost:5000`
+3. Open the frontend app at `http://localhost:5000`
 
 > **Notes:**
 > - The backend reads DB credentials from `backend/.env` and connects to MySQL on `localhost:3306`.
