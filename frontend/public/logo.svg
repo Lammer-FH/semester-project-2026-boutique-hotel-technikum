@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 100" width="100%" height="100%">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 315 76" width="100%" height="100%">
   <defs>
     <style>
       /* <![CDATA[ */
@@ -32,13 +32,13 @@
     </style>
   </defs>
 
-  <g transform="translate(10, 15)">
+  <g transform="translate(-2.75, -2.75)">
     <polyline points="5,5 65,5 65,25 45,25 45,70" class="logo-icon-path"/>
     <polyline points="45,40 20,70 5,70 5,50 25,25 5,25 5,5" class="logo-icon-path"/>
     <polyline points="45,40 65,40 65,70 85,70 85,25" class="logo-icon-path"/>
   </g>
 
-  <g transform="translate(130, 42)">
+  <g transform="translate(102, 14)">
     <text x="0" y="0" class="logo-text-small">Boutique Hotel</text>
     <text x="0" y="40" class="logo-text-large">Technikum</text>
   </g>
