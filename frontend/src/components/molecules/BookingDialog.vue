@@ -160,7 +160,6 @@ watch(
 <template>
   <base-popup
     :is-open="props.isOpen"
-    :keep-mounted="false"
     content-class="dialog-shell"
     modal-class="dialog-modal"
     @close="closeDialog"
