@@ -64,6 +64,7 @@ This document serves as the mandatory record for all AI-assisted work on the **B
 | Seed data expansion | codex | "Expand seed to 9 rooms and more extras distributed across rooms" | Extended rooms/extras seed data and room-extras mapping with 9 rooms and 8 extras |
 | Scroll to top on navigation | codex | "after navigating pages the view should be auto scrolled to top" | Added router scrollBehavior to reset scroll to top on route changes |
 | Global text centralization | codex | "move text values in hotelContent for all components" | Moved UI copy across header, footer, pages, hero, contact, availability, and booking into hotelContent |
+| quick-start.bat .env check | opencode | "Add .env check in quick-start.bat to copy .env-example if missing in frontend and backend" | Updated script to copy .env-example to .env in both frontend/ and backend/ folders when .env doesn't exist |
 
 ## Documentation Guidelines
 
