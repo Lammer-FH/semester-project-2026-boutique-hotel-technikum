@@ -28,7 +28,9 @@ A modern, full-stack hotel booking application designed for the Boutique Hotel T
 
 ## 🚀 How to Run & Quick Start
 
-> Requires JDK 21, Docker, and Node.js & npm. See [Prerequisites](#prerequisites).
+> Requires `JDK 21`, `Docker`, `Node.js` & `npm`. See [**Prerequisites**](#prerequisites).
+> - Clone this Repository OR
+> - Download Version 1.0.0 from [**Releases**](https://github.com/Lammer-FH/semester-project-2026-boutique-hotel-technikum/releases/tag/v1.0.0)
 
 ```bash
 npm start    # start database, backend and frontend
