@@ -36,7 +36,7 @@ export const heroBannerContent = {
   eyebrow: "Boutique stay in Vienna",
   panelTitle: "At a glance",
   panelItems: [
-    { icon: "bed", label: "28 rooms with custom details" },
+    { icon: "bed", label: "9 luxury rooms" },
     { icon: "cafe", label: "Late breakfast until 11:30" },
     { icon: "leaf", label: "Quiet courtyard lounge" },
   ] satisfies HeroPanelItem[],
