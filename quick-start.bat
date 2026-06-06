@@ -28,6 +28,7 @@ set "BACKEND_ENV=%BACKEND_DIR%\.env"
 set "BACKEND_ENV_EXAMPLE=%BACKEND_DIR%\.env-example"
 set "FRONTEND_DIR=%ROOT_DIR%frontend"
 set "FRONTEND_ENV=%FRONTEND_DIR%\.env"
+set "FRONTEND_ENV_EXAMPLE=%FRONTEND_DIR%\.env-example"
 
 pushd "%ROOT_DIR%"
 
@@ -60,17 +61,21 @@ if errorlevel 1 (echo [ERROR] MYSQL_ROOT_PASSWORD could not be set. & popd & exi
 
 if exist "%FRONTEND_ENV%" (
     echo [INFO] Frontend .env already exists.
+) else if exist "%FRONTEND_ENV_EXAMPLE%" (
+    copy /Y "%FRONTEND_ENV_EXAMPLE%" "%FRONTEND_ENV%" >nul
+    if errorlevel 1 (echo [ERROR] Frontend .env could not be created from .env-example. & popd & exit /b 1)
+    echo [INFO] Frontend .env was created from .env-example.
 ) else (
-    >"%FRONTEND_ENV%" echo VITE_API_BASE_URL=http://localhost:8080/api/v1
-    if errorlevel 1 (echo [ERROR] Frontend .env could not be created. & popd & exit /b 1)
-    echo [INFO] Frontend .env was created.
+    echo [ERROR] Example file is missing: %FRONTEND_ENV_EXAMPLE%
+    popd
+    exit /b 1
 )
 
 echo [INFO] Starting database with Docker Compose...
 pushd "%BACKEND_DOCKER_DIR%"
 docker compose up -d
 if errorlevel 1 (
-    echo [ERROR] Docker Compose could not be started.
+    echo [ERROR] Docker Compose could not be started. Please start Docker Desktop or Docker CLI!
     popd
     popd
     exit /b 1

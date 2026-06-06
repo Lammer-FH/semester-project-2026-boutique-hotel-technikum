@@ -42,6 +42,8 @@ Alternative with `quick-start.bat`:
 | `quick-start.bat start` | Start database, backend and frontend |
 | `quick-start.bat stop` | Stop all services |
 
+> The quick-start script automatically creates `.env` files from the provided `.env-example` templates in both `frontend/` and `backend/` if they don't exist. Adjust environment variables (e.g. DB credentials, API base URL) in the respective `.env` files after creation.
+
 ## Prerequisites
 
 - `JDK 21`
