@@ -8,6 +8,7 @@ import at.fhtw.hotel.controller.mapper.RoomResponseMapper;
 import at.fhtw.hotel.domain.model.Room;
 import at.fhtw.hotel.service.RoomService;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,8 +38,8 @@ class RoomControllerTest {
         Room room = new Room(1L, "Deluxe Room", "Bright room", 2,
                 new BigDecimal("129.00"), List.of(), List.of());
 
-        when(roomService.listRooms(0, 5)).thenReturn(List.of(room));
-        when(roomService.countRooms()).thenReturn(1L);
+        when(roomService.listRooms(0, 5, null, null)).thenReturn(List.of(room));
+        when(roomService.countRooms(null, null)).thenReturn(1L);
         when(roomResponseMapper.toResponse(any(Room.class)))
                 .thenAnswer(invocation -> {
                     Room r = invocation.getArgument(0);
@@ -61,13 +62,47 @@ class RoomControllerTest {
 
     @Test
     void listRooms_withCustomPagination() throws Exception {
-        when(roomService.listRooms(0, 3)).thenReturn(List.of());
-        when(roomService.countRooms()).thenReturn(0L);
+        when(roomService.listRooms(0, 3, null, null)).thenReturn(List.of());
+        when(roomService.countRooms(null, null)).thenReturn(0L);
 
         mockMvc.perform(get(ApiRoutes.API + "/rooms").param("page", "1").param("size", "3"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.pagination.page").value(1))
                 .andExpect(jsonPath("$.pagination.size").value(3));
+    }
+
+    @Test
+    void listRooms_withDateFilter_returnsAvailableRooms() throws Exception {
+        Room room = new Room(2L, "Garden Suite", "Quiet suite", 3,
+                new BigDecimal("199.00"), List.of(), List.of());
+        LocalDate checkIn = LocalDate.parse("2026-07-01");
+        LocalDate checkOut = LocalDate.parse("2026-07-05");
+
+        when(roomService.listRooms(0, 5, checkIn, checkOut)).thenReturn(List.of(room));
+        when(roomService.countRooms(checkIn, checkOut)).thenReturn(1L);
+        when(roomResponseMapper.toResponse(any(Room.class)))
+                .thenAnswer(invocation -> {
+                    Room r = invocation.getArgument(0);
+                    return RoomResponse.builder()
+                            .id(r.id()).title(r.title()).description(r.description())
+                            .maxGuests(r.maxGuests()).basePricePerNight(r.basePricePerNight())
+                            .images(List.of()).extras(List.of())
+                            .build();
+                });
+
+        mockMvc.perform(get(ApiRoutes.API + "/rooms")
+                        .param("check_in_date", "2026-07-01")
+                        .param("check_out_date", "2026-07-05"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data[0].id").value(2))
+                .andExpect(jsonPath("$.pagination.total").value(1));
+    }
+
+    @Test
+    void listRooms_withOnlyCheckInDate_returns400() throws Exception {
+        mockMvc.perform(get(ApiRoutes.API + "/rooms").param("check_in_date", "2026-07-01"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error.code").value("INVALID_DATE_RANGE"));
     }
 
     @Test

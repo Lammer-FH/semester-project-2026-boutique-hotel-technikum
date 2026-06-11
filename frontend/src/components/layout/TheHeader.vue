@@ -223,7 +223,8 @@ watch(
 
 @media (max-width: 767px) {
   .app-header__inner {
-    min-height: 48px;
+    min-height: 60px;
+    padding: 10px 16px;
   }
 
   .app-header__nav {
@@ -240,7 +241,7 @@ watch(
   }
 
   .menu-button ion-icon {
-    font-size: 26px;
+    font-size: 30px;
   }
 
   .app-header__brand {
@@ -251,7 +252,7 @@ watch(
   }
 
   .app-header__logo {
-    height: 36px;
+    height: 46px;
   }
 }
 

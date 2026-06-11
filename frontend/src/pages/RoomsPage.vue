@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import type { VNodeRef } from "vue"
 import { computed, nextTick, onMounted, ref } from "vue"
-import { IonButton } from "@ionic/vue"
+import { IonButton, IonIcon } from "@ionic/vue"
 import type { IonContent } from "@ionic/vue"
 import type { ScrollDetail } from "@ionic/core/components"
+import { calendarOutline, chevronUpOutline } from "ionicons/icons"
 import { storeToRefs } from "pinia"
 import BaseSectionTitle from "@/components/atoms/BaseSectionTitle.vue"
+import BaseDatePicker from "@/components/atoms/BaseDatePicker.vue"
 import ExtrasStrip from "@/components/organisms/ExtrasStrip.vue"
 import RoomCard from "@/components/organisms/roomcard/RoomCard.vue"
 import RoomCardSkeletonList from "@/components/organisms/roomcard/RoomCardSkeletonList.vue"
@@ -16,6 +18,12 @@ import { useRoomStore } from "@/application/stores/roomStore"
 import { extrasContent, roomsPageContent } from "@/data/content/roomsContent"
 import { buildPaginationPages, getPaginationRange } from "@/core/pagination"
 import { scrollIonContentToTop, updateIonContentRef } from "@/core/scroll"
+import {
+  formatDate,
+  getTodayIsoDate,
+  toIsoDate,
+  validateDateRange,
+} from "@/core/dateutils"
 
 const contentEl = ref<InstanceType<typeof IonContent> | null>(null)
 const contentRef: VNodeRef = (refValue) => updateIonContentRef(contentEl, refValue)
@@ -33,7 +41,72 @@ const {
   totalPages,
   totalRooms,
   isReady,
+  hasDateFilter,
+  checkInDate,
+  checkOutDate,
 } = storeToRefs(roomStore)
+
+const filterContent = roomsPageContent.filter
+const filterCheckIn = ref<string | undefined>(undefined)
+const filterCheckOut = ref<string | undefined>(undefined)
+const filterError = ref("")
+const showFilter = ref(roomStore.hasDateFilter)
+
+const toggleFilter = () => {
+  showFilter.value = !showFilter.value
+}
+
+const minCheckIn = computed(() => getTodayIsoDate())
+const minCheckOut = computed(() => toIsoDate(filterCheckIn.value) || getTodayIsoDate())
+const canApplyFilter = computed(() =>
+  Boolean(filterCheckIn.value && filterCheckOut.value)
+)
+const activeFilterLabel = computed(() =>
+  hasDateFilter.value && checkInDate.value && checkOutDate.value
+    ? filterContent.activeLabel(
+        formatDate(checkInDate.value),
+        formatDate(checkOutDate.value)
+      )
+    : ""
+)
+
+const onCheckInChange = (value?: string) => {
+  filterCheckIn.value = value || undefined
+  filterError.value = ""
+  // Drop an out-of-range check-out once the check-in moves past it.
+  if (
+    filterCheckOut.value &&
+    toIsoDate(filterCheckOut.value) <= toIsoDate(filterCheckIn.value)
+  ) {
+    filterCheckOut.value = undefined
+  }
+}
+
+const onCheckOutChange = (value?: string) => {
+  filterCheckOut.value = value || undefined
+  filterError.value = ""
+}
+
+const applyFilter = () => {
+  const checkIn = toIsoDate(filterCheckIn.value)
+  const checkOut = toIsoDate(filterCheckOut.value)
+  const validation = validateDateRange(checkIn, checkOut)
+  if (validation) {
+    filterError.value = validation
+    return
+  }
+
+  filterError.value = ""
+  roomStore.applyDateFilter(checkIn, checkOut)
+  nextTick(() => scrollIonContentToTop(contentEl.value))
+}
+
+const clearFilter = () => {
+  filterCheckIn.value = undefined
+  filterCheckOut.value = undefined
+  filterError.value = ""
+  roomStore.clearDateFilter()
+}
 
 const extraStore = useExtraStore()
 const {
@@ -114,6 +187,61 @@ onMounted(() => {
             :is-loading="extrasLoading"
           />
 
+          <section class="rooms-page__filter" aria-label="Filter rooms by date">
+            <div class="rooms-page__filter-head">
+              <ion-icon class="rooms-page__filter-glyph" :icon="calendarOutline" aria-hidden="true" />
+              <div class="rooms-page__filter-head-text">
+                <h3 class="rooms-page__filter-title">{{ filterContent.title }}</h3>
+                <p class="rooms-page__filter-desc">{{ filterContent.description }}</p>
+              </div>
+            </div>
+
+            <ion-button
+              class="rooms-page__filter-toggle"
+              fill="outline"
+              expand="block"
+              :aria-expanded="showFilter ? 'true' : 'false'"
+              @click="toggleFilter"
+            >
+              <ion-icon slot="start" :icon="showFilter ? chevronUpOutline : calendarOutline" />
+              {{ showFilter ? filterContent.hide : filterContent.toggle }}
+            </ion-button>
+
+            <div v-if="showFilter" class="rooms-page__filter-bar">
+              <base-date-picker
+                :label="filterContent.checkInLabel"
+                :placeholder="filterContent.checkInPlaceholder"
+                :min="minCheckIn"
+                :model-value="filterCheckIn"
+                @update:modelValue="onCheckInChange"
+              />
+              <span class="rooms-page__filter-sep" aria-hidden="true">→</span>
+              <base-date-picker
+                :label="filterContent.checkOutLabel"
+                :placeholder="filterContent.checkOutPlaceholder"
+                :min="minCheckOut"
+                :model-value="filterCheckOut"
+                @update:modelValue="onCheckOutChange"
+              />
+
+              <div class="rooms-page__filter-actions">
+                <ion-button :disabled="!canApplyFilter" @click="applyFilter">
+                  {{ filterContent.apply }}
+                </ion-button>
+                <ion-button v-if="hasDateFilter" fill="clear" @click="clearFilter">
+                  {{ filterContent.clear }}
+                </ion-button>
+              </div>
+            </div>
+
+            <p v-if="showFilter && filterError" class="rooms-page__filter-error">
+              {{ filterError }}
+            </p>
+            <p v-if="activeFilterLabel" class="rooms-page__filter-active">
+              {{ activeFilterLabel }}
+            </p>
+          </section>
+
           <div class="rooms-page__meta" v-if="hasRooms && isReady">
             <span>
               {{ roomsMetaLabel }}
@@ -125,7 +253,15 @@ onMounted(() => {
             <room-card v-else v-for="room in rooms" :key="room.id" :room="room" v-memo="[room]" />
           </div>
 
-          <div class="rooms-page__empty" v-if="isReady && !hasRooms">
+          <div class="rooms-page__empty" v-if="isReady && !hasRooms && hasDateFilter">
+            <h3 class="rooms-page__empty-title">{{ filterContent.emptyTitle }}</h3>
+            <p class="rooms-page__empty-body">{{ filterContent.emptyBody }}</p>
+            <ion-button size="small" @click="clearFilter">
+              {{ filterContent.clear }}
+            </ion-button>
+          </div>
+
+          <div class="rooms-page__empty" v-if="isReady && !hasRooms && !hasDateFilter">
             <h3 class="rooms-page__empty-title">{{ roomsPageContent.emptyTitle }}</h3>
             <p class="rooms-page__empty-body">{{ roomsPageContent.emptyBody }}</p>
             <ion-button size="small" @click="retryFetch">
@@ -188,6 +324,97 @@ onMounted(() => {
 
 .rooms-page__extras {
   margin-bottom: 20px;
+}
+
+.rooms-page__filter {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 20px;
+  margin-bottom: 24px;
+  background: var(--color-cream);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-soft);
+}
+
+.rooms-page__filter-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.rooms-page__filter-head-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.rooms-page__filter-toggle {
+  margin: 0;
+  text-transform: none;
+  font-weight: 600;
+  --border-radius: var(--radius-sm, 8px);
+  min-height: 48px;
+}
+
+.rooms-page__filter-glyph {
+  font-size: 1.6rem;
+  color: var(--color-midnight);
+  flex-shrink: 0;
+}
+
+.rooms-page__filter-title {
+  margin: 0;
+  font-size: 1.15rem;
+}
+
+.rooms-page__filter-desc {
+  margin: 2px 0 0;
+  color: var(--color-midnight);
+  font-size: 0.92rem;
+}
+
+.rooms-page__filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 14px;
+}
+
+.rooms-page__filter-sep {
+  align-self: center;
+  padding-bottom: 6px;
+  color: var(--color-midnight);
+  opacity: 0.6;
+}
+
+.rooms-page__filter-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-left: auto;
+}
+
+.rooms-page__filter-error {
+  margin: 0;
+  color: var(--color-danger, #b3261e);
+  font-weight: 600;
+}
+
+.rooms-page__filter-active {
+  margin: 0;
+  font-weight: 600;
+  color: var(--color-midnight);
+}
+
+@media (max-width: 640px) {
+  .rooms-page__filter-sep {
+    display: none;
+  }
+
+  .rooms-page__filter-actions {
+    margin-left: 0;
+    width: 100%;
+  }
 }
 
 .rooms-page__lead {

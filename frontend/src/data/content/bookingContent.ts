@@ -3,6 +3,8 @@ export const availabilityDialogContent = {
   title: "Check availability",
   checkInLabel: "Check-in",
   checkOutLabel: "Check-out",
+  checkInPlaceholder: "Please choose check-in date",
+  checkOutPlaceholder: "Please choose check-out date",
   checkingLabel: "Checking...",
   confirmLabel: "Check availability",
   availableLabel: "Available",

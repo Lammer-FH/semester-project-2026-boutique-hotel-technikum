@@ -7,12 +7,26 @@ import type { PaginatedResponseApi } from "../mappers/apiMapper";
 import { mapPaginatedResponse } from "../mappers/apiMapper";
 import { toPaginationQueryParams } from "../../core/pagination";
 
+export interface RoomDateFilter {
+  checkInDate?: string;
+  checkOutDate?: string;
+}
+
 export const listRooms = async (
   page: number,
   size: number,
-  signal?: AbortSignal
+  signal?: AbortSignal,
+  dateFilter?: RoomDateFilter
 ): Promise<PaginatedResponse<Room>> => {
-  const params = toPaginationQueryParams(page, size);
+  const params: Record<string, string | number> = {
+    ...toPaginationQueryParams(page, size),
+  };
+
+  if (dateFilter?.checkInDate && dateFilter?.checkOutDate) {
+    params.check_in_date = dateFilter.checkInDate;
+    params.check_out_date = dateFilter.checkOutDate;
+  }
+
   const response = await httpClient.get<PaginatedResponseApi<RoomApi>>(
     "/rooms",
     {

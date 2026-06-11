@@ -56,43 +56,44 @@ const {
       modal-class="dialog-modal"
       @close="closeDialog"
     >
-        <dialog-header
-          :eyebrow="availabilityDialogContent.title"
-          :title="props.roomTitle"
-          :close-label="availabilityDialogContent.closeLabel"
-          @close="closeDialog"
-        />
+        <div class="availability-dialog__body">
+          <dialog-header
+            :eyebrow="availabilityDialogContent.title"
+            :title="props.roomTitle"
+            :close-label="availabilityDialogContent.closeLabel"
+            @close="closeDialog"
+          />
 
-        <room-availability-dialog-date-form
-          v-if="step === 'form'"
-          v-model:check-in-date="checkInDate"
-          v-model:check-out-date="checkOutDate"
-          :check-in-label="availabilityDialogContent.checkInLabel"
-          :check-out-label="availabilityDialogContent.checkOutLabel"
-          :min-check-in="minCheckIn"
-          :min-check-out="minCheckOut"
-          :is-loading="isRoomLoading"
-          :checking-label="availabilityDialogContent.checkingLabel"
-          :confirm-label="availabilityDialogContent.confirmLabel"
-          @check="handleCheck"
-        />
+          <room-availability-dialog-date-form
+            v-if="step === 'form'"
+            v-model:check-in-date="checkInDate"
+            v-model:check-out-date="checkOutDate"
+            :check-in-label="availabilityDialogContent.checkInLabel"
+            :check-out-label="availabilityDialogContent.checkOutLabel"
+            :check-in-placeholder="availabilityDialogContent.checkInPlaceholder"
+            :check-out-placeholder="availabilityDialogContent.checkOutPlaceholder"
+            :min-check-in="minCheckIn"
+            :min-check-out="minCheckOut"
+            :is-loading="isRoomLoading"
+            :checking-label="availabilityDialogContent.checkingLabel"
+            :confirm-label="availabilityDialogContent.confirmLabel"
+            :error-message="errorMessage"
+            @check="handleCheck"
+          />
 
-        <room-availability-dialog-result
-          v-else-if="availability"
-          :status="availabilityStatus"
-          :message="availability.message"
-          :date-range-label="dateRangeLabel"
-          :is-unavailable="isUnavailable"
-          :can-book="canBook"
-          :book-now-label="availabilityDialogContent.bookNowLabel"
-          :change-label="availabilityDialogContent.changeDatesLabel"
-          @book="openBookingDialog"
-          @change="showForm"
-        />
-
-        <p v-if="step === 'form' && errorMessage" class="availability__error">
-          {{ errorMessage }}
-        </p>
+          <room-availability-dialog-result
+            v-else-if="availability"
+            :status="availabilityStatus"
+            :message="availability.message"
+            :date-range-label="dateRangeLabel"
+            :is-unavailable="isUnavailable"
+            :can-book="canBook"
+            :book-now-label="availabilityDialogContent.bookNowLabel"
+            :change-label="availabilityDialogContent.changeDatesLabel"
+            @book="openBookingDialog"
+            @change="showForm"
+          />
+        </div>
     </base-popup>
 
     <booking-dialog
@@ -112,10 +113,15 @@ const {
 <style scoped src="../shared/dialog-shell.css"></style>
 
 <style scoped>
-.availability__error {
-  margin: 8px 0 0;
-  font-size: 0.95rem;
-  color: var(--color-terracotta);
-  font-weight: 600;
+.availability-dialog__body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+@media (max-width: 640px) {
+  .availability-dialog__body {
+    min-height: 100%;
+  }
 }
 </style>

@@ -9,10 +9,6 @@ import {
   type BookingRequest,
 } from "@/core/models/booking";
 
-/**
- * Reactive inputs the booking flow needs from the host component. Passed as
- * getters so the composable tracks prop changes without losing reactivity.
- */
 export interface UseBookingFlowOptions {
   isOpen: () => boolean;
   roomId: () => number;
@@ -24,12 +20,6 @@ export interface UseBookingFlowOptions {
   onChangeDates: () => void;
 }
 
-/**
- * Owns the multi-step booking dialog orchestration: step state, feedback,
- * request building (via the domain factory) and validation (via the store).
- * Keeps the dialog component free of business logic — it only wires template
- * events to the handlers returned here.
- */
 export function useBookingFlow(options: UseBookingFlowOptions) {
   const bookingStore = useBookingStore();
   const { draft, isSubmitting, error } = storeToRefs(bookingStore);

@@ -10,22 +10,12 @@ import {
   validateDateRange,
 } from "@/core/dateutils";
 
-/**
- * Reactive inputs the availability flow needs from the host component, passed
- * as getters so prop changes stay tracked.
- */
 export interface UseAvailabilityFlowOptions {
   isOpen: () => boolean;
   roomId: () => number;
   onClose: () => void;
 }
 
-/**
- * Owns the availability dialog orchestration: date selection state, the
- * check/result step machine, date-range validation (via the domain util) and
- * the nested booking dialog visibility. Keeps the dialog component limited to
- * presentation and event wiring.
- */
 export function useAvailabilityFlow(options: UseAvailabilityFlowOptions) {
   const availabilityStore = useAvailabilityStore();
   const { availabilityByRoomId, error } = storeToRefs(availabilityStore);

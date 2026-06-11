@@ -12,22 +12,12 @@ export interface BookingRequest {
   breakfastIncluded: boolean;
 }
 
-/**
- * Context that the booking flow owns outside of the editable guest draft
- * (selected room and date range). Combined with the draft to assemble a
- * complete {@link BookingRequest}.
- */
 export interface BookingRequestContext {
   roomId: number;
   checkInDate: string;
   checkOutDate: string;
 }
 
-/**
- * Assembles a complete {@link BookingRequest} from the partial guest draft and
- * the surrounding booking context. Normalizes optional draft fields to their
- * required types so callers (components) never build the request by hand.
- */
 export const buildBookingRequest = (
   draft: Partial<BookingRequest>,
   context: BookingRequestContext

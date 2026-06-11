@@ -7,6 +7,8 @@ import BaseDatePicker from "@/components/atoms/BaseDatePicker.vue"
 const props = defineProps<{
   checkInLabel: string
   checkOutLabel: string
+  checkInPlaceholder: string
+  checkOutPlaceholder: string
   minCheckIn: string
   minCheckOut: string
   checkInDate?: string
@@ -14,6 +16,7 @@ const props = defineProps<{
   isLoading: boolean
   checkingLabel: string
   confirmLabel: string
+  errorMessage?: string
 }>()
 
 const emit = defineEmits<{
@@ -40,24 +43,30 @@ const confirmText = computed(() =>
 </script>
 
 <template>
-  <div>
+  <div class="availability-dialog__form">
     <div class="availability-dialog__grid">
       <base-date-picker
         :label="props.checkInLabel"
+        :placeholder="props.checkInPlaceholder"
         :min="props.minCheckIn"
         :model-value="props.checkInDate"
         @update:modelValue="handleCheckInUpdate"
       />
       <base-date-picker
         :label="props.checkOutLabel"
+        :placeholder="props.checkOutPlaceholder"
         :min="props.minCheckOut"
         :model-value="props.checkOutDate"
         @update:modelValue="handleCheckOutUpdate"
       />
     </div>
 
+    <p v-if="props.errorMessage" class="availability-dialog__error">
+      {{ props.errorMessage }}
+    </p>
+
     <div class="availability-dialog__actions">
-      <ion-button :disabled="props.isLoading" @click="handleCheck">
+      <ion-button expand="block" :disabled="props.isLoading" @click="handleCheck">
         <template v-slot:start>
           <ion-icon :icon="calendarOutline" />
         </template>
@@ -68,15 +77,30 @@ const confirmText = computed(() =>
 </template>
 
 <style scoped>
+.availability-dialog__form {
+  display: flex;
+  flex-direction: column;
+}
+
 .availability-dialog__grid {
   display: grid;
   gap: 16px;
 }
 
+.availability-dialog__error {
+  margin: 12px 0 0;
+  font-size: 0.95rem;
+  color: var(--color-terracotta);
+  font-weight: 600;
+}
+
 .availability-dialog__actions {
   margin-top: 18px;
-  display: flex;
-  justify-content: flex-end;
+}
+
+.availability-dialog__actions ion-button {
+  margin: 0;
+  min-height: 46px;
 }
 
 @media (min-width: 720px) {
@@ -85,9 +109,20 @@ const confirmText = computed(() =>
   }
 }
 
+/* On mobile, fill the dialog height and pin the button to the bottom. */
 @media (max-width: 640px) {
+  .availability-dialog__form {
+    flex: 1;
+  }
+
   .availability-dialog__actions {
-    justify-content: stretch;
+    margin-top: auto;
+    padding-top: 24px;
+  }
+
+  .availability-dialog__actions ion-button {
+    min-height: 50px;
+    font-size: 1rem;
   }
 }
 </style>

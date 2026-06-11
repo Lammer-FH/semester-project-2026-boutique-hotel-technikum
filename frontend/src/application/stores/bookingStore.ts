@@ -10,7 +10,6 @@ import { logger } from "../../core/logger";
 import { bookingDialogContent } from "../../data/content/bookingContent";
 
 interface ValidateRequestOptions {
-  /** Maximum guests the selected room allows; enforced when provided. */
   maxGuests?: number;
 }
 
