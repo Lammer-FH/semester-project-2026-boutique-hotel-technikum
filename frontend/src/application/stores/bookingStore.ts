@@ -7,6 +7,12 @@ import { validateDateRange } from "../../core/dateutils";
 import { createBooking, getBooking } from "../../infrastructure/api/bookingApi";
 import { toErrorMessage } from "../../core/storeErrors";
 import { logger } from "../../core/logger";
+import { bookingDialogContent } from "../../data/content/bookingContent";
+
+interface ValidateRequestOptions {
+  /** Maximum guests the selected room allows; enforced when provided. */
+  maxGuests?: number;
+}
 
 interface BookingState {
   currentBooking: BookingConfirmation | null;
@@ -25,7 +31,7 @@ export const useBookingStore = defineStore("booking", {
     error: null,
   }),
   actions: {
-    validateRequest(request: BookingRequest) {
+    validateRequest(request: BookingRequest, options: ValidateRequestOptions = {}) {
       if (!request.roomId || request.roomId < 1) {
         return "Room selection is required.";
       }
@@ -52,6 +58,13 @@ export const useBookingStore = defineStore("booking", {
 
       if (!Number.isFinite(request.guestCount) || request.guestCount < 1) {
         return "Guest count must be at least 1.";
+      }
+
+      if (
+        options.maxGuests !== undefined &&
+        request.guestCount > options.maxGuests
+      ) {
+        return bookingDialogContent.errors.maxGuestsExceeded(options.maxGuests);
       }
 
       return null;
