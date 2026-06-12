@@ -7,6 +7,7 @@ import at.fhtw.hotel.persistence.entity.RoomEntity;
 import at.fhtw.hotel.persistence.mapper.RoomMapper;
 import at.fhtw.hotel.persistence.repository.JpaRoomRepository;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
@@ -53,6 +54,41 @@ class RoomServiceTest {
     void countRooms_returnsTotalCount() {
         when(jpaRoomRepository.count()).thenReturn(10L);
         assertThat(roomService.countRooms()).isEqualTo(10L);
+    }
+
+    @Test
+    void listRooms_withDateRange_returnsOnlyAvailableRooms() {
+        RoomEntity entity = new RoomEntity();
+        entity.setId(2L);
+        Room room = createRoom(2L);
+        LocalDate checkIn = LocalDate.parse("2026-07-01");
+        LocalDate checkOut = LocalDate.parse("2026-07-05");
+
+        when(jpaRoomRepository.findAvailableRoomIds(checkIn, checkOut, PageRequest.of(0, 5)))
+                .thenReturn(List.of(2L));
+        when(jpaRoomRepository.findAllByIdInOrderByIdAsc(List.of(2L))).thenReturn(List.of(entity));
+        when(roomMapper.toDomain(entity)).thenReturn(room);
+
+        assertThat(roomService.listRooms(0, 5, checkIn, checkOut)).containsExactly(room);
+    }
+
+    @Test
+    void countRooms_withDateRange_returnsAvailableCount() {
+        LocalDate checkIn = LocalDate.parse("2026-07-01");
+        LocalDate checkOut = LocalDate.parse("2026-07-05");
+        when(jpaRoomRepository.countAvailableRooms(checkIn, checkOut)).thenReturn(3L);
+
+        assertThat(roomService.countRooms(checkIn, checkOut)).isEqualTo(3L);
+    }
+
+    @Test
+    void listRooms_withInvalidDateRange_throwsDomainException() {
+        LocalDate checkIn = LocalDate.parse("2026-07-05");
+        LocalDate checkOut = LocalDate.parse("2026-07-01");
+
+        assertThatThrownBy(() -> roomService.listRooms(0, 5, checkIn, checkOut))
+                .isInstanceOf(DomainException.class)
+                .hasFieldOrPropertyWithValue("code", ErrorCode.INVALID_DATE_RANGE);
     }
 
     @Test

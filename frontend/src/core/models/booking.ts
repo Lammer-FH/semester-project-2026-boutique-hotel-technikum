@@ -12,6 +12,27 @@ export interface BookingRequest {
   breakfastIncluded: boolean;
 }
 
+export interface BookingRequestContext {
+  roomId: number;
+  checkInDate: string;
+  checkOutDate: string;
+}
+
+export const buildBookingRequest = (
+  draft: Partial<BookingRequest>,
+  context: BookingRequestContext
+): BookingRequest => ({
+  roomId: context.roomId,
+  guestFirstName: draft.guestFirstName ?? "",
+  guestLastName: draft.guestLastName ?? "",
+  guestEmail: draft.guestEmail ?? "",
+  confirmEmail: draft.confirmEmail ?? "",
+  guestCount: Number(draft.guestCount ?? 1),
+  checkInDate: context.checkInDate,
+  checkOutDate: context.checkOutDate,
+  breakfastIncluded: Boolean(draft.breakfastIncluded),
+});
+
 export interface PriceBreakdown {
   nights: number;
   roomRate: number;

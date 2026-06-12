@@ -27,10 +27,20 @@ interface RoomState {
   error: string | null;
   currentPage: number;
   pageSize: number;
+  checkInDate: string | null;
+  checkOutDate: string | null;
   lastQuery: { page: number; size: number } | null;
   cache: Record<string, RoomCacheEntry>;
   fetchController: AbortController | null;
 }
+
+const buildCacheKey = (
+  page: number,
+  size: number,
+  checkInDate: string | null,
+  checkOutDate: string | null
+): string =>
+  `${toPaginationCacheKey(page, size)}|${checkInDate ?? ""}|${checkOutDate ?? ""}`;
 
 export const useRoomStore = defineStore("rooms", {
   state: (): RoomState => ({
@@ -40,6 +50,8 @@ export const useRoomStore = defineStore("rooms", {
     error: null,
     currentPage: DEFAULT_PAGE,
     pageSize: DEFAULT_PAGE_SIZE,
+    checkInDate: null,
+    checkOutDate: null,
     lastQuery: null,
     cache: {},
     fetchController: null,
@@ -49,6 +61,8 @@ export const useRoomStore = defineStore("rooms", {
     totalPages: (state): number => state.pagination?.totalPages ?? 1,
     totalRooms: (state): number => state.pagination?.total ?? state.rooms.length,
     isReady: (state): boolean => !state.isLoading,
+    hasDateFilter: (state): boolean =>
+      Boolean(state.checkInDate && state.checkOutDate),
   },
   actions: {
     isCacheFresh(cacheKey: string) {
@@ -67,7 +81,12 @@ export const useRoomStore = defineStore("rooms", {
           size: this.pageSize,
         }
       );
-      const cacheKey = toPaginationCacheKey(requestedPage, requestedSize);
+      const cacheKey = buildCacheKey(
+        requestedPage,
+        requestedSize,
+        this.checkInDate,
+        this.checkOutDate
+      );
       const cached = this.cache[cacheKey];
 
       if (!options?.force && cached && this.isCacheFresh(cacheKey)) {
@@ -87,7 +106,10 @@ export const useRoomStore = defineStore("rooms", {
       this.error = null;
 
       try {
-        const response = await listRooms(requestedPage, requestedSize, controller.signal);
+        const response = await listRooms(requestedPage, requestedSize, controller.signal, {
+          checkInDate: this.checkInDate ?? undefined,
+          checkOutDate: this.checkOutDate ?? undefined,
+        });
         if (controller.signal.aborted) {
           return;
         }
@@ -116,13 +138,21 @@ export const useRoomStore = defineStore("rooms", {
     async prefetchRooms(page: number, size: number) {
       const safePage = normalizePageNumber(page, this.currentPage);
       const safeSize = normalizePageSize(size, this.pageSize);
-      const cacheKey = toPaginationCacheKey(safePage, safeSize);
+      const cacheKey = buildCacheKey(
+        safePage,
+        safeSize,
+        this.checkInDate,
+        this.checkOutDate
+      );
       if (this.isCacheFresh(cacheKey)) {
         return;
       }
 
       try {
-        const response = await listRooms(safePage, safeSize);
+        const response = await listRooms(safePage, safeSize, undefined, {
+          checkInDate: this.checkInDate ?? undefined,
+          checkOutDate: this.checkOutDate ?? undefined,
+        });
         this.cache[cacheKey] = {
           rooms: response.data,
           pagination: response.pagination,
@@ -131,6 +161,29 @@ export const useRoomStore = defineStore("rooms", {
       } catch {
         // Prefetch failures are non-blocking.
       }
+    },
+    applyDateFilter(checkInDate: string, checkOutDate: string) {
+      if (
+        this.checkInDate === checkInDate &&
+        this.checkOutDate === checkOutDate
+      ) {
+        return;
+      }
+
+      this.checkInDate = checkInDate;
+      this.checkOutDate = checkOutDate;
+      this.currentPage = DEFAULT_PAGE;
+      void this.fetchRooms({ page: DEFAULT_PAGE, size: this.pageSize, force: true });
+    },
+    clearDateFilter() {
+      if (!this.checkInDate && !this.checkOutDate) {
+        return;
+      }
+
+      this.checkInDate = null;
+      this.checkOutDate = null;
+      this.currentPage = DEFAULT_PAGE;
+      void this.fetchRooms({ page: DEFAULT_PAGE, size: this.pageSize, force: true });
     },
     setPage(page: number) {
       const nextPage = normalizePageNumber(page, this.currentPage);

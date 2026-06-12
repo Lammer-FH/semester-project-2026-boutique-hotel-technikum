@@ -1,15 +1,10 @@
 <script setup lang="ts">
-import { computed, ref, watch } from "vue"
-import { useRouter } from "vue-router"
 import BasePopup from "@/components/atoms/BasePopup.vue"
-import { storeToRefs } from "pinia"
-import { useBookingStore } from "@/application/stores/bookingStore"
-import { formatDate } from "@/core/dateutils"
 import { bookingDialogContent } from "@/data/content/bookingContent"
-import type { BookingRequest } from "@/core/models/booking"
 import DialogHeader from "@/components/molecules/shared/DialogHeader.vue"
 import BookingDialogDetailsForm from "@/components/molecules/booking/BookingDialogDetailsForm.vue"
 import BookingDialogReview from "@/components/molecules/booking/BookingDialogReview.vue"
+import { useBookingFlow } from "@/application/composables/useBookingFlow"
 
 const props = defineProps<{
   isOpen: boolean
@@ -26,135 +21,30 @@ const emit = defineEmits<{
   (event: "change-dates"): void
 }>()
 
-const bookingStore = useBookingStore()
-const { draft, isSubmitting, error } = storeToRefs(bookingStore)
-const router = useRouter()
-
-const bookingErrorMessage = ref("")
-const bookingStep = ref<"details" | "review">("details")
-
-const dateRangeLabel = computed(() => {
-  return props.checkInDate && props.checkOutDate
-    ? `${formatDate(props.checkInDate)} - ${formatDate(props.checkOutDate)}`
-    : ""
+const {
+  draft,
+  isSubmitting,
+  bookingStep,
+  dateRangeLabel,
+  guestCountOptions,
+  bookingMessage,
+  stepContent,
+  setDraftValue,
+  proceedToReview,
+  backToDetails,
+  requestChangeDates,
+  submitBooking,
+  closeDialog,
+} = useBookingFlow({
+  isOpen: () => props.isOpen,
+  roomId: () => props.roomId,
+  roomMaxGuests: () => props.roomMaxGuests,
+  checkInDate: () => props.checkInDate,
+  checkOutDate: () => props.checkOutDate,
+  onClose: () => emit("close"),
+  onCompleted: () => emit("completed"),
+  onChangeDates: () => emit("change-dates"),
 })
-
-const guestCountOptions = computed(() =>
-  Array.from({ length: props.roomMaxGuests }, (_, index) => index + 1)
-)
-
-const bookingMessage = computed(() => bookingErrorMessage.value || error.value || "")
-const stepContent = computed(() => {
-  const key = bookingStep.value === "details" ? "details" : "review"
-  return {
-    label: bookingDialogContent.stepLabel[key],
-    title: bookingDialogContent.stepTitle[key],
-    hint: bookingDialogContent.hints[key],
-  }
-})
-
-const clearBookingFeedback = () => {
-  bookingErrorMessage.value = ""
-  bookingStore.clearBooking()
-}
-
-const closeDialog = () => {
-  bookingStep.value = "details"
-  bookingStore.resetBookingFlow()
-  emit("close")
-}
-
-const setDraftValue = <K extends keyof BookingRequest>(
-  key: K,
-  value: BookingRequest[K]
-) => {
-  bookingStore.updateDraft({ [key]: value } as Partial<BookingRequest>)
-}
-
-const buildRequest = (): BookingRequest => ({
-  roomId: props.roomId,
-  guestFirstName: draft.value.guestFirstName ?? "",
-  guestLastName: draft.value.guestLastName ?? "",
-  guestEmail: draft.value.guestEmail ?? "",
-  confirmEmail: draft.value.confirmEmail ?? "",
-  guestCount: Number(draft.value.guestCount ?? 1),
-  checkInDate: props.checkInDate,
-  checkOutDate: props.checkOutDate,
-  breakfastIncluded: Boolean(draft.value.breakfastIncluded),
-})
-
-const validateBookingDetails = () => {
-  const request = buildRequest()
-  const storeError = bookingStore.validateRequest(request)
-  if (storeError) {
-    return storeError
-  }
-
-  if (request.guestCount > props.roomMaxGuests) {
-    return bookingDialogContent.errors.maxGuestsExceeded(props.roomMaxGuests)
-  }
-
-  return null
-}
-
-const proceedToReview = () => {
-  clearBookingFeedback()
-  const validation = validateBookingDetails()
-  if (validation) {
-    bookingErrorMessage.value = validation
-    return
-  }
-
-  bookingStep.value = "review"
-}
-
-const requestChangeDates = () => {
-  emit("change-dates")
-  closeDialog()
-}
-
-const submitBooking = async () => {
-  if (isSubmitting.value) {
-    return
-  }
-
-  clearBookingFeedback()
-  const validation = validateBookingDetails()
-  if (validation) {
-    bookingErrorMessage.value = validation
-    return
-  }
-
-  const result = await bookingStore.submitBooking(buildRequest())
-  if (result) {
-    bookingStore.clearDraft()
-    await router.push({
-      name: "BookingConfirmation",
-      params: { bookingId: result.bookingId },
-    })
-    emit("completed")
-  }
-}
-
-watch(
-  () => props.isOpen,
-  (open) => {
-    if (!open) {
-      bookingStore.resetBookingFlow()
-      return
-    }
-
-    clearBookingFeedback()
-    bookingStep.value = "details"
-    bookingStore.updateDraft({
-      roomId: props.roomId,
-      checkInDate: props.checkInDate,
-      checkOutDate: props.checkOutDate,
-      guestCount: draft.value.guestCount ?? 1,
-      breakfastIncluded: draft.value.breakfastIncluded ?? false,
-    })
-  }
-)
 </script>
 
 <template>
@@ -166,7 +56,7 @@ watch(
   >
       <dialog-header
         :eyebrow="bookingDialogContent.eyebrow"
-        :title="roomTitle"
+        :title="props.roomTitle"
         :subtitle="dateRangeLabel"
         :close-label="bookingDialogContent.buttons.close"
         @close="closeDialog"
@@ -191,7 +81,7 @@ watch(
         :date-range-label="dateRangeLabel"
         :booking-message="bookingMessage"
         :is-submitting="isSubmitting"
-        @back="bookingStep = 'details'"
+        @back="backToDetails"
         @submit="submitBooking"
       />
   </base-popup>
